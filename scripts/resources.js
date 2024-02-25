@@ -57,3 +57,11 @@ const stonePickaxe_recipe = {
     ],
     description: 'A Stone Pickaxe'
 };
+
+const allResources = [
+     fiber, sticks, stones, berries, herbs, water,
+     berryJuice, herbalTea, stoneAxe, stonePickaxe,
+     berryJuice_recipe, herbalTea_recipe, stoneAxe_recipe, stonePickaxe_recipe
+]
+
+export { allResources }

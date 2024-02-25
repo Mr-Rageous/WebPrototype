@@ -21,3 +21,7 @@ const location_base = new Location({
         flags:                          location_base_flags,
     },
   });
+
+  const allLocations = [ location_base ];
+
+  export { allLocations }
