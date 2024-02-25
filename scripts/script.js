@@ -81,8 +81,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const resourceContainerWrapper = WebManager.createWebElement('div', ['resource-container-wrapper'], '');
 
         const headerContainer = WebManager.createWebElement('div', ['header-container'], '');
-        const pageHeader = WebManager.createWebElement('h2', ['page-header'], '', [ { name:'textContent', value: 'Gather'} ]);
-
+        const pageHeader = WebManager.createWebElement('h2', ['page-header'], '', 'Gather');
+        
         headerContainer.appendChild(pageHeader);
         gatherContent.appendChild(headerContainer);
         
@@ -91,7 +91,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const card = WebManager.createWebElement('div', ['card'], '');
             const box = WebManager.createWebElement('div', ['box'], '');
             const percent = WebManager.createWebElement('div', ['percent'], '');
-            const h2 = WebManager.createWebElement('h2', ['page-header'], '', [ { name:'textContent', value: resource.quantity} ]);
+            const h2 = WebManager.createWebElement('h2', ['page-header'], '', resource.quantity);
             
             const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
             svg.setAttribute('width', '150');
@@ -115,7 +115,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             num.appendChild(h2);
             
-            const text = WebManager.createWebElement('h2', ['text'], '', [ { name:'textContent', value: resource.name} ]);
+            const text = WebManager.createWebElement('h2', ['text'], '', resource.name);
             
             updateProgress(circle2, resource.progress);
             percent.appendChild(svg);
