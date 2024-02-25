@@ -3,7 +3,7 @@ import * as allResources from './resources.js';
 // import * as allLocations from './locations.js';
 import { PlayerData } from './playerData.js';
 import { settings, initialSettings } from './settings.js';
-// import { WebManager, checkObjectForProperty } from './utility.js';
+import { WebManager, checkObjectForProperty } from './utility.js';
 
 document.addEventListener('DOMContentLoaded', function() {
     // --------------------------------------------------------------------------------------------------------------------------------------------------------------------- USERDATA ------
@@ -77,8 +77,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function loadGatherPage() {
-        const gatherContent = document.createElement('div');
-        gatherContent.classList.add('gather-content');
+        const gatherContent = WebManager.createWebElement('div', ['gather-content'], 'gather-content');
     
         const resourceContainerWrapper = document.createElement('div');
         resourceContainerWrapper.classList.add('resource-container-wrapper');
@@ -86,9 +85,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const headerContainer = document.createElement('div');
         headerContainer.classList.add('header-container');
 
-        const pageHeader = document.createElement('h2');
-        pageHeader.textContent = `Gather`;
-        pageHeader.classList.add('page-header');
+        const pageHeader = WebManager.createWebElement('h2', ['page-header'], 'gather-page-header', [ { name:'textContent', value: 'Gather'} ]);
 
         headerContainer.appendChild(pageHeader);
         gatherContent.appendChild(headerContainer);

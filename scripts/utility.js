@@ -1,7 +1,5 @@
 export class WebManager {
-    elements = [];
-
-    static createWebElement(type, classNames = [], id = '') {
+    static createWebElement(type, classNames = [], id = '', attributes = []) {
         const procGenElement = document.createElement(type);
         if (id != '') { procGenElement.id = id; }
         if (classNames.length > 0) {
@@ -9,6 +7,12 @@ export class WebManager {
                 procGenElement.classList.add(className);
             });
         }
+        if (attributes.length > 0) {
+            attributes.forEach(attribute => {
+                procGenElement.setAttribute(attribute.name, attribute.value);
+            });
+        }
+        return procGenElement;
     }
 }
 
