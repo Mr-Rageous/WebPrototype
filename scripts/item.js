@@ -10,6 +10,11 @@ export class Item {
         const index = this.sockets.findIndex(item => item.name.toLowerCase() === itemName.toLowerCase());
         if (index !== -1) {
             const detachedItem = this.sockets.splice(index, 1)[0];
+            detachedItem.sockets.forEach(socket => {
+                if (socket.item === this) {
+                    socket.item = null;
+                }
+            });
         }
     }
 
@@ -23,12 +28,23 @@ export class Item {
     }
 
     canAttachToSelf(item) {
+        let thisSocket = false;
+        let otherSocket = false;
+        let bothSockets = false;
         this.sockets.forEach(socket => {
             if (this.canAttachToSocket(item, socket)) {
-                return true;
+                thisSocket = true;
             }
         });
-        return false;
+        item.sockets.forEach(socket => {
+            if (item.canAttachToSocket(this, socket)) {
+                otherSocket = true;
+            }
+        });
+        if (thisSocket && otherSocket) {
+            bothSockets = true;
+        }
+        return bothSockets;
     }
 
     getFirstValidEmptySocket(item) {
@@ -48,6 +64,7 @@ export class Item {
     attachToSelf(item) {
         if (this.canAttachToSelf(item)) {
             this.attachToSocket(item, this.getFirstValidEmptySocket(item));
+            item.attachToSocket(this, item.getFirstValidEmptySocket(this));
         }
     }
 }
