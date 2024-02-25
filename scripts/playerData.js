@@ -1,4 +1,4 @@
-class PlayerData {
+export class PlayerData {
     constructor(id) {
       this.id = id;
       this.stats = [];
@@ -34,5 +34,3 @@ class PlayerData {
       this.stats = { ...this.stats, ...newStats };
     }
   }
-
-  export { PlayerData }

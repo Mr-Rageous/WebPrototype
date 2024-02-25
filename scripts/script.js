@@ -1,4 +1,9 @@
-import { settings, initialSettings } from './settings.js'
+import * as allResources from './resources.js';
+// import { Location } from './location.js';
+// import * as allLocations from './locations.js';
+import { PlayerData } from './playerData.js';
+import { settings, initialSettings } from './settings.js';
+// import { WebManager, checkObjectForProperty } from './utility.js';
 
 document.addEventListener('DOMContentLoaded', function() {
     // --------------------------------------------------------------------------------------------------------------------------------------------------------------------- USERDATA ------
@@ -7,10 +12,10 @@ document.addEventListener('DOMContentLoaded', function() {
     function addSettingToSettingPage(setting) { settings.push(setting); }
     initialSettings.forEach(setting => { addSettingToSettingPage(setting); });
     // --------------------------------------------------------------------------------------------------------------------------------------------------------------------- RESOURCES -----
-    const initialResources = [ berries, fiber, herbs, sticks, stones, water, ];
+    const initialResources = [ allResources.berries, allResources.fiber, allResources.herbs, allResources.sticks, allResources.stones, allResources.water, ];
     initialResources.forEach(resource => { userData.resources.push(resource); });
     // --------------------------------------------------------------------------------------------------------------------------------------------------------------------- CRAFTING ------
-    const initialRecipes = [ berryJuice_recipe, herbalTea_recipe, stoneAxe_recipe, stonePickaxe_recipe ];
+    const initialRecipes = [ allResources.berryJuice_recipe, allResources.herbalTea_recipe, allResources.stoneAxe_recipe, allResources.stonePickaxe_recipe ];
     initialRecipes.forEach(recipe => { userData.addToRecipes(recipe); });
     // --------------------------------------------------------------------------------------------------------------------------------------------------------------------- TABS ----------
     const tabs = document.querySelectorAll('.tabs li');
@@ -127,7 +132,7 @@ document.addEventListener('DOMContentLoaded', function() {
             card.classList.add('card');
 
             // Add a click event listener to the container
-            resourceContainer.addEventListener('click', function(event) {
+            resourceContainer.addEventListener('click', function() {
               // Your click event handling code here
               gatherResource(resource, circle2, h2);
             });
@@ -191,19 +196,19 @@ document.addEventListener('DOMContentLoaded', function() {
             text.textContent = recipe.name;
 
             cardLong.appendChild(text);
-            cardLong.addEventListener('mouseover', function(event) {
+            cardLong.addEventListener('mouseover', function() {
                 updateRecipeRequirementsPanel(recipe, cardInfo);
             });
 
             craftingContainer.appendChild(cardLong);
             
-            craftingContainer.addEventListener('click', function(event) {
+            craftingContainer.addEventListener('click', function() {
               if (hasRecipeRequirements(recipe)) {
-                craftRecipe(recipe, circle2, h2);
+                // craftRecipe(recipe, circle2, h2);
               }
             });
             craftingContainerWrapper.appendChild(craftingContainer);
-        })}
+        });}
 
         const headerInfoContainer = document.createElement('div');
         headerInfoContainer.classList.add('header-container');
@@ -230,7 +235,7 @@ document.addEventListener('DOMContentLoaded', function() {
         craftingContent.appendChild(craftingContainerWrapper);
         headerInfoContainer.appendChild(pageInfoHeader);
         craftingContent.appendChild(headerInfoContainer);
-        infoContainer.appendChild(cardInfo)
+        infoContainer.appendChild(cardInfo);
         craftingContent.appendChild(craftingContainerWrapper2);
         mainContent.appendChild(craftingContent);
     }
@@ -267,7 +272,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const cardLong = document.createElement('div');
             cardLong.classList.add('card-long');
     
-            settingsContainer.addEventListener('click', function(event) {
+            settingsContainer.addEventListener('click', function() {
                 
             });
             
@@ -277,8 +282,8 @@ document.addEventListener('DOMContentLoaded', function() {
             
             cardLong.appendChild(text);
             settingsContainer.appendChild(cardLong);
-            settingsContent.appendChild(settingsContainer)
-        })
+            settingsContent.appendChild(settingsContainer);
+        });
 
         mainContent.appendChild(settingsContent);
     }
@@ -295,7 +300,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 text_gen1.style.color = 'red';
             }
             cardInfo.appendChild(text_gen1);
-        })
+        });
     }
 
     function hasRecipeRequirements(recipe) {
@@ -305,13 +310,13 @@ document.addEventListener('DOMContentLoaded', function() {
             userData.resources.forEach(resource => {
                 if (requirement.name == resource.name) {
                     if (resource.quantity >= requirement.quantity) {
-                        
+                        // do stuff
                     }else{
                         doThing = false;
                     }
                 }
-            })
-        })
+            });
+        });
 
         return doThing;
     }
@@ -363,7 +368,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // -- todo -- modify user resources.quantity
                 recipe.requirements.forEach(requirement => {
                     userData.resources[requirement.name].quantity -= requirement.quantity;
-                })
+                });
                 recipe.quantity++;
                 h2.textContent = recipe.quantity;
                 circle.dataset.animationInProgress = 'false';

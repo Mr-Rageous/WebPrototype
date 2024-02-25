@@ -1,6 +1,6 @@
-const settings = [ ];
+export const settings = [ ];
 
-const initialSettings = [
+export const initialSettings = [
     { name: 'Option 0' },
     { name: 'Option 1' },
     { name: 'Option 2' },
@@ -12,5 +12,3 @@ const initialSettings = [
     { name: 'Option 8' },
     { name: 'Option 9' },
 ];
-
-export { settings, initialSettings }

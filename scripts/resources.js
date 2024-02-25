@@ -1,20 +1,20 @@
 
 // --------------------------------------------------------------------------------------------------------------------------------------------------------------------- RESOURCES -----
 // Initial Resources
-const fiber = { name: 'Fiber', progress: 0, progressSpeed: 30, quantity: 0, maxQuantity: 10, value: 0, type: 'basic' };
-const sticks = { name: 'Sticks', progress: 0, progressSpeed: 120, quantity: 0, maxQuantity: 10, value: 0, type: 'basic' };
-const stones = { name: 'Stones', progress: 0, progressSpeed: 120, quantity: 0, maxQuantity: 10, value: 0, type: 'basic' };
-const berries = { name: 'Berries', progress: 0, progressSpeed: 60, quantity: 0, maxQuantity: 10, value: 0, type: 'food' };
-const herbs = { name: 'Herbs', progress: 0, progressSpeed: 60, quantity: 0, maxQuantity: 10, value: 0, type: 'food' };
-const water = { name: 'Water', progress: 0, progressSpeed: 180, quantity: 0, maxQuantity: 10, value: 0, type: 'food' };
+export const fiber = { name: 'Fiber', progress: 0, progressSpeed: 30, quantity: 0, maxQuantity: 10, value: 0, type: 'basic' };
+export const sticks = { name: 'Sticks', progress: 0, progressSpeed: 120, quantity: 0, maxQuantity: 10, value: 0, type: 'basic' };
+export const stones = { name: 'Stones', progress: 0, progressSpeed: 120, quantity: 0, maxQuantity: 10, value: 0, type: 'basic' };
+export const berries = { name: 'Berries', progress: 0, progressSpeed: 60, quantity: 0, maxQuantity: 10, value: 0, type: 'food' };
+export const herbs = { name: 'Herbs', progress: 0, progressSpeed: 60, quantity: 0, maxQuantity: 10, value: 0, type: 'food' };
+export const water = { name: 'Water', progress: 0, progressSpeed: 180, quantity: 0, maxQuantity: 10, value: 0, type: 'food' };
 // Recipe Products
-const berryJuice = { name: 'Berry Juice', progress: 0, progressSpeed: 120, quantity: 0, maxQuantity: 20, value: 0, type: 'food'};
-const herbalTea = { name: 'Herbal Tea', progress: 0, progressSpeed: 180, quantity: 0, maxQuantity: 20, value: 0, type: 'food' };
-const stoneAxe = { name: 'Stone Axe', progress: 0, progressSpeed: 120, quantity: 0, maxQuantity: 20, value: 0, type: 'basic' };
-const stonePickaxe = { name: 'Stone Pickaxe', progress: 0, progressSpeed: 120, quantity: 0, maxQuantity: 20, value: 0, type: 'basic' };
+export const berryJuice = { name: 'Berry Juice', progress: 0, progressSpeed: 120, quantity: 0, maxQuantity: 20, value: 0, type: 'food'};
+export const herbalTea = { name: 'Herbal Tea', progress: 0, progressSpeed: 180, quantity: 0, maxQuantity: 20, value: 0, type: 'food' };
+export const stoneAxe = { name: 'Stone Axe', progress: 0, progressSpeed: 120, quantity: 0, maxQuantity: 20, value: 0, type: 'basic' };
+export const stonePickaxe = { name: 'Stone Pickaxe', progress: 0, progressSpeed: 120, quantity: 0, maxQuantity: 20, value: 0, type: 'basic' };
 // --------------------------------------------------------------------------------------------------------------------------------------------------------------------- RECIPES ------
 // Recipes
-const berryJuice_recipe = { 
+export const berryJuice_recipe = { 
     name: 'Berry Juice',
     quantity: 0,
     progress: 0,
@@ -24,7 +24,7 @@ const berryJuice_recipe = {
     ],
     description: 'Some Berry Juice'
 };
-const herbalTea_recipe = {
+export const herbalTea_recipe = {
     name: 'Herbal Tea',
     quantity: 0,
     progress: 0,
@@ -34,7 +34,7 @@ const herbalTea_recipe = {
     ],
     description: 'Some Herbal Tea'
 };
-const stoneAxe_recipe = {
+export const stoneAxe_recipe = {
     name: 'Stone Axe',
     quantity: 0,
     progress: 0,
@@ -46,7 +46,7 @@ const stoneAxe_recipe = {
     description: 'A Stone Axe'
 };
 
-const stonePickaxe_recipe = {
+export const stonePickaxe_recipe = {
     name: 'Stone Pickaxe',
     quantity: 0,
     progress: 0,
@@ -58,10 +58,8 @@ const stonePickaxe_recipe = {
     description: 'A Stone Pickaxe'
 };
 
-const allResources = [
+export const allResources = [
      fiber, sticks, stones, berries, herbs, water,
      berryJuice, herbalTea, stoneAxe, stonePickaxe,
      berryJuice_recipe, herbalTea_recipe, stoneAxe_recipe, stonePickaxe_recipe
-]
-
-export { allResources }
+];

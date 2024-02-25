@@ -1,14 +1,12 @@
-class WebManager {
+export class WebManager {
     elements = [];
 
-    static createDiv(type, className) {
+    static createDiv() {
         // do stuff
-
-        this.elements.push(element)
     }
 }
 
-function checkObjectForProperty(object, property) {
+export function checkObjectForProperty(object, property) {
     if (object[property]) { return property; }
     
     object.values().forEach(property => {
@@ -17,7 +15,5 @@ function checkObjectForProperty(object, property) {
                 checkObjectForProperty(property, element);
             });
         }
-    })
+    });
 }
-
-export { WebManager, checkObjectForProperty }

@@ -9,7 +9,7 @@ class Gun {
         const partName = part.name.toLowerCase();
         
         // Check if the part can be attached to the gun
-        if (!this.parts.hasOwnProperty(partName)) {
+        if (!Object.prototype.hasOwnProperty.call(this.parts, partName)) {
             console.log(`Cannot attach ${partName} to the gun.`);
             return;
         }
@@ -34,7 +34,7 @@ class Gun {
     assemble() {
         let assembledGun = "Assembling gun with the following parts:\n";
         for (const partName in this.parts) {
-            if (this.parts.hasOwnProperty(partName) && this.parts[partName] !== null) {
+            if (Object.prototype.hasOwnProperty.call(this.parts, partName) && this.parts[partName] !== null) {
                 assembledGun += `${this.parts[partName].name}: ${this.parts[partName].functionDescription}\n`;
             }
         }

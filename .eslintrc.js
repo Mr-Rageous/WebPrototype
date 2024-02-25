@@ -23,6 +23,7 @@ module.exports = {
     },
     "rules": {
         'require-jsdoc' : 0,
-        'semi': [2, 'always']
+        'semi': [2, 'always'],
+        'no-unused-vars': 0
     }
 };
