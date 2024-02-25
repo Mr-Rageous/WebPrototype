@@ -36,7 +36,3 @@ TODO:
         - COMMENT: create research like recipes
     - Settings:
         - Theme selector: allow save/load of theme settings
-
-        -asnfn23utr1uzlad
-
-        -al;dkjfa;dklf
