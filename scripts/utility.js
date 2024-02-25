@@ -1,4 +1,14 @@
-function checkObjectForProperty(property, object) {
+class WebManager {
+    elements = [];
+
+    static createDiv(type, className) {
+        // do stuff
+
+        this.elements.push(element)
+    }
+}
+
+function checkObjectForProperty(object, property) {
     if (object[property]) { return property; }
     
     object.values().forEach(property => {
