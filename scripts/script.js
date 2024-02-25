@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const userData = new PlayerData('userData');
     // --------------------------------------------------------------------------------------------------------------------------------------------------------------------- SETTINGS ------
     function addSettingToSettingPage(setting) { settings.push(setting); }
-    initialSettings.forEach(setting => { addSettingToSettingPage(setting); });
+    initialSettings.forEach(setting => { console.log(setting.name); });
     // --------------------------------------------------------------------------------------------------------------------------------------------------------------------- RESOURCES -----
     const initialResources = [ berries, fiber, herbs, sticks, stones, water, ];
     initialResources.forEach(resource => { userData.getResources().push(resource); });
