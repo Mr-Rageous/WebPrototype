@@ -5,10 +5,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const userData = new PlayerData('userData');
     // --------------------------------------------------------------------------------------------------------------------------------------------------------------------- SETTINGS ------
     function addSettingToSettingPage(setting) { settings.push(setting); }
-    initialSettings.forEach(setting => { console.log(setting.name); });
+    initialSettings.forEach(setting => { addSettingToSettingPage(setting); });
     // --------------------------------------------------------------------------------------------------------------------------------------------------------------------- RESOURCES -----
     const initialResources = [ berries, fiber, herbs, sticks, stones, water, ];
-    initialResources.forEach(resource => { userData.getResources().push(resource); });
+    initialResources.forEach(resource => { userData.resources.push(resource); });
     // --------------------------------------------------------------------------------------------------------------------------------------------------------------------- CRAFTING ------
     const initialRecipes = [ berryJuice_recipe, herbalTea_recipe, stoneAxe_recipe, stonePickaxe_recipe ];
     initialRecipes.forEach(recipe => { userData.addToRecipes(recipe); });
@@ -177,8 +177,8 @@ document.addEventListener('DOMContentLoaded', function() {
         headerContainer.appendChild(pageHeader);
         craftingContent.appendChild(headerContainer);
 
-        if (userData.getRecipes().length != 0) {
-            userData.getRecipes().forEach(recipe => {
+        if (userData.recipes.length != 0) {
+            userData.recipes.forEach(recipe => {
             const craftingContainer = document.createElement('div');
             craftingContainer.classList.add('info-container');
             // --
@@ -291,7 +291,7 @@ document.addEventListener('DOMContentLoaded', function() {
             text_gen1.classList.add('card-info-text');
             text_gen1.textContent = '[' + requirement.quantity + '] ' + requirement.name;
             text_gen1.style.color = 'green';
-            if (userData.getResource(requirement.name).quantity < requirement.quantity) {
+            if (userData.resources[requirement.name].quantity < requirement.quantity) {
                 text_gen1.style.color = 'red';
             }
             cardInfo.appendChild(text_gen1);
@@ -302,7 +302,7 @@ document.addEventListener('DOMContentLoaded', function() {
         let doThing = true;
 
         recipe.requirements.forEach(requirement => {
-            userData.getResources().forEach(resource => {
+            userData.resources.forEach(resource => {
                 if (requirement.name == resource.name) {
                     if (resource.quantity >= requirement.quantity) {
                         
@@ -362,7 +362,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 recipe.progress = 0;
                 // -- todo -- modify user resources.quantity
                 recipe.requirements.forEach(requirement => {
-                    userData.getResource(requirement.name).quantity -= requirement.quantity;
+                    userData.resources[requirement.name].quantity -= requirement.quantity;
                 })
                 recipe.quantity++;
                 h2.textContent = recipe.quantity;
