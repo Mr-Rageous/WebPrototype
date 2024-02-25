@@ -1,5 +1,7 @@
+import { Resource } from './resource.js';
 import * as allResources from './resources.js';
-// import { Location } from './location.js';
+import { Recipe } from './recipe.js';
+import * as allRecipes from './recipes.js';
 // import * as allLocations from './locations.js';
 import { PlayerData } from './playerData.js';
 import { settings, initialSettings } from './settings.js';
@@ -15,8 +17,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const initialResources = [ allResources.berries, allResources.fiber, allResources.herbs, allResources.sticks, allResources.stones, allResources.water, ];
     initialResources.forEach(resource => { userData.resources.push(resource); });
     // --------------------------------------------------------------------------------------------------------------------------------------------------------------------- CRAFTING ------
-    const initialRecipes = [ allResources.berryJuice_recipe, allResources.herbalTea_recipe, allResources.stoneAxe_recipe, allResources.stonePickaxe_recipe ];
-    initialRecipes.forEach(recipe => { userData.addToRecipes(recipe); });
+    const initialRecipes = [ allRecipes.berryJuice_recipe, allRecipes.herbalTea_recipe, allRecipes.stoneAxe_recipe, allRecipes.stonePickaxe_recipe ];
+    initialRecipes.forEach(recipe => { userData.recipes.push(recipe); });
     // --------------------------------------------------------------------------------------------------------------------------------------------------------------------- TABS ----------
     const tabs = document.querySelectorAll('.tabs li');
     const mainContent = document.querySelector('.main-content');
@@ -147,7 +149,7 @@ document.addEventListener('DOMContentLoaded', function() {
         headerContainer.appendChild(pageHeader);
         craftingContent.appendChild(headerContainer);
 
-        if (userData.recipes.length != 0) {
+        if (userData.recipes.length !== 0) {
             userData.recipes.forEach(recipe => {
             const craftingContainer = WebManager.createWebElement('div', ['info-container'], '');
             const cardLong = WebManager.createWebElement('div', ['card-info'], '');
@@ -203,11 +205,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function loadSettingsPage() {
         const settingsContent = WebManager.createWebElement('div', ['settings-content'], '');
-    
         const settingsContainerWrapper = WebManager.createWebElement('div', ['settings-container-wrapper'], '');
-
         const headerContainer = WebManager.createWebElement('div', ['header-container'], '');
-
         const pageHeader = WebManager.createWebElement('h2', ['page-header'], '', `Settings`);
 
         headerContainer.appendChild(pageHeader);
@@ -215,14 +214,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
         settings.forEach(setting => {
             const settingsContainer = WebManager.createWebElement('div', ['settings-container'], '');
-            
             const cardLong = WebManager.createWebElement('div', ['card-long'], '');
+            const text = WebManager.createWebElement('h2', ['card-long-text'], '', setting.name);
     
             settingsContainer.addEventListener('click', function() {
                 
             });
-            
-            const text = WebManager.createWebElement('h2', ['card-long-text'], '', setting.name);
             
             cardLong.appendChild(text);
             settingsContainer.appendChild(cardLong);
