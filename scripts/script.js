@@ -77,42 +77,26 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function loadGatherPage() {
-        const gatherContent = WebManager.createWebElement('div', ['gather-content'], 'gather-content');
-    
-        const resourceContainerWrapper = document.createElement('div');
-        resourceContainerWrapper.classList.add('resource-container-wrapper');
+        const gatherContent = WebManager.createWebElement('div', ['gather-content'], '');
+        const resourceContainerWrapper = WebManager.createWebElement('div', ['resource-container-wrapper'], '');
 
-        const headerContainer = document.createElement('div');
-        headerContainer.classList.add('header-container');
-
-        const pageHeader = WebManager.createWebElement('h2', ['page-header'], 'gather-page-header', [ { name:'textContent', value: 'Gather'} ]);
+        const headerContainer = WebManager.createWebElement('div', ['header-container'], '');
+        const pageHeader = WebManager.createWebElement('h2', ['page-header'], '', [ { name:'textContent', value: 'Gather'} ]);
 
         headerContainer.appendChild(pageHeader);
         gatherContent.appendChild(headerContainer);
         
         userData.resources.forEach(resource => {
-            // Create container element
-            const resourceContainer = document.createElement('div');
-            resourceContainer.classList.add('resource-container');
+            const resourceContainer = WebManager.createWebElement('div', ['resource-container'], '');
+            const card = WebManager.createWebElement('div', ['card'], '');
+            const box = WebManager.createWebElement('div', ['box'], '');
+            const percent = WebManager.createWebElement('div', ['percent'], '');
+            const h2 = WebManager.createWebElement('h2', ['page-header'], '', [ { name:'textContent', value: resource.quantity} ]);
             
-            // Create box element
-            const box = document.createElement('div');
-            box.classList.add('box');
-            
-            // Create percent element
-            const percent = document.createElement('div');
-            percent.classList.add('percent');
-            
-            // Create h2 element
-            const h2 = document.createElement('h2');
-            h2.textContent = resource.quantity;
-
-            // Create SVG element
             const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
             svg.setAttribute('width', '150');
             svg.setAttribute('height', '150');
             
-            // Create circle elements
             const circle1 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
             circle1.setAttribute('cx', '55');
             circle1.setAttribute('cy', '55');
@@ -123,39 +107,28 @@ document.addEventListener('DOMContentLoaded', function() {
             circle2.setAttribute('cx', '55');
             circle2.setAttribute('cy', '55');
             circle2.setAttribute('r', '55');
-            
-            // Create card element
-            const card = document.createElement('div');
-            card.classList.add('card');
-
-            // Add a click event listener to the container
-            resourceContainer.addEventListener('click', function() {
-              // Your click event handling code here
-              gatherResource(resource, circle2, h2);
-            });
 
             svg.appendChild(circle1);
             svg.appendChild(circle2);
             
-            // Create num element
-            const num = document.createElement('div');
-            num.classList.add('num');
+            const num = WebManager.createWebElement('div', ['num'], '');
             
             num.appendChild(h2);
             
-            // Create text element
-            const text = document.createElement('h2');
-            text.classList.add('text');
-            text.textContent = resource.name;
+            const text = WebManager.createWebElement('h2', ['text'], '', [ { name:'textContent', value: resource.name} ]);
             
             updateProgress(circle2, resource.progress);
-            // Append elements to their respective parent elements
             percent.appendChild(svg);
             percent.appendChild(num);
             box.appendChild(percent);
             box.appendChild(text);
             card.appendChild(box);
             resourceContainer.appendChild(card);
+            
+            resourceContainer.addEventListener('click', function() {
+              // Your click event handling code here
+              gatherResource(resource, circle2, h2);
+            });
 
             resourceContainerWrapper.appendChild(resourceContainer);
         });
