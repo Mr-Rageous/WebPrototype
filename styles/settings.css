@@ -1,0 +1,90 @@
+.settings-container-wrapper {
+    position: relative;
+    top: 0px;
+    left: 20px;
+    right: 10px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .settings-container {
+    display: flex;
+    left: 20px;
+    padding-top: 5px;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.2rem;
+    position: relative;
+  }
+  
+  .settings-tab {
+    position: absolute;
+    bottom: 60px;
+    left: 20px;
+    width: 100px;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .settings-tab:hover {
+    background-image: url(https://vidcdn.123rf.com/450nwm/vectorv/vectorv2208/vectorv220827703.jpg);
+    background-size: cover;
+    background-position: center;
+  }
+  
+  .settings-tab.active {
+    background-image: url(https://vidcdn.123rf.com/450nwm/vectorv/vectorv2208/vectorv220827703.jpg);
+    background-size: cover;
+    background-position: center;
+  }
+  .container .card-long {
+    position: relative;
+    width: 100%;
+    height: 80px;
+    /*
+    */
+    background: linear-gradient(0deg, #1b1b1b, #222, #1b1b1b);
+    background-image: url(https://vidcdn.123rf.com/450nwm/vectorv/vectorv2208/vectorv220827703.jpg);
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    border-radius: 18px;
+    text-align: left;
+    overflow: hidden;
+    transition: 0.2s;
+    pointer-events: auto;
+    cursor: pointer;
+    opacity: .5;
+  }
+  
+  .container .card-long:hover {
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+    opacity: 1;
+  }
+  
+  .container .card-long:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.03);
+    z-index: 1;
+  }
+  
+  .card-long-text {
+    position: relative;
+    margin-left: 30px;
+    color: #777;
+    font-weight: 700;
+    font-size: 20px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: 0.5s;
+    user-select: none;
+  }

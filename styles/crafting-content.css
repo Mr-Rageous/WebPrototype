@@ -1,0 +1,26 @@
+.crafting-container-wrapper {
+    position: relative;
+    top: 0px;
+    left: 0px;
+    right: 10px;
+    display: flexbox;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    justify-content: center;
+    align-items: center;
+  }
+  
+.crafting-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.2rem;
+    position: relative;
+    transform: scale(0.9);
+  }
+
+.crafting-content {
+    position: relative;
+    width: calc(100% - 220px);
+    top: 0px;
+    left: calc(170px + 20px);
+  }

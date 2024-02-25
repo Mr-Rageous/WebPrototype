@@ -1,0 +1,50 @@
+.info-container {
+    display: grid;
+    left: 20px;
+    justify-content: flex;
+    align-items: center;
+    font-size: 1.2rem;
+    position: relative;
+  }
+
+  .container .card-info {
+    position: relative;
+    width: calc(100% - 20px);
+    /*
+    */
+    background: linear-gradient(0deg, #1b1b1b, #222, #1b1b1b);
+    background-image: url(https://vidcdn.123rf.com/450nwm/vectorv/vectorv2208/vectorv220827703.jpg);
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    justify-content: start;
+    align-items: start;
+    border-radius: 18px;
+    text-align: left;
+    overflow: hidden;
+    transition: 0.2s;
+    pointer-events: auto;
+    opacity: .5;
+  }
+  
+  .container .card-info:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.03);
+    z-index: 1;
+  }
+  
+  .card-info-text {
+    position: relative;
+    margin-left: 20px;
+    color: #777;
+    font-weight: 700;
+    font-size: 20px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: 0.5s;
+    user-select: none;
+  }

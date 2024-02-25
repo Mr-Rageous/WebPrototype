@@ -1,0 +1,38 @@
+TODO:
+
+    Persistance:
+    - New Game:
+        - Player save slots?
+    - Saving:
+        - JSON?
+    - Loading:
+        - JSON?
+
+    Tabs:
+    - Home:
+        - Header: welcome to my game
+        - Scrollable list: updates element
+    - World:
+        - Header: world/locations
+        - Scrollable grid(left): locations card elements
+        - Scrollable info panel(right): locations info elements
+    - Player:
+        - Header: player data
+        - Info Panel(left-top): displays stats
+        - Info Panel(top right): displays equipment
+        - Info Panel(bottom): Displays information when hovering elements
+    - Market:
+        - Header: marketplace/trade central
+        - Scrollable list(left): buy
+        - Scrollable list(right): sell
+    - Gather:
+        - Resource cards tooltips:
+            - Tooltip: resource info
+        - COMMENT: implement automation somehow
+    - Crafting:
+        - Recipe cards tooltips:
+            - Tooltip: recipe info
+    - Research:
+        - COMMENT: create research like recipes
+    - Settings:
+        - Theme selector: allow save/load of theme settings
