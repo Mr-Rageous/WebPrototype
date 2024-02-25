@@ -90,7 +90,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const resourceContainer = WebManager.createWebElement('div', ['resource-container'], '');
             const box = WebManager.createWebElement('div', ['box'], '');
             const percent = WebManager.createWebElement('div', ['percent'], '');
-            const h2 = WebManager.createWebElement('h2', ['page-header'], '', resource.quantity);
+            const h2 = WebManager.createWebElement('h2', ['text'], '', resource.quantity);
             
             const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
             svg.setAttribute('width', '150');
@@ -139,34 +139,22 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function loadCraftingPage() {
-        const craftingContent = document.createElement('div');
-        craftingContent.classList.add('crafting-content');
+        const craftingContent = WebManager.createWebElement('div', ['crafting-content'], '');
+        const craftingContainerWrapper = WebManager.createWebElement('div', ['crafting-container-wrapper'], '');
+        const headerContainer = WebManager.createWebElement('div', ['header-container'], '');
+        const pageHeader = WebManager.createWebElement('h2', ['page-header'], '', 'Crafting');
 
-        const craftingContainerWrapper = document.createElement('div');
-        craftingContainerWrapper.classList.add('crafting-container-wrapper');
-
-        const headerContainer = document.createElement('div');
-        headerContainer.classList.add('header-container');
-        const pageHeader = document.createElement('h2');
-        pageHeader.textContent = `Crafting`;
-        pageHeader.classList.add('page-header');
         headerContainer.appendChild(pageHeader);
         craftingContent.appendChild(headerContainer);
 
         if (userData.recipes.length != 0) {
             userData.recipes.forEach(recipe => {
-            const craftingContainer = document.createElement('div');
-            craftingContainer.classList.add('info-container');
-            // --
-            
-            const cardLong = document.createElement('div');
-            cardLong.classList.add('card-info');
-            // --
-            const text = document.createElement('h2');
-            text.classList.add('card-info-text');
-            text.textContent = recipe.name;
+            const craftingContainer = WebManager.createWebElement('div', ['info-container'], '');
+            const cardLong = WebManager.createWebElement('div', ['card-info'], '');
+            const text = WebManager.createWebElement('h2', ['card-info-text'], '', recipe.name);
 
             cardLong.appendChild(text);
+
             cardLong.addEventListener('mouseover', function() {
                 updateRecipeRequirementsPanel(recipe, cardInfo);
             });
@@ -175,29 +163,23 @@ document.addEventListener('DOMContentLoaded', function() {
             
             craftingContainer.addEventListener('click', function() {
               if (hasRecipeRequirements(recipe)) {
-                // craftRecipe(recipe, circle2, h2);
+                craftRecipe(recipe);
               }
             });
+
             craftingContainerWrapper.appendChild(craftingContainer);
         });}
 
-        const headerInfoContainer = document.createElement('div');
-        headerInfoContainer.classList.add('header-container');
-        const pageInfoHeader = document.createElement('h2');
-        pageInfoHeader.textContent = `Information`;
-        pageInfoHeader.classList.add('page-header');
+        const headerInfoContainer = WebManager.createWebElement('div', ['header-container'], '');
+        const pageInfoHeader = WebManager.createWebElement('h2', ['page-header'], '', `Information`);
 
-        const craftingContainerWrapper2 = document.createElement('div');
-        craftingContainerWrapper2.classList.add('crafting-container-wrapper');
+        const craftingContainerWrapper2 = WebManager.createWebElement('div', ['crafting-container-wrapper'], '');
 
-        const infoContainer = document.createElement('div');
+        const infoContainer = WebManager.createWebElement('div', ['info-container'], '');
         infoContainer.classList.add('info-container');
 
-        const cardInfo = document.createElement('div');
-        cardInfo.classList.add('card-info');
-        const text_name = document.createElement('h4');
-        text_name.classList.add('card-info-text');
-        text_name.textContent = 'Hover a recipe to see its info.';
+        const cardInfo = WebManager.createWebElement('div', ['card-info'], '');
+        const text_name = WebManager.createWebElement('h4', ['card-info-text'], '', 'Hover a recipe to see its info.');
 
         craftingContainerWrapper2.appendChild(infoContainer);
 
@@ -220,36 +202,27 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function loadSettingsPage() {
-        const settingsContent = document.createElement('div');
-        settingsContent.classList.add('settings-content');
+        const settingsContent = WebManager.createWebElement('div', ['settings-content'], '');
     
-        const settingsContainerWrapper = document.createElement('div');
-        settingsContainerWrapper.classList.add('settings-container-wrapper');
+        const settingsContainerWrapper = WebManager.createWebElement('div', ['settings-container-wrapper'], '');
 
-        const headerContainer = document.createElement('div');
-        headerContainer.classList.add('header-container');
+        const headerContainer = WebManager.createWebElement('div', ['header-container'], '');
 
-        const pageHeader = document.createElement('h2');
-        pageHeader.textContent = `Settings`;
-        pageHeader.classList.add('page-header');
+        const pageHeader = WebManager.createWebElement('h2', ['page-header'], '', `Settings`);
 
         headerContainer.appendChild(pageHeader);
         settingsContent.appendChild(headerContainer);
 
         settings.forEach(setting => {
-            const settingsContainer = document.createElement('div');
-            settingsContainer.classList.add('settings-container');
+            const settingsContainer = WebManager.createWebElement('div', ['settings-container'], '');
             
-            const cardLong = document.createElement('div');
-            cardLong.classList.add('card-long');
+            const cardLong = WebManager.createWebElement('div', ['card-long'], '');
     
             settingsContainer.addEventListener('click', function() {
                 
             });
             
-            const text = document.createElement('h2');
-            text.classList.add('card-long-text');
-            text.textContent = setting.name;
+            const text = WebManager.createWebElement('h2', ['card-long-text'], '', setting.name);
             
             cardLong.appendChild(text);
             settingsContainer.appendChild(cardLong);
@@ -263,13 +236,15 @@ document.addEventListener('DOMContentLoaded', function() {
     function updateRecipeRequirementsPanel(recipe, cardInfo) {
         cardInfo.innerHTML = '';
         recipe.requirements.forEach(requirement => {
-            const text_gen1 = document.createElement('h4');
-            text_gen1.classList.add('card-info-text');
-            text_gen1.textContent = '[' + requirement.quantity + '] ' + requirement.name;
+            const text_gen1 = WebManager.createWebElement('h4', ['card-info-text'], '', '[' + requirement.quantity + '] ' + requirement.name);
             text_gen1.style.color = 'green';
-            if (userData.resources[requirement.name].quantity < requirement.quantity) {
-                text_gen1.style.color = 'red';
-            }
+            userData.resources.forEach(resource => {
+                if (resource.name == requirement.name) {
+                    if (resource.quantity < requirement.quantity) {
+                        text_gen1.style.color = 'red';
+                    }
+                }
+            });
             cardInfo.appendChild(text_gen1);
         });
     }
@@ -319,7 +294,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 10);
     }
 
-    function craftRecipe(recipe, circle, h2) {
+    function craftRecipe(recipe, circle = null, h2 = null) {
         if (circle.dataset.animationInProgress === 'true') { return; }
     
         circle.dataset.animationInProgress = 'true';
