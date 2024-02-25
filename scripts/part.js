@@ -82,13 +82,11 @@ export class Part {
 
     attachToSelf(part) {
         if (this.canAttachToSelf(part)) {
-            if (this.isInItem()) {
-                part.item = this.item;
-            }else{
+            if (this.item == null) {
                 const newItem = new Item([this, part]);
                 this.item = newItem;
-                this.part = newItem;
             }
+            part.item = this.item;
             this.attachToSocket(part, this.getFirstValidEmptySocket(part));
             part.attachToSocket(this, part.getFirstValidEmptySocket(this));
         }
