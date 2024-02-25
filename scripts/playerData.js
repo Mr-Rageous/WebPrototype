@@ -4,11 +4,7 @@ export class PlayerData {
       this.stats = [];
       this.recipes = [];
       this.resources = [];
-    }
-  
-    // Resource methods
-    addToResources(resource) {
-      this.resources.push(resource);
+      this.inventory = [];
     }
 
     removeFromResources(resource) {
@@ -18,19 +14,25 @@ export class PlayerData {
       }
     }
 
-    addToRecipes(recipe) {
-      this.recipes.push(recipe);
-    }
-
     removeFromRecipes(recipe) {
       const index = this.recipes.indexOf(recipe);
       if (index !== -1) {
         this.recipes.splice(index, 1);
       }
     }
-  
-    // Stats methods
-    updateStats(newStats) {
-      this.stats = { ...this.stats, ...newStats };
+
+    removeFromInventory(item) {
+      const index = this.inventory.indexOf(item);
+      if (index !== -1) {
+        this.inventory.splice(index, 1);
+      }
+    }
+
+    getItemsFromInventory() {
+      // make a new array
+      // for each part in inventory
+      // if part.item is non-null, and the array doesnt include it
+      // push part.item to array
+      // return array of Items
     }
   }
