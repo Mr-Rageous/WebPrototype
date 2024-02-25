@@ -21,7 +21,7 @@ class PlayerData {
     addToRecipes(recipe) {
       this.recipes.push(recipe);
     }
-    
+
     removeFromRecipes(recipe) {
       const index = this.recipes.indexOf(recipe);
       if (index !== -1) {
