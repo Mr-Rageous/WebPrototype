@@ -6,3 +6,4 @@ class Location {
     }
   }
   
+  export { Location }

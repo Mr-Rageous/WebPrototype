@@ -34,3 +34,5 @@ class PlayerData {
       this.stats = { ...this.stats, ...newStats };
     }
   }
+
+  export { PlayerData }

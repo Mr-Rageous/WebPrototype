@@ -19,3 +19,5 @@ function checkObjectForProperty(object, property) {
         }
     })
 }
+
+export { WebManager, checkObjectForProperty }
