@@ -88,7 +88,6 @@ document.addEventListener('DOMContentLoaded', function() {
         
         userData.resources.forEach(resource => {
             const resourceContainer = WebManager.createWebElement('div', ['resource-container'], '');
-            const card = WebManager.createWebElement('div', ['card'], '');
             const box = WebManager.createWebElement('div', ['box'], '');
             const percent = WebManager.createWebElement('div', ['percent'], '');
             const h2 = WebManager.createWebElement('h2', ['page-header'], '', resource.quantity);
@@ -107,6 +106,12 @@ document.addEventListener('DOMContentLoaded', function() {
             circle2.setAttribute('cx', '55');
             circle2.setAttribute('cy', '55');
             circle2.setAttribute('r', '55');
+            
+            const card = WebManager.createWebElement('div', ['card'], '');
+            
+            resourceContainer.addEventListener('click', function() {
+              gatherResource(resource, circle2, h2);
+            });
 
             svg.appendChild(circle1);
             svg.appendChild(circle2);
@@ -118,17 +123,13 @@ document.addEventListener('DOMContentLoaded', function() {
             const text = WebManager.createWebElement('h2', ['text'], '', resource.name);
             
             updateProgress(circle2, resource.progress);
+            
             percent.appendChild(svg);
             percent.appendChild(num);
             box.appendChild(percent);
             box.appendChild(text);
             card.appendChild(box);
             resourceContainer.appendChild(card);
-            
-            resourceContainer.addEventListener('click', function() {
-              // Your click event handling code here
-              gatherResource(resource, circle2, h2);
-            });
 
             resourceContainerWrapper.appendChild(resourceContainer);
         });
