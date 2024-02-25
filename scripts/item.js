@@ -7,3 +7,4 @@ export class Item {
 }
 
 // create item when attaching parts together
+// allow renaming of items in crafting interface

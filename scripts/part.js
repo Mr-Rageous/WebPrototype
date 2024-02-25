@@ -15,17 +15,26 @@ export class Part {
     }
 
     detachFromSelf(partName) {
-        const index = this.sockets.findIndex(part => part.name.toLowerCase() === partName.toLowerCase());
-        if (index !== -1) {
-            const detachedPart = this.sockets.splice(index, 1)[0];
-            detachedPart.item = null;
-            detachedPart.sockets.forEach(socket => {
-                if (socket.part === this) {
-                    socket.part = null;
-                }
-            });
+        const socketOfPartName = this.sockets.find(socket => socket.part.name.toLowerCase() === partName.toLowerCase());
+        if (!socketOfPartName) return;
+        
+        const reflectedPartSocketIndex = socketOfPartName.part.sockets.findIndex(socket => socket.part === this);
+        if (reflectedPartSocketIndex !== -1) {
+            socketOfPartName.part.sockets[reflectedPartSocketIndex].part = null;
         }
+
+        const partIndex = this.item.parts.indexOf(socketOfPartName.part);
+        if (partIndex !== -1) {
+            this.item.parts.splice(partIndex, 1);
+        }
+        
+        if (this.item.parts.length < 2) {
+            this.item = null;
+        }
+        
+        socketOfPartName.Part = null;
     }
+    
 
     canAttachToSocket(part, socket) {
         if (socket.part != null) { return false; }
