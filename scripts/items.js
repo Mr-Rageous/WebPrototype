@@ -5,7 +5,7 @@ const metal_short_blade = new Item(
     'A Metal Blade',
     [ 'metal', 'blade' ],
     [
-        { types: [{ type: 'hilt' }], quantity: 1, item: null }
+        { item: null, typeMatch: false, types: [ 'hilt' ] }
     ]
 );
 
@@ -14,8 +14,8 @@ const metal_hilt = new Item(
     'A Metal Hilt',
     [ 'metal', 'hilt' ],
     [
-        { types: [{ type: 'blade' }], quantity: 1, item: null },
-        { types: [{ type: 'handle' }], quantity: 1, item: null }
+        { item: null, typeMatch: false, types: [ 'blade' ] },
+        { item: null, typeMatch: false, types: [ 'handle' ] }
     ]
 );
 
@@ -24,8 +24,8 @@ const wooden_handle = new Item(
     'A Wooden Handle',
     [ 'wooden', 'handle' ],
     [
-        { types: [{ type: 'hilt' }], quantity: 1, item: null },
-        { types: [{ type: 'pommel' }], quantity: 1, item: null }
+        { item: null, typeMatch: false, types: [ 'hilt' ] },
+        { item: null, typeMatch: false, types: [ 'pommel' ] }
     ]
 );
 
@@ -34,6 +34,6 @@ const metal_pommel = new Item(
     'A Metal Pommel',
     [ 'metal', 'pommel' ],
     [
-        { types: [{ type: 'handle' }], quantity: 1, item: null }
+        { item: null, typeMatch: false, types: [ 'handle' ] }
     ]
 );

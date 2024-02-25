@@ -1,38 +1,57 @@
 export class Item {
     constructor(name, description, types = [], sockets = []) {
         this.name = name;
-        this.functionDescription = description;
+        this.description = description;
         this.types = types;
         this.sockets = sockets;
     }
 
-    attach(item, socket) {
-        if (this.canAttach(item)) {
-            this.attachments.push(item);
-            console.log(`${item.name} attached to ${this.name}.`);
-        } else {
-            console.log(`${item.name} cannot be attached to ${this.name}.`);
-        }
-    }
-
-    detach(itemName) {
-        const index = this.attachments.findIndex(item => item.name.toLowerCase() === itemName.toLowerCase());
+    detachFromSelf(itemName) {
+        const index = this.sockets.findIndex(item => item.name.toLowerCase() === itemName.toLowerCase());
         if (index !== -1) {
-            const detachedPart = this.attachments.splice(index, 1)[0];
-            console.log(`${detachedPart.name} detached from ${this.name}.`);
-        } else {
-            console.log(`Attachment ${itemName} not found on ${this.name}.`);
+            const detachedItem = this.sockets.splice(index, 1)[0];
         }
     }
 
-    canAttach(item, socket) {
-        if (item.requireAllTypes) {
-            return item.types.every(type => this.sockets.includes(type));
+    canAttachToSocket(item, socket) {
+        if (socket.item != null) { return false; }
+        if (socket.typeMatch) {
+            return item.types.every(type => socket.types.includes(type));
         } else {
-            return item.types.some(type => this.sockets.includes(type));
+            return item.types.some(type => socket.types.includes(type));
+        }
+    }
+
+    canAttachToSelf(item) {
+        this.sockets.forEach(socket => {
+            if (this.canAttachToSocket(item, socket)) {
+                return true;
+            }
+        });
+        return false;
+    }
+
+    getFirstValidEmptySocket(item) {
+        this.sockets.forEach(socket => {
+            if (this.canAttachToSocket(item, socket)) {
+                return socket;
+            }
+        });
+    }
+
+    attachToSocket(item, socket) {
+        if (this.canAttachToSocket(item, socket)) {
+            socket.item = item;
+        }
+    }
+
+    attachToSelf(item) {
+        if (this.canAttachToSelf(item)) {
+            this.attachToSocket(item, this.getFirstValidEmptySocket(item));
         }
     }
 }
 
 // working on sockets idea, probably gunna stick but unsure of limitations with it.
-// This turns the problem into the 'strongly connected components problem', therefore solution is the infamous Dijkstra's Algorithm.
+// This turns traversal into the 'strongly connected components problem'
+// therefore the solution is the infamous Dijkstra's Algorithm.
