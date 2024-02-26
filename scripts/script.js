@@ -1,11 +1,8 @@
-import { Resource } from './resource.js';
 import * as allResources from './resources.js';
-import { Recipe } from './recipe.js';
-import * as allRecipes from './recipes.js';
-// import * as allLocations from './locations.js';
 import { PlayerData } from './playerData.js';
 import { settings, initialSettings } from './settings.js';
 import { WebManager, checkObjectForProperty } from './utility.js';
+import { testSword } from './parts.js';
 
 document.addEventListener('DOMContentLoaded', function() {
     // --------------------------------------------------------------------------------------------------------------------------------------------------------------------- USERDATA ------
@@ -17,8 +14,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const initialResources = [ allResources.berries, allResources.fiber, allResources.herbs, allResources.sticks, allResources.stones, allResources.water, ];
     initialResources.forEach(resource => { userData.resources.push(resource); });
     // --------------------------------------------------------------------------------------------------------------------------------------------------------------------- CRAFTING ------
-    const initialRecipes = [ allRecipes.berryJuice_recipe, allRecipes.herbalTea_recipe, allRecipes.stoneAxe_recipe, allRecipes.stonePickaxe_recipe ];
-    initialRecipes.forEach(recipe => { userData.recipes.push(recipe); });
+    testSword.forEach(part => { userData.inventory.parts.push(part); });
     // --------------------------------------------------------------------------------------------------------------------------------------------------------------------- TABS ----------
     const tabs = document.querySelectorAll('.tabs li');
     const mainContent = document.querySelector('.main-content');
@@ -30,8 +26,6 @@ document.addEventListener('DOMContentLoaded', function() {
             loadContent(this.textContent);
         });
     });
-
-    loadContent('Home');
 
     function loadContent(tabName) {
         mainContent.innerHTML = '';
@@ -52,8 +46,8 @@ document.addEventListener('DOMContentLoaded', function() {
             case 'Market':
                 loadMarketPage();
                 break;
-            case 'Crafting':
-                loadCraftingPage();
+            case 'Inventory':
+                loadInventoryPage();
                 break;
             case 'Research':
                 loadResearchPage();
@@ -65,6 +59,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 break;
         }
     }
+
+    function virtualClickOnTab(tabName) {
+        tabs.forEach(tab => {
+            if (tabName == tab.textContent) {
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                loadContent(tabName);
+            }
+        });
+    }
+    
+    virtualClickOnTab('Inventory');
 
     function loadHomePage() {
 
@@ -140,59 +146,76 @@ document.addEventListener('DOMContentLoaded', function() {
         mainContent.appendChild(gatherContent);
     }
 
-    function loadCraftingPage() {
-        const craftingContent = WebManager.createWebElement('div', ['crafting-content'], '');
-        const craftingContainerWrapper = WebManager.createWebElement('div', ['crafting-container-wrapper'], '');
+    function loadInventoryPage() {
+        const pageContent = WebManager.createWebElement('div', ['inventory-page'], '');
+
+        const inventoryContainerWrapper = WebManager.createWebElement('div', ['inventory-container-wrapper'], '');
         const headerContainer = WebManager.createWebElement('div', ['header-container'], '');
-        const pageHeader = WebManager.createWebElement('h2', ['page-header'], '', 'Crafting');
+        const pageHeader = WebManager.createWebElement('h2', ['page-header'], '', 'Available Parts');
+
+        const inventoryContainerWrapper2 = WebManager.createWebElement('div', ['inventory-item-container-wrapper'], '');
+        const headerContainer2 = WebManager.createWebElement('div', ['header-container'], '');
+        const pageHeader2 = WebManager.createWebElement('h2', ['page-header'], '', `Item Information`);
+        const listContainer2 = WebManager.createWebElement('div', ['list-container'], '');
+        const cardInfo = WebManager.createWebElement('div', ['card-info'], '');
+        const cardInfoText = WebManager.createWebElement('h4', ['card-info-text'], '', 'Hover a recipe to see its info.');
 
         headerContainer.appendChild(pageHeader);
-        craftingContent.appendChild(headerContainer);
+        inventoryContainerWrapper.appendChild(headerContainer);
 
-        if (userData.recipes.length !== 0) {
-            userData.recipes.forEach(recipe => {
-            const craftingContainer = WebManager.createWebElement('div', ['info-container'], '');
-            const cardLong = WebManager.createWebElement('div', ['card-info'], '');
-            const text = WebManager.createWebElement('h2', ['card-info-text'], '', recipe.name);
+        if (userData.inventory.parts.length !== 0) {
+            userData.inventory.parts.forEach(part => {
+            const listContainer = WebManager.createWebElement('div', ['list-container'], '');
+            const thisCardInfo = WebManager.createWebElement('div', ['card-info'], '');
+            const thisCardInfoText = WebManager.createWebElement('h2', ['card-info-text'], '', part.name);
 
-            cardLong.appendChild(text);
-
-            cardLong.addEventListener('mouseover', function() {
-                updateRecipeRequirementsPanel(recipe, cardInfo);
+            thisCardInfo.appendChild(thisCardInfoText);
+            thisCardInfo.addEventListener('mouseover', function() {
+                userData.inventory.parts.forEach(similarPart => {
+                    if (similarPart.item === part.item) {
+                        listContainer.style.opacity = "1";
+                    }else{
+                        listContainer.style.opacity = "0.6";
+                    }
+                });
             });
 
-            craftingContainer.appendChild(cardLong);
-            
-            craftingContainer.addEventListener('click', function() {
-              if (hasRecipeRequirements(recipe)) {
-                craftRecipe(recipe);
-              }
+            listContainer.appendChild(thisCardInfo);
+            listContainer.addEventListener('click', function() {
+                inventoryContainerWrapper2.innerHTML = '';
+
+                const genHeaderContainer = WebManager.createWebElement('div', ['header-container'], '');
+                const genPageHeader = WebManager.createWebElement('h2', ['page-header'], '', `Sockets`);
+                genHeaderContainer.appendChild(genPageHeader);
+                inventoryContainerWrapper2.appendChild(genHeaderContainer);
+                part.sockets.forEach(socket => {
+                    const genListContainer = WebManager.createWebElement('div', ['list-container'], '');
+                    const genCardInfo = WebManager.createWebElement('div', ['card-info'], '');
+                    const genCardInfoText = WebManager.createWebElement('h2', ['card-info-text'], '',( socket.rules.whitelist.types + ' | ' + socket.getPartName()));
+                    genCardInfo.appendChild(genCardInfoText);
+                    genListContainer.appendChild(genCardInfo);
+                    inventoryContainerWrapper2.appendChild(genListContainer);
+                    
+                    genListContainer.addEventListener('click', function() {
+                        // present context actions for manipulating sockets
+                    });
+
+                    inventoryContainerWrapper2.appendChild(genListContainer);
+                });
+                // bring inventoryContainerWrapper2 from 0% width to 100%, ease-in-out transition
             });
 
-            craftingContainerWrapper.appendChild(craftingContainer);
+            inventoryContainerWrapper.appendChild(listContainer);
         });}
 
-        const headerInfoContainer = WebManager.createWebElement('div', ['header-container'], '');
-        const pageInfoHeader = WebManager.createWebElement('h2', ['page-header'], '', `Information`);
-
-        const craftingContainerWrapper2 = WebManager.createWebElement('div', ['crafting-container-wrapper'], '');
-
-        const infoContainer = WebManager.createWebElement('div', ['info-container'], '');
-        infoContainer.classList.add('info-container');
-
-        const cardInfo = WebManager.createWebElement('div', ['card-info'], '');
-        const text_name = WebManager.createWebElement('h4', ['card-info-text'], '', 'Hover a recipe to see its info.');
-
-        craftingContainerWrapper2.appendChild(infoContainer);
-
-        cardInfo.appendChild(text_name);
-
-        craftingContent.appendChild(craftingContainerWrapper);
-        headerInfoContainer.appendChild(pageInfoHeader);
-        craftingContent.appendChild(headerInfoContainer);
-        infoContainer.appendChild(cardInfo);
-        craftingContent.appendChild(craftingContainerWrapper2);
-        mainContent.appendChild(craftingContent);
+        pageContent.appendChild(inventoryContainerWrapper);
+        headerContainer2.appendChild(pageHeader2);
+        inventoryContainerWrapper2.appendChild(headerContainer2);
+        cardInfo.appendChild(cardInfoText);
+        listContainer2.appendChild(cardInfo);
+        inventoryContainerWrapper2.appendChild(listContainer2);
+        pageContent.appendChild(inventoryContainerWrapper2);
+        mainContent.appendChild(pageContent);
     }
 
     function loadResearchPage() {
@@ -244,24 +267,6 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             cardInfo.appendChild(text_gen1);
         });
-    }
-
-    function hasRecipeRequirements(recipe) {
-        let doThing = true;
-
-        recipe.requirements.forEach(requirement => {
-            userData.resources.forEach(resource => {
-                if (requirement.name == resource.name) {
-                    if (resource.quantity >= requirement.quantity) {
-                        // do stuff
-                    }else{
-                        doThing = false;
-                    }
-                }
-            });
-        });
-
-        return doThing;
     }
 
     function gatherResource(resource, circle, h2) {

@@ -1,14 +1,14 @@
 import { Item } from './item.js';
 import * as gptParse from './gptParse.js';
 
-export class TypeList {
+class TypeList {
     constructor(types = [], requireAll = false) {
         this.types = types;
         this.requiresAll = requireAll;
     }
 }
 
-export class Ruleset {
+class Ruleset {
     constructor(whitelist = [], whiteRequiresAll = false, blacklist = [], blackRequiresAll = false) {
         this.whitelist = new TypeList(whitelist, whiteRequiresAll);
         this.blacklist = new TypeList(blacklist, blackRequiresAll);;
@@ -16,9 +16,14 @@ export class Ruleset {
 }
 
 export class Socket {
-    constructor(part, whitelist = [], whiteRequiresAll = false, blacklist = [], blackRequiresAll = false) {
+    constructor(whitelist = [], whiteRequiresAll = false, blacklist = [], blackRequiresAll = false, part = null) {
         this.part = part;
         this.rules = new Ruleset(whitelist, whiteRequiresAll, blacklist, blackRequiresAll);
+    }
+
+    getPartName() {
+        if (this.part == null) { return 'Empty'; }
+        return this.part.name;
     }
 
     canAttach(part) {

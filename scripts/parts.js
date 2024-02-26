@@ -1,21 +1,20 @@
-import { Part } from './part.js';
+import { Part, Socket } from './part.js';
 
-const metal_short_blade = new Part(
+const metal_blade = new Part(
     'Metal Blade',
     'A Metal Blade',
     [ 'metal', 'blade' ],
     [
-        { part: null, typeMatch: false, types: [ 'hilt' ] } // turn this into a class
+        new Socket([ 'guard' ])
     ]
 );
 
-const metal_hilt = new Part(
-    'Metal Hilt',
-    'A Metal Hilt',
-    [ 'metal', 'hilt' ],
+const metal_guard = new Part(
+    'Metal Guard',
+    'A Metal Guard',
+    [ 'metal', 'guard' ],
     [
-        { part: null, typeMatch: false, types: [ 'blade' ] },
-        { part: null, typeMatch: false, types: [ 'handle' ] }
+        new Socket([ 'blade' ])
     ]
 );
 
@@ -24,8 +23,8 @@ const wooden_handle = new Part(
     'A Wooden Handle',
     [ 'wooden', 'handle' ],
     [
-        { part: null, typeMatch: false, types: [ 'hilt' ] },
-        { part: null, typeMatch: false, types: [ 'pommel' ] }
+        new Socket([ 'blade' ]),
+        new Socket([ 'pommel' ])
     ]
 );
 
@@ -34,6 +33,8 @@ const metal_pommel = new Part(
     'A Metal Pommel',
     [ 'metal', 'pommel' ],
     [
-        { part: null, typeMatch: false, types: [ 'handle' ] }
+        new Socket([ 'handle' ])
     ]
 );
+
+export const testSword = [ metal_blade, metal_guard, wooden_handle, metal_pommel ];
