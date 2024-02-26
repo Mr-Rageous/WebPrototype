@@ -1,5 +1,7 @@
 import { Item } from './item.js';
 
+// socket class here?
+
 export class Part {
     constructor(name, description, types = [], sockets = []) {
         this.name = name;
@@ -14,27 +16,33 @@ export class Part {
         return true;
     }
 
-    detachFromSelf(partName) {
-        const socketOfPartName = this.sockets.find(socket => socket.part.name.toLowerCase() === partName.toLowerCase());
-        if (!socketOfPartName) return;
-        
-        const reflectedPartSocketIndex = socketOfPartName.part.sockets.findIndex(socket => socket.part === this);
-        if (reflectedPartSocketIndex !== -1) {
-            socketOfPartName.part.sockets[reflectedPartSocketIndex].part = null;
-        }
+    getSocketWithPart(part) {
+        return this.sockets.find(socket => socket.part === part);
+    }
 
-        const partIndex = this.item.parts.indexOf(socketOfPartName.part);
+    getSocketReflection(part) {
+        return part.getSocketWithPart(this);
+    }
+
+    detachPartFromSharedItem(part) {
+        const partIndex = this.item.parts.indexOf(this.getSocketWithPart(part).part);
         if (partIndex !== -1) {
-            this.item.parts.splice(partIndex, 1);
+            return this.item.parts.splice(partIndex, 1);
         }
-        
+    }
+
+    detachSelfFromItemIfLonely() {
         if (this.item.parts.length < 2) {
             this.item = null;
         }
-        
-        socketOfPartName.Part = null;
     }
-    
+
+    detachFromSelf(part) {
+        this.getSocketReflection(part).part = null;
+        this.detachPartFromSharedItem(part);
+        this.getSocketWithPart(part).part = null;
+        this.detachSelfFromItemIfLonely();
+    }
 
     canAttachToSocket(part, socket) {
         if (socket.part != null) { return false; }

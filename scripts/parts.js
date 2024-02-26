@@ -5,7 +5,7 @@ const metal_short_blade = new Part(
     'A Metal Blade',
     [ 'metal', 'blade' ],
     [
-        { part: null, typeMatch: false, types: [ 'hilt' ] }
+        { part: null, typeMatch: false, types: [ 'hilt' ] } // turn this into a class
     ]
 );
 
