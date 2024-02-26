@@ -2,9 +2,9 @@ import { Item } from './item.js';
 import * as gptParse from './gptParse.js';
 
 class TypeList {
-    constructor(types = [], requireAll = false) {
+    constructor(types = [], requiresAll = false) {
         this.types = types;
-        this.requiresAll = requireAll;
+        this.requiresAll = requiresAll;
     }
 
     getSharedTypesWith(types) {
@@ -39,7 +39,6 @@ export class Socket {
     }
 
     canAttach(part) {
-        if (this.part != null) { return false; }
         if (this.rules.whitelist.requiresAll) {
             return part.types.every(type => this.rules.whitelist.types.includes(type));
         } else {
@@ -51,6 +50,7 @@ export class Socket {
     attach(part) {
         if (this.canAttach(part)) {
             this.part = part;
+            part.sockets.find(socket => socket.canAttach(this)).part = this;
         }
     }
 }
@@ -95,6 +95,7 @@ export class Part {
     }
 
     detach(part) {
+        if (part == null) { return; }
         part.getSocketWithPart(this).part = null;
         this.detachPartFromSharedItem(part); // maybe move ownership to Item
         this.getSocketWithPart(part).part = null;

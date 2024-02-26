@@ -217,7 +217,6 @@ document.addEventListener('DOMContentLoaded', function() {
                                     genListContainer2.appendChild(genCardInfo2);
                                     genListContainer2.addEventListener('click', function() {
                                         inventoryContainerWrapper3.removeChild(genListContainer2);
-                                        // inventoryContainerWrapper3.innerHTML = '';
                                         socket.attach(validPart);
                                         genPageHeader2.textContent = 'Click a socket';
                                         genCardInfoText.textContent = (socket.rules.whitelist.getSharedTypesWith(validPart.types) + ' | ' + socket.getPartName());
@@ -226,7 +225,6 @@ document.addEventListener('DOMContentLoaded', function() {
                                 }
                             });
                         }else{
-                            part.detach(socket.part);
                             inventoryContainerWrapper3.innerHTML = '';
 
                             const genHeaderContainer2 = WebManager.createWebElement('div', ['header-container'], '');
@@ -241,9 +239,8 @@ document.addEventListener('DOMContentLoaded', function() {
                                     genCardInfo2.appendChild(genCardInfoText2);
                                     genListContainer2.appendChild(genCardInfo2);
                                     genListContainer2.addEventListener('click', function() {
-                                        inventoryContainerWrapper3.addChild(genListContainer2);
-                                        // inventoryContainerWrapper3.innerHTML = '';
-                                        part.attachToSocket(validPart, socket);
+                                        inventoryContainerWrapper3.removeChild(genListContainer2);
+                                        socket.attach(validPart);
                                         genPageHeader2.textContent = 'Click a socket';
                                         genCardInfoText.textContent = (socket.rules.whitelist.getSharedTypesWith(validPart.types) + ' | ' + socket.getPartName());
                                     });
