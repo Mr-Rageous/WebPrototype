@@ -1,7 +1,37 @@
 import { Item } from './item.js';
 import * as gptParse from './gptParse.js';
 
-// socket class here?
+export class TypeList {
+    constructor(types = [], requireAll = false) {
+        this.types = types;
+        this.requiresAll = requireAll;
+    }
+}
+
+export class Ruleset {
+    constructor(whitelist = [], whiteRequiresAll = false, blacklist = [], blackRequiresAll = false) {
+        this.whitelist = new TypeList(whitelist, whiteRequiresAll);
+        this.blacklist = new TypeList(blacklist, blackRequiresAll);;
+    }
+}
+
+export class Socket {
+    constructor(part, whitelist = [], whiteRequiresAll = false, blacklist = [], blackRequiresAll = false) {
+        this.part = part;
+        this.rules = new Ruleset(whitelist, whiteRequiresAll, blacklist, blackRequiresAll);
+    }
+
+    canAttach(part) {
+        if (this.part != null) { return false; }
+        if (part.item == null) { return false; }
+        if (this.rules.whitelist.requiresAll) {
+            return part.types.every(type => this.rules.whitelist.includes(type));
+        } else {
+            return part.types.some(type => this.rules.whitelist.includes(type));
+        }
+        // add support for blacklisting attach types here --
+    }
+}
 
 export class Part {
     constructor(name, description, types = [], sockets = []) {
@@ -12,11 +42,15 @@ export class Part {
         this.item = null;
     }
 
+    // do not use - backend not implemented
     gptItemName() {
         gptParse.getItemNameFromChatGPT(this.item.parts).then((itemName) => { return itemName; });
     }
 
-    isInItem() {
+    isInItem(item = null) {
+        if (item != null) {
+            if (this.item === item) { return true; }
+        }
         if (this.item == null) { return false; }
         return true;
     }
@@ -24,11 +58,7 @@ export class Part {
     getSocketWithPart(part) {
         return this.sockets.find(socket => socket.part === part);
     }
-
-    getSocketReflection(part) {
-        return part.getSocketWithPart(this);
-    }
-
+    
     detachPartFromSharedItem(part) {
         const partIndex = this.item.parts.indexOf(this.getSocketWithPart(part).part);
         if (partIndex !== -1) {
@@ -42,34 +72,24 @@ export class Part {
         }
     }
 
-    detachFromSelf(part) {
-        this.getSocketReflection(part).part = null;
+    detach(part) {
+        part.getSocketWithPart(this).part = null;
         this.detachPartFromSharedItem(part);
         this.getSocketWithPart(part).part = null;
         this.detachSelfFromItemIfLonely();
     }
 
-    canAttachToSocket(part, socket) {
-        if (socket.part != null) { return false; }
-        if (part.item == null) { return false; }
-        if (socket.typeMatch) {
-            return part.types.every(type => socket.types.includes(type));
-        } else {
-            return part.types.some(type => socket.types.includes(type));
-        }
-    }
-
-    canAttachToSelf(part) {
+    canAttach(part) {
         let thisSocket = false;
         let otherSocket = false;
         let bothSockets = false;
         this.sockets.forEach(socket => {
-            if (this.canAttachToSocket(part, socket)) {
+            if (socket.canAttach(part)) {
                 thisSocket = true;
             }
         });
         part.sockets.forEach(socket => {
-            if (part.canAttachToSocket(this, socket)) {
+            if (socket.canAttach(this)) {
                 otherSocket = true;
             }
         });
@@ -81,27 +101,27 @@ export class Part {
 
     getFirstValidEmptySocket(part) {
         this.sockets.forEach(socket => {
-            if (this.canAttachToSocket(part, socket)) {
+            if (socket.canAttach(part)) {
                 return socket;
             }
         });
     }
 
     attachToSocket(part, socket) {
-        if (this.canAttachToSocket(part, socket)) {
+        if (socket.canAttach(part)) {
             socket.part = part;
         }
     }
 
-    attachToSelf(part) {
-        if (this.canAttachToSelf(part)) {
+    attachToFirstValidEmptySlot(part) {
+        if (this.canAttach(part)) {
             if (this.item == null) {
-                const newItem = new Item([this, part]);
+                const newItem = new Item([this]);
                 this.item = newItem;
             }
             part.item = this.item;
             this.item.parts.push(part);
-            this.item.name = this.gptItemName();
+            // this.item.name = this.gptItemName();
             this.attachToSocket(part, this.getFirstValidEmptySocket(part));
             part.attachToSocket(this, part.getFirstValidEmptySocket(this));
         }
