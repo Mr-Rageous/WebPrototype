@@ -48,10 +48,7 @@ export class Socket {
     }
 
     attach(part) {
-        if (this.canAttach(part)) {
-            this.part = part;
-            part.sockets.find(socket => socket.canAttach(this)).part = this;
-        }
+        this.part = part;
     }
 }
 
@@ -77,12 +74,12 @@ export class Part {
         return true;
     }
 
-    getSocketWithPart(part) {
-        return this.sockets.find(socket => socket.part === part);
+    getSocketWithPart(partName) {
+        return this.sockets.find(socket => socket.part.name === partName);
     }
     
     detachPartFromSharedItem(part) {
-        const partIndex = this.item.parts.indexOf(this.getSocketWithPart(part).part);
+        const partIndex = this.item.parts.indexOf(this.getSocketWithPart(part.name).part);
         if (partIndex !== -1) {
             return this.item.parts.splice(partIndex, 1);
         }
@@ -96,9 +93,9 @@ export class Part {
 
     detach(part) {
         if (part == null) { return; }
-        part.getSocketWithPart(this).part = null;
+        part.getSocketWithPart(this.name).part = null;
         this.detachPartFromSharedItem(part); // maybe move ownership to Item
-        this.getSocketWithPart(part).part = null;
+        this.getSocketWithPart(part.name).part = null;
         this.detachSelfFromItemIfLonely(); // maybe move ownership to Item
     }
 

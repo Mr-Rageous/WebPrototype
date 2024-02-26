@@ -171,16 +171,15 @@ function loadInventoryPage() {
 
         thisCardInfo.appendChild(thisCardInfoText);
         listContainer.addEventListener('mouseover', function() {
-            inventoryContainerWrapper3.innerHTML = '';
-
-            headerContainer3.appendChild(pageHeader3);
-            inventoryContainerWrapper3.appendChild(headerContainer3);
         });
 
         listContainer.appendChild(thisCardInfo);
         listContainer.addEventListener('click', function() {
             inventoryContainerWrapper2.innerHTML = '';
-            pageHeader3.textContent = 'Click a socket';
+            inventoryContainerWrapper3.innerHTML = '';
+
+            headerContainer3.appendChild(pageHeader3);
+            inventoryContainerWrapper3.appendChild(headerContainer3);
 
             const genHeaderContainer = WebManager.createWebElement('div', ['header-container'], '');
             const genPageHeader = WebManager.createWebElement('h2', ['page-header'], '', `Sockets`);
@@ -212,7 +211,7 @@ function loadInventoryPage() {
                                 genListContainer2.appendChild(genCardInfo2);
                                 genListContainer2.addEventListener('click', function() {
                                     inventoryContainerWrapper3.removeChild(genListContainer2);
-                                    socket.part = validPart;
+                                    socket.attach(validPart);
                                     genPageHeader2.textContent = 'Click a socket';
                                     genListContainer2.innerHTML = '';
                                     genCardInfoText.textContent = (socket.rules.whitelist.getSharedTypesWith(validPart.types) + ' | ' + socket.getPartName());
@@ -238,7 +237,7 @@ function loadInventoryPage() {
                                 genListContainer2.appendChild(genCardInfo2);
                                 genListContainer2.addEventListener('click', function() {
                                     inventoryContainerWrapper3.removeChild(genListContainer2);
-                                    socket.part = validPart;
+                                    socket.attach(validPart);
                                     genPageHeader2.textContent = 'Click a socket';
                                     genCardInfoText.textContent = (socket.rules.whitelist.getSharedTypesWith(validPart.types) + ' | ' + socket.getPartName());
                                 });
