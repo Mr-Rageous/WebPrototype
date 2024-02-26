@@ -1,4 +1,5 @@
 import { Item } from './item.js';
+import * as gptParse from './gptParse.js';
 
 // socket class here?
 
@@ -9,6 +10,10 @@ export class Part {
         this.types = types;
         this.sockets = sockets;
         this.item = null;
+    }
+
+    gptItemName() {
+        gptParse.getItemNameFromChatGPT(this.item.parts).then((itemName) => { return itemName; });
     }
 
     isInItem() {
@@ -95,6 +100,8 @@ export class Part {
                 this.item = newItem;
             }
             part.item = this.item;
+            this.item.parts.push(part);
+            this.item.name = this.gptItemName();
             this.attachToSocket(part, this.getFirstValidEmptySocket(part));
             part.attachToSocket(this, part.getFirstValidEmptySocket(this));
         }
