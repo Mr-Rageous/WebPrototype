@@ -173,10 +173,12 @@ document.addEventListener('DOMContentLoaded', function() {
             thisCardInfo.appendChild(thisCardInfoText);
             thisCardInfo.addEventListener('mouseover', function() {
                 userData.inventory.parts.forEach(similarPart => {
-                    if (similarPart.item === part.item) {
-                        listContainer.style.opacity = "1";
-                    }else{
-                        listContainer.style.opacity = "0.6";
+                    if (similarPart != null) {
+                        if (similarPart.isInItem(part.item)) {
+                            listContainer.style.color = "yellow";
+                        }else{
+                            listContainer.style.color = "";
+                        }
                     }
                 });
             });
@@ -206,18 +208,48 @@ document.addEventListener('DOMContentLoaded', function() {
                             const genPageHeader2 = WebManager.createWebElement('h2', ['page-header'], '', `Valid Parts`);
                             genHeaderContainer2.appendChild(genPageHeader2);
                             inventoryContainerWrapper3.appendChild(genHeaderContainer2);
-                            userData.inventory.parts.forEach(part => {
-                                if (socket.canAttach(part)) {
+                            userData.inventory.parts.forEach(validPart => {
+                                if (socket.canAttach(validPart)) {
                                     const genListContainer2 = WebManager.createWebElement('div', ['list-container'], '');
                                     const genCardInfo2 = WebManager.createWebElement('div', ['card-info'], '');
-                                    const genCardInfoText2 = WebManager.createWebElement('h2', ['card-info-text'], '', part.name);
+                                    const genCardInfoText2 = WebManager.createWebElement('h2', ['card-info-text'], '', validPart.name);
                                     genCardInfo2.appendChild(genCardInfoText2);
                                     genListContainer2.appendChild(genCardInfo2);
+                                    genListContainer2.addEventListener('click', function() {
+                                        inventoryContainerWrapper3.removeChild(genListContainer2);
+                                        // inventoryContainerWrapper3.innerHTML = '';
+                                        socket.attach(validPart);
+                                        genPageHeader2.textContent = 'Click a socket';
+                                        genCardInfoText.textContent = (socket.rules.whitelist.getSharedTypesWith(validPart.types) + ' | ' + socket.getPartName());
+                                    });
                                     inventoryContainerWrapper3.appendChild(genListContainer2);
                                 }
                             });
-                        }else {
-                            // else remove part from slot
+                        }else{
+                            part.detach(socket.part);
+                            inventoryContainerWrapper3.innerHTML = '';
+
+                            const genHeaderContainer2 = WebManager.createWebElement('div', ['header-container'], '');
+                            const genPageHeader2 = WebManager.createWebElement('h2', ['page-header'], '', `Valid Parts`);
+                            genHeaderContainer2.appendChild(genPageHeader2);
+                            inventoryContainerWrapper3.appendChild(genHeaderContainer2);
+                            userData.inventory.parts.forEach(validPart => {
+                                if (socket.canAttach(validPart)) {
+                                    const genListContainer2 = WebManager.createWebElement('div', ['list-container'], '');
+                                    const genCardInfo2 = WebManager.createWebElement('div', ['card-info'], '');
+                                    const genCardInfoText2 = WebManager.createWebElement('h2', ['card-info-text'], '', validPart.name);
+                                    genCardInfo2.appendChild(genCardInfoText2);
+                                    genListContainer2.appendChild(genCardInfo2);
+                                    genListContainer2.addEventListener('click', function() {
+                                        inventoryContainerWrapper3.addChild(genListContainer2);
+                                        // inventoryContainerWrapper3.innerHTML = '';
+                                        part.attachToSocket(validPart, socket);
+                                        genPageHeader2.textContent = 'Click a socket';
+                                        genCardInfoText.textContent = (socket.rules.whitelist.getSharedTypesWith(validPart.types) + ' | ' + socket.getPartName());
+                                    });
+                                    inventoryContainerWrapper3.appendChild(genListContainer2);
+                                }
+                            });
                         }
                     });
 

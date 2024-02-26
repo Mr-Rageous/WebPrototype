@@ -6,6 +6,18 @@ class TypeList {
         this.types = types;
         this.requiresAll = requireAll;
     }
+
+    getSharedTypesWith(types) {
+        const sharedTypes = [];
+
+        this.types.forEach(type => {
+            if (types.includes(type)) {
+                sharedTypes.push(type);
+            }
+        });
+        
+        return sharedTypes;
+    }
 }
 
 class Ruleset {
@@ -34,6 +46,12 @@ export class Socket {
             return part.types.some(type => this.rules.whitelist.types.includes(type));
         }
         // add support for blacklisting attach types here using same method--
+    }
+
+    attach(part) {
+        if (this.canAttach(part)) {
+            this.part = part;
+        }
     }
 }
 
@@ -109,12 +127,6 @@ export class Part {
             if (part != null) { condition = (socket.canAttach(part)); }
             if (condition) { return socket; }
         });
-    }
-
-    attachToSocket(part, socket) {
-        if (socket.canAttach(part)) {
-            socket.part = part;
-        }
     }
 
     attachToFirstValidEmptySlot(part) {
