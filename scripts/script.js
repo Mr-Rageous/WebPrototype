@@ -151,14 +151,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const inventoryContainerWrapper = WebManager.createWebElement('div', ['inventory-container-wrapper'], '');
         const headerContainer = WebManager.createWebElement('div', ['header-container'], '');
-        const pageHeader = WebManager.createWebElement('h2', ['page-header'], '', 'Available Parts');
+        const pageHeader = WebManager.createWebElement('h2', ['page-header'], '', 'Stored Parts');
 
         const inventoryContainerWrapper2 = WebManager.createWebElement('div', ['inventory-item-container-wrapper'], '');
         const headerContainer2 = WebManager.createWebElement('div', ['header-container'], '');
-        const pageHeader2 = WebManager.createWebElement('h2', ['page-header'], '', `Item Information`);
-        const listContainer2 = WebManager.createWebElement('div', ['list-container'], '');
-        const cardInfo = WebManager.createWebElement('div', ['card-info'], '');
-        const cardInfoText = WebManager.createWebElement('h4', ['card-info-text'], '', 'Hover a recipe to see its info.');
+        const pageHeader2 = WebManager.createWebElement('h2', ['page-header'], '', `Click a part to expose its sockets`);
+
+        const inventoryContainerWrapper3 = WebManager.createWebElement('div', ['inventory-container-wrapper'], '');
+        const headerContainer3 = WebManager.createWebElement('div', ['header-container'], '');
+        const pageHeader3 = WebManager.createWebElement('h2', ['page-header'], '', 'Click a socket');
 
         headerContainer.appendChild(pageHeader);
         inventoryContainerWrapper.appendChild(headerContainer);
@@ -191,17 +192,45 @@ document.addEventListener('DOMContentLoaded', function() {
                 part.sockets.forEach(socket => {
                     const genListContainer = WebManager.createWebElement('div', ['list-container'], '');
                     const genCardInfo = WebManager.createWebElement('div', ['card-info'], '');
-                    const genCardInfoText = WebManager.createWebElement('h2', ['card-info-text'], '',( socket.rules.whitelist.types + ' | ' + socket.getPartName()));
+                    const genCardInfoText = WebManager.createWebElement('h2', ['card-info-text'], '', (socket.rules.whitelist.types + ' | ' + socket.getPartName()));
                     genCardInfo.appendChild(genCardInfoText);
                     genListContainer.appendChild(genCardInfo);
                     inventoryContainerWrapper2.appendChild(genListContainer);
                     
                     genListContainer.addEventListener('click', function() {
-                        // present context actions for manipulating sockets
+                        // present valid parts if slot is empty
+                        if (socket.part == null) {
+                            inventoryContainerWrapper3.innerHTML = '';
+
+                            const genHeaderContainer2 = WebManager.createWebElement('div', ['header-container'], '');
+                            const genPageHeader2 = WebManager.createWebElement('h2', ['page-header'], '', `Valid Parts`);
+                            genHeaderContainer2.appendChild(genPageHeader2);
+                            inventoryContainerWrapper3.appendChild(genHeaderContainer2);
+                            userData.inventory.parts.forEach(part => {
+                                if (socket.canAttach(part)) {
+                                    const genListContainer2 = WebManager.createWebElement('div', ['list-container'], '');
+                                    const genCardInfo2 = WebManager.createWebElement('div', ['card-info'], '');
+                                    const genCardInfoText2 = WebManager.createWebElement('h2', ['card-info-text'], '', part.name);
+                                    genCardInfo2.appendChild(genCardInfoText2);
+                                    genListContainer2.appendChild(genCardInfo2);
+                                    inventoryContainerWrapper3.appendChild(genListContainer2);
+                                }
+                            });
+                        }else {
+                            // else remove part from slot
+                        }
                     });
 
                     inventoryContainerWrapper2.appendChild(genListContainer);
                 });
+
+                if (part.item !== null) {
+                    const genHeaderContainer2 = WebManager.createWebElement('div', ['header-container'], '');
+                    const genPageHeader2 = WebManager.createWebElement('h2', ['page-header'], '', (`Item Information - ` + part.item.name));
+                    genHeaderContainer2.appendChild(genPageHeader2);
+                    inventoryContainerWrapper2.appendChild(genHeaderContainer2);
+                }
+
                 // bring inventoryContainerWrapper2 from 0% width to 100%, ease-in-out transition
             });
 
@@ -211,10 +240,10 @@ document.addEventListener('DOMContentLoaded', function() {
         pageContent.appendChild(inventoryContainerWrapper);
         headerContainer2.appendChild(pageHeader2);
         inventoryContainerWrapper2.appendChild(headerContainer2);
-        cardInfo.appendChild(cardInfoText);
-        listContainer2.appendChild(cardInfo);
-        inventoryContainerWrapper2.appendChild(listContainer2);
         pageContent.appendChild(inventoryContainerWrapper2);
+        headerContainer3.appendChild(pageHeader3);
+        inventoryContainerWrapper3.appendChild(headerContainer3);
+        pageContent.appendChild(inventoryContainerWrapper3);
         mainContent.appendChild(pageContent);
     }
 

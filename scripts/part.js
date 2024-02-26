@@ -28,11 +28,10 @@ export class Socket {
 
     canAttach(part) {
         if (this.part != null) { return false; }
-        if (part.item == null) { return false; }
         if (this.rules.whitelist.requiresAll) {
-            return part.types.every(type => this.rules.whitelist.includes(type));
+            return part.types.every(type => this.rules.whitelist.types.includes(type));
         } else {
-            return part.types.some(type => this.rules.whitelist.includes(type));
+            return part.types.some(type => this.rules.whitelist.types.includes(type));
         }
         // add support for blacklisting attach types here using same method--
     }
