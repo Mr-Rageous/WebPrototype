@@ -29,7 +29,7 @@ export class Socket {
         } else {
             return part.types.some(type => this.rules.whitelist.includes(type));
         }
-        // add support for blacklisting attach types here --
+        // add support for blacklisting attach types here using same method--
     }
 }
 
@@ -74,9 +74,9 @@ export class Part {
 
     detach(part) {
         part.getSocketWithPart(this).part = null;
-        this.detachPartFromSharedItem(part);
+        this.detachPartFromSharedItem(part); // maybe move ownership to Item
         this.getSocketWithPart(part).part = null;
-        this.detachSelfFromItemIfLonely();
+        this.detachSelfFromItemIfLonely(); // maybe move ownership to Item
     }
 
     canAttach(part) {
@@ -99,11 +99,11 @@ export class Part {
         return bothSockets;
     }
 
-    getFirstValidEmptySocket(part) {
+    getFirstValidEmptySocket(part = null) {
         this.sockets.forEach(socket => {
-            if (socket.canAttach(part)) {
-                return socket;
-            }
+            let condition = (socket.part == null);
+            if (part != null) { condition = (socket.canAttach(part)); }
+            if (condition) { return socket; }
         });
     }
 
