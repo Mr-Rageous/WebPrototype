@@ -171,6 +171,25 @@ function loadInventoryPage() {
 
         thisCardInfo.appendChild(thisCardInfoText);
         listContainer.addEventListener('mouseover', function() {
+            part.sockets.forEach(socket => {
+                try {
+                    const genCardInfoText = document.getElementById('genCardInfoText' + part.sockets.indexOf(socket));
+                    if (genCardInfoText) {
+                        // if part is in sockets of any other part
+                        userData.inventory.parts.forEach(otherPart => {
+                            if (otherPart === part) { return; }
+                            if (otherPart.getSocketWithPart(part.name)) {
+                                socket.part = otherPart;
+                            }
+                        });
+                        genCardInfoText.textContent = (socket.rules.whitelist.types + ' | ' + socket.getPartName());
+                    } else {
+                        // Element not found
+                    }
+                } catch (error) {
+                    // Handle the exception
+                }
+            });
         });
 
         listContainer.appendChild(thisCardInfo);
@@ -188,7 +207,7 @@ function loadInventoryPage() {
             part.sockets.forEach(socket => {
                 const genListContainer = WebManager.createWebElement('div', ['list-container'], '');
                 const genCardInfo = WebManager.createWebElement('div', ['card-info'], '');
-                const genCardInfoText = WebManager.createWebElement('h2', ['card-info-text'], '', (socket.rules.whitelist.types + ' | ' + socket.getPartName()));
+                const genCardInfoText = WebManager.createWebElement('h2', ['card-info-text'], 'genCardInfoText' + part.sockets.indexOf(socket), (socket.rules.whitelist.types + ' | ' + socket.getPartName()));
                 genCardInfo.appendChild(genCardInfoText);
                 genListContainer.appendChild(genCardInfo);
                 inventoryContainerWrapper2.appendChild(genListContainer);
@@ -231,6 +250,12 @@ function loadInventoryPage() {
                                 const genListContainer2 = WebManager.createWebElement('div', ['list-container'], '');
                                 const genCardInfo2 = WebManager.createWebElement('div', ['card-info'], '');
                                 const genCardInfoText2 = WebManager.createWebElement('h2', ['card-info-text'], '', validPart.name);
+                                userData.inventory.parts.forEach(otherPart => {
+                                    if (otherPart == part) { return; }
+                                    if (otherPart.canAttach(part)) {
+                                        otherPart.getSocketWithPart(part.name).part = null;
+                                    }
+                                });
                                 socket.part = null;
                                 genCardInfoText.textContent = (socket.rules.whitelist.types + ' | ' + socket.getPartName());
                                 genCardInfo2.appendChild(genCardInfoText2);

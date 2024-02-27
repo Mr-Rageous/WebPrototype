@@ -94,9 +94,9 @@ export class Part {
     detach(part) {
         if (part == null) { return; }
         part.getSocketWithPart(this.name).part = null;
-        this.detachPartFromSharedItem(part); // maybe move ownership to Item
+        // this.detachPartFromSharedItem(part); // maybe move ownership to Item
         this.getSocketWithPart(part.name).part = null;
-        this.detachSelfFromItemIfLonely(); // maybe move ownership to Item
+        // this.detachSelfFromItemIfLonely(); // maybe move ownership to Item
     }
 
     canAttach(part) {
