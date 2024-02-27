@@ -167,19 +167,48 @@ function loadInventoryPage() {
         userData.inventory.parts.forEach(part => {
         const listContainer = WebManager.createWebElement('div', ['list-container'], '');
         const thisCardInfo = WebManager.createWebElement('div', ['card-info'], '');
-        const thisCardInfoText = WebManager.createWebElement('h2', ['card-info-text'], '', part.name);
+        const thisCardInfoText = WebManager.createWebElement('h2', ['card-info-text'], part.name, part.name);
 
         thisCardInfo.appendChild(thisCardInfoText);
         listContainer.addEventListener('mouseover', function() {
             part.sockets.forEach(socket => {
                 try {
                     const genCardInfoText = document.getElementById('genCardInfoText' + part.sockets.indexOf(socket));
+                    const cardInfoText = document.getElementById(part.name);
                     if (genCardInfoText) {
                         // if part is in sockets of any other part
                         userData.inventory.parts.forEach(otherPart => {
                             if (otherPart === part) { return; }
                             if (otherPart.getSocketWithPart(part.name)) {
                                 socket.part = otherPart;
+                                const otherCardInfoText = document.getElementById(otherPart.name);
+                                cardInfoText.parentNode.parentNode.style.opacity = "1";
+                                otherCardInfoText.parentNode.parentNode.style.opacity = "1";
+                            }
+                        });
+                        genCardInfoText.textContent = (socket.rules.whitelist.types + ' | ' + socket.getPartName());
+                    } else {
+                        // Element not found
+                    }
+                } catch (error) {
+                    // Handle the exception
+                }
+            });
+        });
+        listContainer.addEventListener('mouseout', function() {
+            part.sockets.forEach(socket => {
+                try {
+                    const genCardInfoText = document.getElementById('genCardInfoText' + part.sockets.indexOf(socket));
+                    const cardInfoText = document.getElementById(part.name);
+                    if (genCardInfoText) {
+                        // if part is in sockets of any other part
+                        userData.inventory.parts.forEach(otherPart => {
+                            if (otherPart === part) { return; }
+                            if (otherPart.getSocketWithPart(part.name)) {
+                                socket.part = otherPart;
+                                const otherCardInfoText = document.getElementById(otherPart.name);
+                                cardInfoText.parentNode.parentNode.style.opacity = "0.6";
+                                otherCardInfoText.parentNode.parentNode.style.opacity = "0.6";
                             }
                         });
                         genCardInfoText.textContent = (socket.rules.whitelist.types + ' | ' + socket.getPartName());

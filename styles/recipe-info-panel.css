@@ -14,7 +14,6 @@
     overflow: hidden;
     transition: 0.2s;
     pointer-events: auto;
-    opacity: 0.8;
   }
   
   .container .card-info:before {
