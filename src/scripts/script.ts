@@ -2,11 +2,13 @@ import { PlayerData } from './playerData.js';
 import { settings, initialSettings } from './settings.js';
 import { WebManager, checkObjectForProperty } from './utility.js';
 import { testSword } from './parts.js';
+import { mouseEvent_hoverPart, mouseEvent_exitPart } from './webEvents.js'; // move to utility?
+import { Part } from './part.js';
 
 // --------------------------------------------------------------------------------------------------------------------------------------------------------------------- USERDATA ------
 const userData = new PlayerData('userData');
 // --------------------------------------------------------------------------------------------------------------------------------------------------------------------- SETTINGS ------
-function addSettingToSettingPage(setting) { settings.push(setting); }
+function addSettingToSettingPage(setting: any) { settings.push(setting); }
 initialSettings.forEach(setting => { addSettingToSettingPage(setting); });
 // --------------------------------------------------------------------------------------------------------------------------------------------------------------------- CRAFTING ------
 testSword.forEach(part => { userData.inventory.parts.push(part); });
@@ -22,7 +24,7 @@ tabs.forEach(tab => {
     });
 });
 
-function loadContent(tabName) {
+function loadContent(tabName: string) {
     mainContent.innerHTML = '';
 
     switch (tabName) {
@@ -55,7 +57,7 @@ function loadContent(tabName) {
     }
 }
 
-function virtualClickOnTab(tabName) {
+function virtualClickOnTab(tabName: string) {
     tabs.forEach(tab => {
         if (tabName == tab.textContent) {
             tabs.forEach(t => t.classList.remove('active'));
@@ -81,188 +83,6 @@ function loadPlayerPage() {
 
 function loadGatherPage() {
     
-}
-
-function loadInventoryPage() {
-    const pageContent = WebManager.createWebElement('div', ['inventory-page'], '');
-
-    const inventoryContainerWrapper = WebManager.createWebElement('div', ['inventory-container-wrapper'], '');
-    const headerContainer = WebManager.createWebElement('div', ['header-container'], '');
-    const pageHeader = WebManager.createWebElement('h2', ['page-header'], '', 'Stored Parts');
-
-    const inventoryContainerWrapper2 = WebManager.createWebElement('div', ['inventory-item-container-wrapper'], '');
-    const headerContainer2 = WebManager.createWebElement('div', ['header-container'], '');
-    const pageHeader2 = WebManager.createWebElement('h2', ['page-header'], '', `Click a part to expose its sockets`);
-
-    const inventoryContainerWrapper3 = WebManager.createWebElement('div', ['inventory-container-wrapper'], '');
-    const headerContainer3 = WebManager.createWebElement('div', ['header-container'], '');
-    const pageHeader3 = WebManager.createWebElement('h2', ['page-header'], '', 'Click a socket');
-
-    headerContainer.appendChild(pageHeader);
-    inventoryContainerWrapper.appendChild(headerContainer);
-
-    if (userData.inventory.parts.length !== 0) {
-        userData.inventory.parts.forEach(part => {
-        const listContainer = WebManager.createWebElement('div', ['list-container'], '');
-        const thisCardInfo = WebManager.createWebElement('div', ['card-info'], '');
-        const thisCardInfoText = WebManager.createWebElement('h2', ['card-info-text'], part.name, part.name);
-
-        thisCardInfo.appendChild(thisCardInfoText);
-        listContainer.addEventListener('mouseover', function() {
-            part.sockets.forEach(socket => {
-                try {
-                    const genCardInfoText = document.getElementById('genCardInfoText' + part.sockets.indexOf(socket));
-                    const cardInfoText = document.getElementById(part.name);
-                    if (genCardInfoText) {
-                        // if part is in sockets of any other part
-                        userData.inventory.parts.forEach(otherPart => {
-                            if (otherPart === part) { return; }
-                            if (otherPart.getSocketWithPart(part.name)) {
-                                socket.part = otherPart;
-                                const otherCardInfoText = document.getElementById(otherPart.name);
-                                cardInfoText.parentNode.parentNode.style.opacity = "1";
-                                otherCardInfoText.parentNode.parentNode.style.opacity = "1";
-                            }
-                        });
-                        genCardInfoText.textContent = (socket.rules.whitelist.types + ' | ' + socket.getPartName());
-                    } else {
-                        // Element not found
-                    }
-                } catch (error) {
-                    // Handle the exception
-                }
-            });
-        });
-        listContainer.addEventListener('mouseout', function() {
-            part.sockets.forEach(socket => {
-                try {
-                    const genCardInfoText = document.getElementById('genCardInfoText' + part.sockets.indexOf(socket));
-                    const cardInfoText = document.getElementById(part.name);
-                    if (genCardInfoText) {
-                        // if part is in sockets of any other part
-                        userData.inventory.parts.forEach(otherPart => {
-                            if (otherPart === part) { return; }
-                            if (otherPart.getSocketWithPart(part.name)) {
-                                socket.part = otherPart;
-                                const otherCardInfoText = document.getElementById(otherPart.name);
-                                cardInfoText.parentNode.parentNode.style.opacity = "0.6";
-                                otherCardInfoText.parentNode.parentNode.style.opacity = "0.6";
-                            }
-                        });
-                        genCardInfoText.textContent = (socket.rules.whitelist.types + ' | ' + socket.getPartName());
-                    } else {
-                        // Element not found
-                    }
-                } catch (error) {
-                    // Handle the exception
-                }
-            });
-        });
-
-        listContainer.appendChild(thisCardInfo);
-        listContainer.addEventListener('click', function() {
-            inventoryContainerWrapper2.innerHTML = '';
-            inventoryContainerWrapper3.innerHTML = '';
-
-            headerContainer3.appendChild(pageHeader3);
-            inventoryContainerWrapper3.appendChild(headerContainer3);
-
-            const genHeaderContainer = WebManager.createWebElement('div', ['header-container'], '');
-            const genPageHeader = WebManager.createWebElement('h2', ['page-header'], '', `Sockets`);
-            genHeaderContainer.appendChild(genPageHeader);
-            inventoryContainerWrapper2.appendChild(genHeaderContainer);
-            part.sockets.forEach(socket => {
-                const genListContainer = WebManager.createWebElement('div', ['list-container'], '');
-                const genCardInfo = WebManager.createWebElement('div', ['card-info'], '');
-                const genCardInfoText = WebManager.createWebElement('h2', ['card-info-text'], 'genCardInfoText' + part.sockets.indexOf(socket), (socket.rules.whitelist.types + ' | ' + socket.getPartName()));
-                genCardInfo.appendChild(genCardInfoText);
-                genListContainer.appendChild(genCardInfo);
-                inventoryContainerWrapper2.appendChild(genListContainer);
-                
-                genListContainer.addEventListener('click', function() {
-                    // present valid parts if slot is empty
-                    if (socket.part == null) {
-                        inventoryContainerWrapper3.innerHTML = '';
-
-                        const genHeaderContainer2 = WebManager.createWebElement('div', ['header-container'], '');
-                        const genPageHeader2 = WebManager.createWebElement('h2', ['page-header'], '', `Valid Parts`);
-                        genHeaderContainer2.appendChild(genPageHeader2);
-                        inventoryContainerWrapper3.appendChild(genHeaderContainer2);
-                        userData.inventory.parts.forEach(validPart => {
-                            if (socket.canAttach(validPart)) {
-                                const genListContainer2 = WebManager.createWebElement('div', ['list-container'], '');
-                                const genCardInfo2 = WebManager.createWebElement('div', ['card-info'], '');
-                                const genCardInfoText2 = WebManager.createWebElement('h2', ['card-info-text'], '', validPart.name);
-                                genCardInfo2.appendChild(genCardInfoText2);
-                                genListContainer2.appendChild(genCardInfo2);
-                                genListContainer2.addEventListener('click', function() {
-                                    inventoryContainerWrapper3.removeChild(genListContainer2);
-                                    socket.attach(validPart);
-                                    genPageHeader2.textContent = 'Click a socket';
-                                    genListContainer2.innerHTML = '';
-                                    genCardInfoText.textContent = (socket.rules.whitelist.getSharedTypesWith(validPart.types) + ' | ' + socket.getPartName());
-                                });
-                                inventoryContainerWrapper3.appendChild(genListContainer2);
-                            }
-                        });
-                    }else{
-                        inventoryContainerWrapper3.innerHTML = '';
-
-                        const genHeaderContainer2 = WebManager.createWebElement('div', ['header-container'], '');
-                        const genPageHeader2 = WebManager.createWebElement('h2', ['page-header'], '', `Valid Parts`);
-                        genHeaderContainer2.appendChild(genPageHeader2);
-                        inventoryContainerWrapper3.appendChild(genHeaderContainer2);
-                        userData.inventory.parts.forEach(validPart => {
-                            if (socket.canAttach(validPart)) {
-                                const genListContainer2 = WebManager.createWebElement('div', ['list-container'], '');
-                                const genCardInfo2 = WebManager.createWebElement('div', ['card-info'], '');
-                                const genCardInfoText2 = WebManager.createWebElement('h2', ['card-info-text'], '', validPart.name);
-                                userData.inventory.parts.forEach(otherPart => {
-                                    if (otherPart == part) { return; }
-                                    if (otherPart.canAttach(part)) {
-                                        otherPart.getSocketWithPart(part.name).part = null;
-                                    }
-                                });
-                                socket.part = null;
-                                genCardInfoText.textContent = (socket.rules.whitelist.types + ' | ' + socket.getPartName());
-                                genCardInfo2.appendChild(genCardInfoText2);
-                                genListContainer2.appendChild(genCardInfo2);
-                                genListContainer2.addEventListener('click', function() {
-                                    inventoryContainerWrapper3.removeChild(genListContainer2);
-                                    socket.attach(validPart);
-                                    genPageHeader2.textContent = 'Click a socket';
-                                    genCardInfoText.textContent = (socket.rules.whitelist.getSharedTypesWith(validPart.types) + ' | ' + socket.getPartName());
-                                });
-                                inventoryContainerWrapper3.appendChild(genListContainer2);
-                            }
-                        });
-                    }
-                });
-
-                inventoryContainerWrapper2.appendChild(genListContainer);
-            });
-
-            if (part.item !== null) {
-                const genHeaderContainer2 = WebManager.createWebElement('div', ['header-container'], '');
-                const genPageHeader2 = WebManager.createWebElement('h2', ['page-header'], '', (`Item Information - ` + part.item.name));
-                genHeaderContainer2.appendChild(genPageHeader2);
-                inventoryContainerWrapper2.appendChild(genHeaderContainer2);
-            }
-
-            // bring inventoryContainerWrapper2 from 0% width to 100%, ease-in-out transition
-        });
-
-        inventoryContainerWrapper.appendChild(listContainer);
-    });}
-
-    pageContent.appendChild(inventoryContainerWrapper);
-    headerContainer2.appendChild(pageHeader2);
-    inventoryContainerWrapper2.appendChild(headerContainer2);
-    pageContent.appendChild(inventoryContainerWrapper2);
-    headerContainer3.appendChild(pageHeader3);
-    inventoryContainerWrapper3.appendChild(headerContainer3);
-    pageContent.appendChild(inventoryContainerWrapper3);
-    mainContent.appendChild(pageContent);
 }
 
 function loadResearchPage() {
@@ -298,3 +118,95 @@ function loadSettingsPage() {
 
     mainContent.appendChild(settingsContent);
 }
+
+function loadInventoryPage() {
+    const pageContent = createInventoryPageContent();
+
+    const inventoryContainerWrapper = createInventoryContainerWrapper();
+    const inventoryItemContainerWrapper = createInventorySocketsContainerWrapper();
+    const inventorySocketContainerWrapper = createInventoryPartsContainerWrapper();
+
+    pageContent.appendChild(inventoryContainerWrapper);
+    pageContent.appendChild(inventoryItemContainerWrapper);
+    pageContent.appendChild(inventorySocketContainerWrapper);
+
+    mainContent.appendChild(pageContent);
+}
+
+function createInventoryPageContent(): HTMLElement {
+    const pageContent = WebManager.createWebElement('div', ['inventory-page'], '');
+    return pageContent;
+}
+
+function populateInventoryContainer(inventoryContainer) {
+    // Populate inventory parts if userData is available
+    if (userData.inventory.parts.length !== 0) {
+        userData.inventory.parts.forEach(part => {
+            const listContainer = createListContainer(part);
+            inventoryContainer.appendChild(listContainer);
+        });
+    }
+
+}
+
+function createInventoryContainerWrapper(): HTMLElement {
+    const inventoryContainerWrapper = WebManager.createWebElement('div', ['inventory-container-wrapper'], 'inventory-container-wrapper');
+    const headerContainer = createHeaderContainer('Stored Parts');
+    const inventoryContainer = WebManager.createWebElement('div', ['inventory-container'], 'inventory-container');
+
+    inventoryContainerWrapper.appendChild(headerContainer);
+    inventoryContainerWrapper.appendChild(inventoryContainer);
+    
+    populateInventoryContainer(inventoryContainer);
+
+    return inventoryContainerWrapper;
+}
+
+function createInventorySocketsContainerWrapper(): HTMLElement {
+    const inventorySocketsContainerWrapper = WebManager.createWebElement('div', ['inventory-sockets-container-wrapper'], 'inventory-sockets-container-wrapper');
+    const headerContainer = createHeaderContainer('Click a part to expose its sockets');
+    const inventorySocketsContainer = WebManager.createWebElement('div', ['inventory-container'], 'inventory-sockets-container');
+    inventorySocketsContainerWrapper.appendChild(headerContainer);
+    inventorySocketsContainerWrapper.appendChild(inventorySocketsContainer);
+    return inventorySocketsContainerWrapper;
+}
+
+function createInventoryPartsContainerWrapper(): HTMLElement {
+    const inventoryPartsContainerWrapper = WebManager.createWebElement('div', ['inventory-container-wrapper'], 'inventory-parts-container-wrapper');
+    const headerContainer = createHeaderContainer('Click a socket');
+    const inventoryPartsContainer = WebManager.createWebElement('div', ['inventory-container'], 'inventory-parts-container');
+    inventoryPartsContainerWrapper.appendChild(headerContainer);
+    inventoryPartsContainerWrapper.appendChild(inventoryPartsContainer);
+    return inventoryPartsContainerWrapper;
+}
+
+function createHeaderContainer(headerText: string): HTMLElement {
+    const headerContainer = WebManager.createWebElement('div', ['header-container'], 'header-container-' + headerText.toLowerCase());
+    const pageHeader = WebManager.createWebElement('h2', ['page-header'], 'page-header-' + headerText.toLowerCase(), headerText);
+    headerContainer.appendChild(pageHeader);
+    return headerContainer;
+}
+
+function createListContainer(part: Part): HTMLElement {
+    const listContainer = WebManager.createWebElement('div', ['list-container'], part.name.toLowerCase() + '-card');
+    const thisCardInfo = WebManager.createWebElement('div', ['card-info'], part.name.toLowerCase() + '-info');
+    const thisCardInfoText = WebManager.createWebElement('h2', ['card-info-text'], part.name.toLowerCase() + '-text', part.name);
+
+    thisCardInfo.appendChild(thisCardInfoText);
+    listContainer.appendChild(thisCardInfo);
+
+    listContainer.addEventListener('mouseover', () => mouseEvent_hoverPart(part, userData));
+    listContainer.addEventListener('mouseout', () => mouseEvent_exitPart(part, userData));
+    listContainer.addEventListener('click', () => handlePartClick(part));
+
+    return listContainer;
+}
+
+function handlePartClick(part: Part): void {
+    const inventoryContainerWrapper2 = document.getElementById('inventory-sockets-container-wrapper');
+    const inventoryContainerWrapper3 = document.getElementById('inventory-parts-container-wrapper');
+
+    // Handle the rest of the logic for the clicked part
+    // ...
+}
+

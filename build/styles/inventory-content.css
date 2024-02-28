@@ -15,7 +15,7 @@
     margin-right: 1%;
   }
 
-.list-container {
+.inventory-container {
   display: grid;
   align-items: center;
   font-size: 1.2rem;
@@ -23,7 +23,7 @@
   opacity: 0.6;
 }
 
-.inventory-item-container-wrapper {
+.inventory-sockets-container-wrapper {
   flex-grow: 1;
   justify-content: center;
   align-items: center;

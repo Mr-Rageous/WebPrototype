@@ -1,5 +1,5 @@
 export class WebManager {
-    static createWebElement(type: string, classNames: string[] = [], id = '', textContent: string) {
+    static createWebElement(type: string, classNames: string[] = [], id: string = '', textContent: string = '') {
         const procGenElement = document.createElement(type);
         if (id != '') { procGenElement.id = id; }
         if (classNames.length > 0) {
@@ -12,7 +12,7 @@ export class WebManager {
     }
 }
 
-export function checkObjectForProperty(object, property) {
+export function checkObjectForProperty(object: any, property: string) {
     if (object[property]) { return property; }
     
     object.values().forEach(property => {
