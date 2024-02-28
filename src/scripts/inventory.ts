@@ -1,4 +1,8 @@
+import { Part } from './part.js';
+
 export class Inventory {
+    parts: Part[];
+    locked: boolean;
     constructor(parts = [], locked = false) {
         this.parts = parts;
         this.locked = locked;

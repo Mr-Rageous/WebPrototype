@@ -1,5 +1,5 @@
 export class WebManager {
-    static createWebElement(type, classNames = [], id = '', textContent) {
+    static createWebElement(type: string, classNames: string[] = [], id = '', textContent: string) {
         const procGenElement = document.createElement(type);
         if (id != '') { procGenElement.id = id; }
         if (classNames.length > 0) {

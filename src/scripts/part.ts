@@ -1,5 +1,4 @@
 import { Item } from './item.js';
-import * as gptParse from './gptParse.js';
 
 class TypeList {
     types: string[];

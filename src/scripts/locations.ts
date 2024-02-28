@@ -14,11 +14,11 @@ const location_base_flags = [
     { name: "isDiscovered", value: true },
     { name: "isUnlocked", value: true },
 ];
-export const location_base = new Location({
-    name: location_base_title,
-    description: location_base_description,
-    config: {
+export const location_base = new Location(
+    location_base_title,
+    location_base_description,
+    {
         resources: location_base_resources,
         flags: location_base_flags,
     },
-  });
+  );

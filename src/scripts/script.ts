@@ -1,4 +1,3 @@
-import * as allResources from './resources.js';
 import { PlayerData } from './playerData.js';
 import { settings, initialSettings } from './settings.js';
 import { WebManager, checkObjectForProperty } from './utility.js';
@@ -9,9 +8,6 @@ const userData = new PlayerData('userData');
 // --------------------------------------------------------------------------------------------------------------------------------------------------------------------- SETTINGS ------
 function addSettingToSettingPage(setting) { settings.push(setting); }
 initialSettings.forEach(setting => { addSettingToSettingPage(setting); });
-// --------------------------------------------------------------------------------------------------------------------------------------------------------------------- RESOURCES -----
-const initialResources = [ allResources.berries, allResources.fiber, allResources.herbs, allResources.sticks, allResources.stones, allResources.water, ];
-initialResources.forEach(resource => { userData.resources.push(resource); });
 // --------------------------------------------------------------------------------------------------------------------------------------------------------------------- CRAFTING ------
 testSword.forEach(part => { userData.inventory.parts.push(part); });
 // --------------------------------------------------------------------------------------------------------------------------------------------------------------------- TABS ----------
@@ -84,65 +80,7 @@ function loadPlayerPage() {
 }
 
 function loadGatherPage() {
-    const gatherContent = WebManager.createWebElement('div', ['gather-content'], '');
-    const resourceContainerWrapper = WebManager.createWebElement('div', ['resource-container-wrapper'], '');
-
-    const headerContainer = WebManager.createWebElement('div', ['header-container'], '');
-    const pageHeader = WebManager.createWebElement('h2', ['page-header'], '', 'Gather');
     
-    headerContainer.appendChild(pageHeader);
-    gatherContent.appendChild(headerContainer);
-    
-    userData.resources.forEach(resource => {
-        const resourceContainer = WebManager.createWebElement('div', ['resource-container'], '');
-        const box = WebManager.createWebElement('div', ['box'], '');
-        const percent = WebManager.createWebElement('div', ['percent'], '');
-        const h2 = WebManager.createWebElement('h2', ['text'], '', resource.quantity);
-        
-        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-        svg.setAttribute('width', '150');
-        svg.setAttribute('height', '150');
-        
-        const circle1 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        circle1.setAttribute('cx', '55');
-        circle1.setAttribute('cy', '55');
-        circle1.setAttribute('r', '55');
-        
-        const circle2 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        circle2.style.transform = 'rotate(-90deg) translateX(-115px) translateY(5px)';
-        circle2.setAttribute('cx', '55');
-        circle2.setAttribute('cy', '55');
-        circle2.setAttribute('r', '55');
-        
-        const card = WebManager.createWebElement('div', ['card'], '');
-        
-        resourceContainer.addEventListener('click', function() {
-          gatherResource(resource, circle2, h2);
-        });
-
-        svg.appendChild(circle1);
-        svg.appendChild(circle2);
-        
-        const num = WebManager.createWebElement('div', ['num'], '');
-        
-        num.appendChild(h2);
-        
-        const text = WebManager.createWebElement('h2', ['text'], '', resource.name);
-        
-        updateProgress(circle2, resource.progress);
-        
-        percent.appendChild(svg);
-        percent.appendChild(num);
-        box.appendChild(percent);
-        box.appendChild(text);
-        card.appendChild(box);
-        resourceContainer.appendChild(card);
-
-        resourceContainerWrapper.appendChild(resourceContainer);
-    });
-
-    gatherContent.appendChild(resourceContainerWrapper);
-    mainContent.appendChild(gatherContent);
 }
 
 function loadInventoryPage() {
@@ -359,89 +297,4 @@ function loadSettingsPage() {
     });
 
     mainContent.appendChild(settingsContent);
-}
-
-// --------------------------------------------------------------------------------------------------------------------------------------------------------------------- METHODS -------
-function updateRecipeRequirementsPanel(recipe, cardInfo) {
-    cardInfo.innerHTML = '';
-    recipe.requirements.forEach(requirement => {
-        const text_gen1 = WebManager.createWebElement('h4', ['card-info-text'], '', '[' + requirement.quantity + '] ' + requirement.name);
-        text_gen1.style.color = 'green';
-        userData.resources.forEach(resource => {
-            if (resource.name == requirement.name) {
-                if (resource.quantity < requirement.quantity) {
-                    text_gen1.style.color = 'red';
-                }
-            }
-        });
-        cardInfo.appendChild(text_gen1);
-    });
-}
-
-function gatherResource(resource, circle, h2) {
-    if (circle.dataset.animationInProgress === 'true') { return; }
-
-    circle.dataset.animationInProgress = 'true';
-
-    const duration = resource.progressSpeed; // default = 60
-    const increment = 1 / (duration / 100);
-
-    const container = document.querySelector('.card');
-    container.style.pointerEvents = 'none';
-
-    const interval = setInterval(() => {
-        resource.progress += increment;
-
-        if (resource.progress >= 100) {
-            clearInterval(interval);
-            resource.progress = 0;
-            resource.quantity++;
-            h2.textContent = resource.quantity;
-            circle.dataset.animationInProgress = 'false';
-            container.style.pointerEvents = 'auto';
-        }
-
-        updateProgress(circle, resource.progress);
-    }, 10);
-}
-
-function craftRecipe(recipe, circle = null, h2 = null) {
-    if (circle.dataset.animationInProgress === 'true') { return; }
-
-    circle.dataset.animationInProgress = 'true';
-
-    const duration = 60;
-    const increment = 1 / (duration / 100);
-
-    const container = document.querySelector('.card');
-    container.style.pointerEvents = 'none';
-
-    const interval = setInterval(() => {
-        recipe.progress += increment;
-
-        if (recipe.progress >= 100) {
-            clearInterval(interval);
-            recipe.progress = 0;
-            // -- todo -- modify user resources.quantity
-            recipe.requirements.forEach(requirement => {
-                userData.resources[requirement.name].quantity -= requirement.quantity;
-            });
-            recipe.quantity++;
-            h2.textContent = recipe.quantity;
-            circle.dataset.animationInProgress = 'false';
-            container.style.pointerEvents = 'auto';
-        }
-
-        updateProgress(circle, recipe.progress);
-    }, 10);
-}
-
-function updateProgress(circle, progress) {
-    const percentage = progress;
-
-    const circumference = 2 * Math.PI * parseFloat(circle.getAttribute("r"));
-    const offset = circumference - (circumference * percentage) / 100;
-
-    circle.style.strokeDasharray = circumference;
-    circle.style.strokeDashoffset = offset;
 }
