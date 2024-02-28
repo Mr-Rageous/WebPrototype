@@ -1,5 +1,11 @@
+import { Part } from './part.js';
+
 export class Item {
-    constructor(parts, name = 'Nameless Item', description = 'A Collection of Parts') {
+    name: string;
+    description: string;
+    parts: Part[];
+
+    constructor(parts: Part[], name: string = 'Nameless Item', description: string = 'A Collection of Parts') {
         this.name = name;
         this.description = description;
         this.parts = parts;
