@@ -5,7 +5,8 @@ const metal_blade = new Part(
     'A Metal Blade',
     [ 'metal', 'blade' ],
     [
-        new Socket([ 'guard' ])
+        new Socket([ 'guard' ]),
+        new Socket([ 'handle' ])
     ]
 );
 

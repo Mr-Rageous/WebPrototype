@@ -167,20 +167,67 @@ function loadInventoryPage() {
         userData.inventory.parts.forEach(part => {
         const listContainer = WebManager.createWebElement('div', ['list-container'], '');
         const thisCardInfo = WebManager.createWebElement('div', ['card-info'], '');
-        const thisCardInfoText = WebManager.createWebElement('h2', ['card-info-text'], '', part.name);
+        const thisCardInfoText = WebManager.createWebElement('h2', ['card-info-text'], part.name, part.name);
 
         thisCardInfo.appendChild(thisCardInfoText);
         listContainer.addEventListener('mouseover', function() {
-            inventoryContainerWrapper3.innerHTML = '';
-
-            headerContainer3.appendChild(pageHeader3);
-            inventoryContainerWrapper3.appendChild(headerContainer3);
+            part.sockets.forEach(socket => {
+                try {
+                    const genCardInfoText = document.getElementById('genCardInfoText' + part.sockets.indexOf(socket));
+                    const cardInfoText = document.getElementById(part.name);
+                    if (genCardInfoText) {
+                        // if part is in sockets of any other part
+                        userData.inventory.parts.forEach(otherPart => {
+                            if (otherPart === part) { return; }
+                            if (otherPart.getSocketWithPart(part.name)) {
+                                socket.part = otherPart;
+                                const otherCardInfoText = document.getElementById(otherPart.name);
+                                cardInfoText.parentNode.parentNode.style.opacity = "1";
+                                otherCardInfoText.parentNode.parentNode.style.opacity = "1";
+                            }
+                        });
+                        genCardInfoText.textContent = (socket.rules.whitelist.types + ' | ' + socket.getPartName());
+                    } else {
+                        // Element not found
+                    }
+                } catch (error) {
+                    // Handle the exception
+                }
+            });
+        });
+        listContainer.addEventListener('mouseout', function() {
+            part.sockets.forEach(socket => {
+                try {
+                    const genCardInfoText = document.getElementById('genCardInfoText' + part.sockets.indexOf(socket));
+                    const cardInfoText = document.getElementById(part.name);
+                    if (genCardInfoText) {
+                        // if part is in sockets of any other part
+                        userData.inventory.parts.forEach(otherPart => {
+                            if (otherPart === part) { return; }
+                            if (otherPart.getSocketWithPart(part.name)) {
+                                socket.part = otherPart;
+                                const otherCardInfoText = document.getElementById(otherPart.name);
+                                cardInfoText.parentNode.parentNode.style.opacity = "0.6";
+                                otherCardInfoText.parentNode.parentNode.style.opacity = "0.6";
+                            }
+                        });
+                        genCardInfoText.textContent = (socket.rules.whitelist.types + ' | ' + socket.getPartName());
+                    } else {
+                        // Element not found
+                    }
+                } catch (error) {
+                    // Handle the exception
+                }
+            });
         });
 
         listContainer.appendChild(thisCardInfo);
         listContainer.addEventListener('click', function() {
             inventoryContainerWrapper2.innerHTML = '';
-            pageHeader3.textContent = 'Click a socket';
+            inventoryContainerWrapper3.innerHTML = '';
+
+            headerContainer3.appendChild(pageHeader3);
+            inventoryContainerWrapper3.appendChild(headerContainer3);
 
             const genHeaderContainer = WebManager.createWebElement('div', ['header-container'], '');
             const genPageHeader = WebManager.createWebElement('h2', ['page-header'], '', `Sockets`);
@@ -189,7 +236,7 @@ function loadInventoryPage() {
             part.sockets.forEach(socket => {
                 const genListContainer = WebManager.createWebElement('div', ['list-container'], '');
                 const genCardInfo = WebManager.createWebElement('div', ['card-info'], '');
-                const genCardInfoText = WebManager.createWebElement('h2', ['card-info-text'], '', (socket.rules.whitelist.types + ' | ' + socket.getPartName()));
+                const genCardInfoText = WebManager.createWebElement('h2', ['card-info-text'], 'genCardInfoText' + part.sockets.indexOf(socket), (socket.rules.whitelist.types + ' | ' + socket.getPartName()));
                 genCardInfo.appendChild(genCardInfoText);
                 genListContainer.appendChild(genCardInfo);
                 inventoryContainerWrapper2.appendChild(genListContainer);
@@ -212,7 +259,7 @@ function loadInventoryPage() {
                                 genListContainer2.appendChild(genCardInfo2);
                                 genListContainer2.addEventListener('click', function() {
                                     inventoryContainerWrapper3.removeChild(genListContainer2);
-                                    socket.part = validPart;
+                                    socket.attach(validPart);
                                     genPageHeader2.textContent = 'Click a socket';
                                     genListContainer2.innerHTML = '';
                                     genCardInfoText.textContent = (socket.rules.whitelist.getSharedTypesWith(validPart.types) + ' | ' + socket.getPartName());
@@ -232,13 +279,19 @@ function loadInventoryPage() {
                                 const genListContainer2 = WebManager.createWebElement('div', ['list-container'], '');
                                 const genCardInfo2 = WebManager.createWebElement('div', ['card-info'], '');
                                 const genCardInfoText2 = WebManager.createWebElement('h2', ['card-info-text'], '', validPart.name);
+                                userData.inventory.parts.forEach(otherPart => {
+                                    if (otherPart == part) { return; }
+                                    if (otherPart.canAttach(part)) {
+                                        otherPart.getSocketWithPart(part.name).part = null;
+                                    }
+                                });
                                 socket.part = null;
                                 genCardInfoText.textContent = (socket.rules.whitelist.types + ' | ' + socket.getPartName());
                                 genCardInfo2.appendChild(genCardInfoText2);
                                 genListContainer2.appendChild(genCardInfo2);
                                 genListContainer2.addEventListener('click', function() {
                                     inventoryContainerWrapper3.removeChild(genListContainer2);
-                                    socket.part = validPart;
+                                    socket.attach(validPart);
                                     genPageHeader2.textContent = 'Click a socket';
                                     genCardInfoText.textContent = (socket.rules.whitelist.getSharedTypesWith(validPart.types) + ' | ' + socket.getPartName());
                                 });
