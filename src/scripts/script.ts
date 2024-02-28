@@ -288,24 +288,25 @@ function mouseEvent_exitSocket(part: Part, socket: Socket) {
 function mouseEvent_clickSocket(part: Part, socket: Socket): void {
     const inventoryPartsContainer = document.getElementById('inventory-parts-container');
     const socketText = document.getElementById('socket-text-' + socket.id);
-    inventoryPartsContainer.innerHTML = '';
 
     if (socket.part) {
+        socket.part.sockets.forEach(otherSocket => {
+            if (otherSocket.part === socket.parent) {
+                otherSocket.part = null;
+                const otherSocketText = document.getElementById('socket-text-' + socket.id);
+                otherSocketText.textContent = socket.rules.whitelist.types + ' | ' + socket.getPartName();
+            }
+        });
         socket.part = null;
-        part.sockets.forEach(otherSocket => {
-            otherSocket.part = null;
-            socketText.textContent = socket.rules.whitelist.types + ' | ' + socket.getPartName()
-            const card = document.getElementById('part-card-' + part.id);
-            inventoryPartsContainer.append(card);
-        });
-    }else{
-        userData.inventory.parts.forEach(part => {
-            if (socket.canAttach(part)) {
-            const card = createInventoryPart(part, socket);
-            inventoryPartsContainer.appendChild(card);
-        }
-        });
+        socketText.textContent = socket.rules.whitelist.types + ' | ' + socket.getPartName();
     }
+    inventoryPartsContainer.innerHTML = '';
+    userData.inventory.parts.forEach(part => {
+        if (socket.canAttach(part)) {
+        const card = createInventoryPart(part, socket);
+        inventoryPartsContainer.appendChild(card);
+    }
+    });
 }
 
 function mouseEvent_hoverPart(part: Part, playerData: PlayerData) {
@@ -321,7 +322,7 @@ function mouseEvent_clickPart(part: Part, socket: Socket): void {
     const socketText = document.getElementById('socket-text-' + socket.id);
     inventoryPartsContainer.innerHTML = '';
     socket.part = part;
-    part.sockets.forEach(otherSocket => {
+    socket.part.sockets.forEach(otherSocket => {
         otherSocket.part = socket.parent;
         socketText.textContent = (socket.rules.whitelist.getSharedTypesWith(part.types) + ' | ' + socket.getPartName())
     });
