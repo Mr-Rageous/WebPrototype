@@ -31,10 +31,14 @@ class Ruleset {
 }
 
 export class Socket {
+    id: string;
     part: Part;
+    parent: Part;
     rules: Ruleset;
-    constructor(whitelist = [], whiteRequiresAll = false, blacklist = [], blackRequiresAll = false, part = null) {
+    constructor(parent, whitelist = [], whiteRequiresAll = false, blacklist = [], blackRequiresAll = false, part = null) {
+        this.id = crypto.randomUUID();
         this.part = part;
+        this.parent = parent;
         this.rules = new Ruleset(whitelist, whiteRequiresAll, blacklist, blackRequiresAll);
     }
 
@@ -61,6 +65,7 @@ export class Socket {
 }
 
 export class Part {
+    id: string;
     name: string;
     description: string;
     types: string[];
@@ -68,6 +73,7 @@ export class Part {
     item?: Item;
 
     constructor(name: string, description: string, types: string[] = [], sockets: Socket[] = []) {
+        this.id = crypto.randomUUID();
         this.name = name;
         this.description = description;
         this.types = types;

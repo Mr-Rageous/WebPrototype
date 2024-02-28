@@ -81,7 +81,7 @@ html, body {
 
 .page-header {
   text-align: start;
-  margin-bottom: 5px;
+  margin-bottom: 15px;
   border-bottom: 1mm ridge rgba(189, 189, 189, 0.6);
   user-select: none;
   font-size: 20px;

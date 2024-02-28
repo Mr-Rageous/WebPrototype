@@ -1,4 +1,8 @@
 export class WebManager {
+    static changeCheck() {
+        // if textContent property changes, I want the text element reloaded
+    }
+
     static createWebElement(type: string, classNames: string[] = [], id: string = '', textContent: string = '') {
         const procGenElement = document.createElement(type);
         if (id != '') { procGenElement.id = id; }
@@ -8,6 +12,8 @@ export class WebManager {
             });
         }
         procGenElement.textContent = textContent;
+        procGenElement.addEventListener('change', WebManager.changeCheck)
+
         return procGenElement;
     }
 }

@@ -1,9 +1,8 @@
 import { PlayerData } from './playerData.js';
 import { settings, initialSettings } from './settings.js';
 import { WebManager, checkObjectForProperty } from './utility.js';
-import { testSword } from './parts.js';
-import { mouseEvent_hoverPart, mouseEvent_exitPart } from './webEvents.js'; // move to utility?
-import { Part } from './part.js';
+import { sword_item } from './parts.js';
+import { Part, Socket } from './part.js';
 
 // --------------------------------------------------------------------------------------------------------------------------------------------------------------------- USERDATA ------
 const userData = new PlayerData('userData');
@@ -11,7 +10,7 @@ const userData = new PlayerData('userData');
 function addSettingToSettingPage(setting: any) { settings.push(setting); }
 initialSettings.forEach(setting => { addSettingToSettingPage(setting); });
 // --------------------------------------------------------------------------------------------------------------------------------------------------------------------- CRAFTING ------
-testSword.forEach(part => { userData.inventory.parts.push(part); });
+sword_item.forEach(part => { userData.inventory.parts.push(part); });
 // --------------------------------------------------------------------------------------------------------------------------------------------------------------------- TABS ----------
 const tabs = document.querySelectorAll('.tabs li');
 const mainContent = document.querySelector('.main-content');
@@ -34,14 +33,8 @@ function loadContent(tabName: string) {
         case 'World':
             loadWorldPage();
             break;
-        case 'Gather':
-            loadGatherPage();
-            break;
         case 'Player':
             loadPlayerPage();
-            break;
-        case 'Market':
-            loadMarketPage();
             break;
         case 'Inventory':
             loadInventoryPage();
@@ -89,10 +82,6 @@ function loadResearchPage() {
 
 }
 
-function loadMarketPage() {
-    
-}
-
 function loadSettingsPage() {
     const settingsContent = WebManager.createWebElement('div', ['settings-content'], '');
     const settingsContainerWrapper = WebManager.createWebElement('div', ['settings-container-wrapper'], '');
@@ -138,11 +127,10 @@ function createInventoryPageContent(): HTMLElement {
     return pageContent;
 }
 
-function populateInventoryContainer(inventoryContainer) {
-    // Populate inventory parts if userData is available
+function populateInventoryContainer(inventoryContainer: HTMLElement) {
     if (userData.inventory.parts.length !== 0) {
         userData.inventory.parts.forEach(part => {
-            const listContainer = createListContainer(part);
+            const listContainer = createInventoryCard(part);
             inventoryContainer.appendChild(listContainer);
         });
     }
@@ -187,26 +175,144 @@ function createHeaderContainer(headerText: string): HTMLElement {
     return headerContainer;
 }
 
-function createListContainer(part: Part): HTMLElement {
-    const listContainer = WebManager.createWebElement('div', ['list-container'], part.name.toLowerCase() + '-card');
-    const thisCardInfo = WebManager.createWebElement('div', ['card-info'], part.name.toLowerCase() + '-info');
-    const thisCardInfoText = WebManager.createWebElement('h2', ['card-info-text'], part.name.toLowerCase() + '-text', part.name);
+function createInventoryCard(part: Part): HTMLElement {
+    const cardContainer = WebManager.createWebElement('div', ['card-container'], 'inventory-card-' + part.id);
+    const thisCardInfo = WebManager.createWebElement('div', ['card-info'], 'inventory-info-' + part.id);
+    const thisCardInfoText = WebManager.createWebElement('h2', ['card-info-text'], 'inventory-text-' + part.id, part.name);
 
     thisCardInfo.appendChild(thisCardInfoText);
-    listContainer.appendChild(thisCardInfo);
+    cardContainer.appendChild(thisCardInfo);
 
-    listContainer.addEventListener('mouseover', () => mouseEvent_hoverPart(part, userData));
-    listContainer.addEventListener('mouseout', () => mouseEvent_exitPart(part, userData));
-    listContainer.addEventListener('click', () => handlePartClick(part));
+    cardContainer.addEventListener('mouseover', () => mouseEvent_hoverCard(part, userData));
+    cardContainer.addEventListener('mouseout', () => mouseEvent_exitCard(part, userData));
+    cardContainer.addEventListener('click', () => mouseEvent_clickCard(part));
 
-    return listContainer;
+    return cardContainer;
 }
 
-function handlePartClick(part: Part): void {
-    const inventoryContainerWrapper2 = document.getElementById('inventory-sockets-container-wrapper');
-    const inventoryContainerWrapper3 = document.getElementById('inventory-parts-container-wrapper');
+function createInventorySocket(part: Part, socket: Socket): HTMLElement {
+    const cardContainer = WebManager.createWebElement('div', ['card-container'], 'socket-card-' + socket.id);
+    const thisCardInfo = WebManager.createWebElement('div', ['card-info'], 'socket-info-' + socket.id);
+    const thisCardInfoText = WebManager.createWebElement('h2', ['card-info-text'], 'socket-text-' + socket.id,
+    socket.rules.whitelist.types + ' | ' + socket.getPartName());
 
-    // Handle the rest of the logic for the clicked part
-    // ...
+    thisCardInfo.appendChild(thisCardInfoText);
+    cardContainer.appendChild(thisCardInfo);
+
+    cardContainer.addEventListener('mouseover', () => mouseEvent_hoverSocket(part, socket));
+    cardContainer.addEventListener('mouseout', () => mouseEvent_exitSocket(part, socket));
+    cardContainer.addEventListener('click', () => mouseEvent_clickSocket(socket));
+
+    return cardContainer;
+}
+
+function createInventoryPart(part: Part, socket: Socket): HTMLElement {
+    const cardContainer = WebManager.createWebElement('div', ['card-container'], 'part-card-' + part.id);
+    const thisCardInfo = WebManager.createWebElement('div', ['card-info'], 'part-info-' + part.id);
+    const thisCardInfoText = WebManager.createWebElement('h2', ['card-info-text'], 'part-text-' + part.id, part.name);
+
+    thisCardInfo.appendChild(thisCardInfoText);
+    cardContainer.appendChild(thisCardInfo);
+
+    cardContainer.addEventListener('mouseover', () => mouseEvent_hoverPart(part, userData));
+    cardContainer.addEventListener('mouseout', () => mouseEvent_exitPart(part, userData));
+    cardContainer.addEventListener('click', () => mouseEvent_clickPart(socket));
+
+    return cardContainer;
+}
+
+function handleCardOpacity(part: Part, playerData: PlayerData, opacityUnderCursor: string, otherOpacity: string, textColor: string) {
+    const partCardText = document.getElementById('inventory-text-' + part.id);
+    const partCard = document.getElementById('inventory-card-' + part.id);
+    partCard.style.opacity = opacityUnderCursor;
+    partCardText.style.color = textColor;
+    
+    let firstSocket = part.sockets[0];
+    const socketExists = document.getElementById('socket-card-' + firstSocket.id);
+    playerData.inventory.parts.forEach(otherPart => {
+        if (otherPart === part) return;
+        
+        const getSocket = otherPart.getSocketWithPart(part);
+        const otherCard = document.getElementById('inventory-card-' + otherPart.id);
+        if (getSocket) {
+            partCardText.style.color = textColor;
+            otherCard.style.opacity = opacityUnderCursor;
+        }else{
+            otherCard.style.opacity = otherOpacity;
+        }
+    });
+}
+
+function handleSocketOpacity(part: Part, socket: Socket, opacityUnderCursor: string, otherOpacity: string, textColor: string) {
+    const socketText = document.getElementById('socket-text-' + socket.id);
+    const socketCard = document.getElementById('socket-card-' + socket.id);
+    socketText.style.color = textColor;
+    socketCard.style.opacity = opacityUnderCursor;
+    
+    part.sockets.forEach(otherSocket => {
+        if (otherSocket.id === socket.id) return;
+        const socketText = document.getElementById('socket-text-' + otherSocket.id);
+        const socketCard = document.getElementById('socket-card-' + otherSocket.id);
+        socketText.style.color = textColor;
+        socketCard.style.opacity = otherOpacity;
+    });
+}
+
+function mouseEvent_hoverCard(part: Part, playerData: PlayerData) {
+    handleCardOpacity(part, playerData, '1', '0.4', '#fff');
+}
+
+function mouseEvent_exitCard(part: Part, playerData: PlayerData) {
+    handleCardOpacity(part, playerData, '0.4', '0.4', '#777');
+}
+
+function mouseEvent_clickCard(part: Part): void {
+    const inventorySocketsContainer = document.getElementById('inventory-sockets-container');
+    const inventoryPartsContainer = document.getElementById('inventory-parts-container');
+
+    inventorySocketsContainer.innerHTML = '';
+    inventoryPartsContainer.innerHTML = '';
+    part.sockets.forEach(socket => {
+        const card = createInventorySocket(part, socket);
+        inventorySocketsContainer.append(card);
+    });
+}
+
+function mouseEvent_hoverSocket(part: Part, socket: Socket) {
+    handleSocketOpacity(part, socket, '1', '0.4', '#d3d3d3');
+}
+
+function mouseEvent_exitSocket(part: Part, socket: Socket) {
+    handleSocketOpacity(part, socket, '1', '1', '#777');
+}
+
+function mouseEvent_clickSocket(socket: Socket): void {
+    const inventoryPartsContainer = document.getElementById('inventory-parts-container');
+    inventoryPartsContainer.innerHTML = '';
+
+    userData.inventory.parts.forEach(part => {
+        if (socket.canAttach(part)) {
+        const card = createInventoryPart(part, socket);
+        inventoryPartsContainer.append(card);
+    }
+    });
+}
+
+function mouseEvent_hoverPart(part: Part, playerData: PlayerData) {
+    handleCardOpacity(part, playerData, '1', '0.4', '#d3d3d3');
+}
+
+function mouseEvent_exitPart(part: Part, playerData: PlayerData) {
+    handleCardOpacity(part, playerData, '1', '1', '#777');
+}
+
+function mouseEvent_clickPart(socket: Socket): void {
+    const inventoryPartsContainer = document.getElementById('inventory-parts-container');
+
+    userData.inventory.parts.forEach(part => {
+        if (socket.canAttach(part)) {
+            
+    }
+    });
 }
 
