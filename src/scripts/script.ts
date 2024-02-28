@@ -123,7 +123,7 @@ function loadInventoryPage() {
 }
 
 function createInventoryPageContent(): HTMLElement {
-    const pageContent = WebManager.createWebElement('div', ['inventory-page'], '');
+    const pageContent = WebManager.createWebElement('div', ['inventory-page'], 'page-content');
     return pageContent;
 }
 
@@ -201,7 +201,7 @@ function createInventorySocket(part: Part, socket: Socket): HTMLElement {
 
     cardContainer.addEventListener('mouseover', () => mouseEvent_hoverSocket(part, socket));
     cardContainer.addEventListener('mouseout', () => mouseEvent_exitSocket(part, socket));
-    cardContainer.addEventListener('click', () => mouseEvent_clickSocket(socket));
+    cardContainer.addEventListener('click', () => mouseEvent_clickSocket(part, socket));
 
     return cardContainer;
 }
@@ -216,7 +216,7 @@ function createInventoryPart(part: Part, socket: Socket): HTMLElement {
 
     cardContainer.addEventListener('mouseover', () => mouseEvent_hoverPart(part, userData));
     cardContainer.addEventListener('mouseout', () => mouseEvent_exitPart(part, userData));
-    cardContainer.addEventListener('click', () => mouseEvent_clickPart(socket));
+    cardContainer.addEventListener('click', () => mouseEvent_clickPart(part, socket));
 
     return cardContainer;
 }
@@ -231,7 +231,6 @@ function handleCardOpacity(part: Part, playerData: PlayerData, opacityUnderCurso
     const socketExists = document.getElementById('socket-card-' + firstSocket.id);
     playerData.inventory.parts.forEach(otherPart => {
         if (otherPart === part) return;
-        
         const getSocket = otherPart.getSocketWithPart(part);
         const otherCard = document.getElementById('inventory-card-' + otherPart.id);
         if (getSocket) {
@@ -286,16 +285,27 @@ function mouseEvent_exitSocket(part: Part, socket: Socket) {
     handleSocketOpacity(part, socket, '1', '1', '#777');
 }
 
-function mouseEvent_clickSocket(socket: Socket): void {
+function mouseEvent_clickSocket(part: Part, socket: Socket): void {
     const inventoryPartsContainer = document.getElementById('inventory-parts-container');
+    const socketText = document.getElementById('socket-text-' + socket.id);
     inventoryPartsContainer.innerHTML = '';
 
-    userData.inventory.parts.forEach(part => {
-        if (socket.canAttach(part)) {
-        const card = createInventoryPart(part, socket);
-        inventoryPartsContainer.append(card);
+    if (socket.part) {
+        socket.part = null;
+        part.sockets.forEach(otherSocket => {
+            otherSocket.part = null;
+            socketText.textContent = socket.rules.whitelist.types + ' | ' + socket.getPartName()
+            const card = document.getElementById('part-card-' + part.id);
+            inventoryPartsContainer.append(card);
+        });
+    }else{
+        userData.inventory.parts.forEach(part => {
+            if (socket.canAttach(part)) {
+            const card = createInventoryPart(part, socket);
+            inventoryPartsContainer.appendChild(card);
+        }
+        });
     }
-    });
 }
 
 function mouseEvent_hoverPart(part: Part, playerData: PlayerData) {
@@ -306,13 +316,14 @@ function mouseEvent_exitPart(part: Part, playerData: PlayerData) {
     handleCardOpacity(part, playerData, '1', '1', '#777');
 }
 
-function mouseEvent_clickPart(socket: Socket): void {
+function mouseEvent_clickPart(part: Part, socket: Socket): void {
     const inventoryPartsContainer = document.getElementById('inventory-parts-container');
-
-    userData.inventory.parts.forEach(part => {
-        if (socket.canAttach(part)) {
-            
-    }
+    const socketText = document.getElementById('socket-text-' + socket.id);
+    inventoryPartsContainer.innerHTML = '';
+    socket.part = part;
+    part.sockets.forEach(otherSocket => {
+        otherSocket.part = socket.parent;
+        socketText.textContent = (socket.rules.whitelist.getSharedTypesWith(part.types) + ' | ' + socket.getPartName())
     });
 }
 
