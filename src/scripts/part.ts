@@ -56,10 +56,31 @@ export class Socket {
         // add support for blacklisting attach types here using same method--
     }
 
-    attach(part) {
+    detach(emptyReflectedSocket: boolean = false) {
+        this.part.sockets.forEach(otherSocket => {
+            if (emptyReflectedSocket) {
+                if (otherSocket.part === this.parent) {
+                    otherSocket.part = null;
+                    const otherSocketText = document.getElementById('socket-text-' + otherSocket.id);
+                    otherSocketText.textContent = this.rules.whitelist.types + ' | ' + this.getPartName();
+                }
+            }
+        });
+        this.part = null;
+        const thisSocketText = document.getElementById('socket-text-' + this.id);
+        thisSocketText.textContent = this.rules.whitelist.types + ' | ' + this.getPartName();
+    }
+
+    attach(part: Part, fillReflectedSocket: boolean = false) {
         if (this.canAttach(part)) {
             this.part = part;
-            part.sockets.find(socket => socket.canAttach(this)).part = this;
+            if (fillReflectedSocket) {
+                part.sockets.find(socket => socket.canAttach(this.parent)).part = this.parent;
+                const thisSocketText = document.getElementById('socket-text-' + this.id);
+                thisSocketText.textContent = (this.rules.whitelist.getSharedTypesWith(part.types) + ' | ' + this.getPartName())
+            }
+            const thisSocketText = document.getElementById('socket-text-' + this.id);
+            thisSocketText.textContent = (this.rules.whitelist.getSharedTypesWith(part.types) + ' | ' + this.getPartName())
         }
     }
 }

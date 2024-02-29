@@ -111,13 +111,15 @@ function loadSettingsPage() {
 function loadInventoryPage() {
     const pageContent = createInventoryPageContent();
 
+    const inventoryItemsContainerWrapper = createInventoryItemsContainerWrapper();
     const inventoryContainerWrapper = createInventoryContainerWrapper();
-    const inventoryItemContainerWrapper = createInventorySocketsContainerWrapper();
-    const inventorySocketContainerWrapper = createInventoryPartsContainerWrapper();
+    const inventorySocketsContainerWrapper = createInventorySocketsContainerWrapper();
+    const inventoryPartsContainerWrapper = createInventoryPartsContainerWrapper();
 
+    pageContent.appendChild(inventoryItemsContainerWrapper);
     pageContent.appendChild(inventoryContainerWrapper);
-    pageContent.appendChild(inventoryItemContainerWrapper);
-    pageContent.appendChild(inventorySocketContainerWrapper);
+    pageContent.appendChild(inventorySocketsContainerWrapper);
+    pageContent.appendChild(inventoryPartsContainerWrapper);
 
     mainContent.appendChild(pageContent);
 }
@@ -129,12 +131,23 @@ function createInventoryPageContent(): HTMLElement {
 
 function populateInventoryContainer(inventoryContainer: HTMLElement) {
     if (userData.inventory.parts.length !== 0) {
-        userData.inventory.parts.forEach(part => {
+        userData.inventory.getUnattachedParts().forEach(part => {
             const listContainer = createInventoryCard(part);
             inventoryContainer.appendChild(listContainer);
         });
     }
 
+}
+
+function createInventoryItemsContainerWrapper(): HTMLElement {
+    const inventoryItemsContainerWrapper = WebManager.createWebElement('div', ['inventory-container-wrapper'], 'inventory-items-container-wrapper');
+    const headerContainer = createHeaderContainer('Stored Items');
+    const inventoryContainer = WebManager.createWebElement('div', ['inventory-container'], 'inventory-items-container');
+
+    inventoryItemsContainerWrapper.appendChild(headerContainer);
+    inventoryItemsContainerWrapper.appendChild(inventoryContainer);
+
+    return inventoryItemsContainerWrapper;
 }
 
 function createInventoryContainerWrapper(): HTMLElement {
@@ -151,8 +164,8 @@ function createInventoryContainerWrapper(): HTMLElement {
 }
 
 function createInventorySocketsContainerWrapper(): HTMLElement {
-    const inventorySocketsContainerWrapper = WebManager.createWebElement('div', ['inventory-sockets-container-wrapper'], 'inventory-sockets-container-wrapper');
-    const headerContainer = createHeaderContainer('Click a part to expose its sockets');
+    const inventorySocketsContainerWrapper = WebManager.createWebElement('div', ['inventory-container-wrapper'], 'inventory-container-wrapper');
+    const headerContainer = createHeaderContainer('Part Sockets');
     const inventorySocketsContainer = WebManager.createWebElement('div', ['inventory-container'], 'inventory-sockets-container');
     inventorySocketsContainerWrapper.appendChild(headerContainer);
     inventorySocketsContainerWrapper.appendChild(inventorySocketsContainer);
@@ -160,8 +173,8 @@ function createInventorySocketsContainerWrapper(): HTMLElement {
 }
 
 function createInventoryPartsContainerWrapper(): HTMLElement {
-    const inventoryPartsContainerWrapper = WebManager.createWebElement('div', ['inventory-container-wrapper'], 'inventory-parts-container-wrapper');
-    const headerContainer = createHeaderContainer('Click a socket');
+    const inventoryPartsContainerWrapper = WebManager.createWebElement('div', ['inventory-container-wrapper'], 'inventory-container-wrapper');
+    const headerContainer = createHeaderContainer('Valid Parts');
     const inventoryPartsContainer = WebManager.createWebElement('div', ['inventory-container'], 'inventory-parts-container');
     inventoryPartsContainerWrapper.appendChild(headerContainer);
     inventoryPartsContainerWrapper.appendChild(inventoryPartsContainer);
@@ -227,8 +240,8 @@ function handleCardOpacity(part: Part, playerData: PlayerData, opacityUnderCurso
     partCard.style.opacity = opacityUnderCursor;
     partCardText.style.color = textColor;
     
-    let firstSocket = part.sockets[0];
-    const socketExists = document.getElementById('socket-card-' + firstSocket.id);
+    // let firstSocket = part.sockets[0];
+    // const socketExists = document.getElementById('socket-card-' + firstSocket.id);
     playerData.inventory.parts.forEach(otherPart => {
         if (otherPart === part) return;
         const getSocket = otherPart.getSocketWithPart(part);
@@ -250,10 +263,10 @@ function handleSocketOpacity(part: Part, socket: Socket, opacityUnderCursor: str
     
     part.sockets.forEach(otherSocket => {
         if (otherSocket.id === socket.id) return;
-        const socketText = document.getElementById('socket-text-' + otherSocket.id);
-        const socketCard = document.getElementById('socket-card-' + otherSocket.id);
-        socketText.style.color = textColor;
-        socketCard.style.opacity = otherOpacity;
+        const otherSocketText = document.getElementById('socket-text-' + otherSocket.id);
+        const otherSocketCard = document.getElementById('socket-card-' + otherSocket.id);
+        otherSocketText.style.color = textColor;
+        otherSocketCard.style.opacity = otherOpacity;
     });
 }
 
@@ -287,19 +300,8 @@ function mouseEvent_exitSocket(part: Part, socket: Socket) {
 
 function mouseEvent_clickSocket(part: Part, socket: Socket): void {
     const inventoryPartsContainer = document.getElementById('inventory-parts-container');
-    const socketText = document.getElementById('socket-text-' + socket.id);
 
-    if (socket.part) {
-        socket.part.sockets.forEach(otherSocket => {
-            if (otherSocket.part === socket.parent) {
-                otherSocket.part = null;
-                const otherSocketText = document.getElementById('socket-text-' + socket.id);
-                otherSocketText.textContent = socket.rules.whitelist.types + ' | ' + socket.getPartName();
-            }
-        });
-        socket.part = null;
-        socketText.textContent = socket.rules.whitelist.types + ' | ' + socket.getPartName();
-    }
+    if (socket.part) { socket.detach(); }
     inventoryPartsContainer.innerHTML = '';
     userData.inventory.parts.forEach(part => {
         if (socket.canAttach(part)) {
@@ -321,10 +323,6 @@ function mouseEvent_clickPart(part: Part, socket: Socket): void {
     const inventoryPartsContainer = document.getElementById('inventory-parts-container');
     const socketText = document.getElementById('socket-text-' + socket.id);
     inventoryPartsContainer.innerHTML = '';
-    socket.part = part;
-    socket.part.sockets.forEach(otherSocket => {
-        otherSocket.part = socket.parent;
-        socketText.textContent = (socket.rules.whitelist.getSharedTypesWith(part.types) + ' | ' + socket.getPartName())
-    });
+    socket.attach(part);
 }
 

@@ -7,10 +7,10 @@
 }
 
 .inventory-container-wrapper {
+  flex-grow: 1;
   grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
   justify-content: center;
   align-items: center;
-  width: 20%;
   margin-left: 1%;
   margin-right: 1%;
 }
@@ -20,13 +20,4 @@
   align-items: center;
   font-size: 1.2rem;
   position: relative;
-  opacity: 0.4;
-}
-
-.inventory-sockets-container-wrapper {
-  flex-grow: 1;
-  justify-content: center;
-  align-items: center;
-  margin-left: 1%;
-  margin-right: 1%;
 }

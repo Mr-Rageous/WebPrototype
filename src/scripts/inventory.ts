@@ -12,7 +12,7 @@ export class Inventory {
         let thisArray = [];
         this.parts.forEach(part => {
             if (part.item == null) {
-                thisArray.push(part.item);
+                thisArray.push(part);
             }
         });
         return thisArray;
