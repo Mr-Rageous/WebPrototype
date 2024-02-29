@@ -1,3 +1,4 @@
+import { Item } from './item.js';
 import { Part } from './part.js';
 
 export class Inventory {
@@ -25,6 +26,10 @@ export class Inventory {
                 thisArray.push(part.item);
             }
         });
+        this.getUnattachedParts().forEach(part => {
+            const itemWrapper = new Item([ part ], part.name, part.description)
+            thisArray.push(itemWrapper);
+        })
         return thisArray;
     }
 

@@ -3,6 +3,7 @@ import { settings, initialSettings } from './settings.js';
 import { WebManager, checkObjectForProperty } from './utility.js';
 import { sword_item } from './parts.js';
 import { Part, Socket } from './part.js';
+import { Item } from './item.js';
 
 // --------------------------------------------------------------------------------------------------------------------------------------------------------------------- USERDATA ------
 const userData = new PlayerData('userData');
@@ -74,10 +75,6 @@ function loadPlayerPage() {
 
 }
 
-function loadGatherPage() {
-    
-}
-
 function loadResearchPage() {
 
 }
@@ -132,11 +129,21 @@ function createInventoryPageContent(): HTMLElement {
 function populateInventoryContainer(inventoryContainer: HTMLElement) {
     if (userData.inventory.parts.length !== 0) {
         userData.inventory.getUnattachedParts().forEach(part => {
-            const listContainer = createInventoryCard(part);
-            inventoryContainer.appendChild(listContainer);
+            const card = createInventoryCard(part);
+            inventoryContainer.appendChild(card);
+            card.style.opacity = '0.4';
         });
     }
 
+}
+function populateInventoryItemsContainer(inventoryContainer: HTMLElement) {
+    if (userData.inventory.parts.length !== 0) {
+        userData.inventory.getItems().forEach(item => {
+            const card = createInventoryItemCard(item);
+            inventoryContainer.appendChild(card);
+            card.style.opacity = '0.4';
+        });
+    }
 }
 
 function createInventoryItemsContainerWrapper(): HTMLElement {
@@ -146,19 +153,18 @@ function createInventoryItemsContainerWrapper(): HTMLElement {
 
     inventoryItemsContainerWrapper.appendChild(headerContainer);
     inventoryItemsContainerWrapper.appendChild(inventoryContainer);
+    populateInventoryItemsContainer(inventoryContainer);
 
     return inventoryItemsContainerWrapper;
 }
 
 function createInventoryContainerWrapper(): HTMLElement {
     const inventoryContainerWrapper = WebManager.createWebElement('div', ['inventory-container-wrapper'], 'inventory-container-wrapper');
-    const headerContainer = createHeaderContainer('Stored Parts');
+    const headerContainer = createHeaderContainer('Item Parts');
     const inventoryContainer = WebManager.createWebElement('div', ['inventory-container'], 'inventory-container');
 
     inventoryContainerWrapper.appendChild(headerContainer);
     inventoryContainerWrapper.appendChild(inventoryContainer);
-    
-    populateInventoryContainer(inventoryContainer);
 
     return inventoryContainerWrapper;
 }
@@ -186,6 +192,21 @@ function createHeaderContainer(headerText: string): HTMLElement {
     const pageHeader = WebManager.createWebElement('h2', ['page-header'], 'page-header-' + headerText.toLowerCase(), headerText);
     headerContainer.appendChild(pageHeader);
     return headerContainer;
+}
+
+function createInventoryItemCard(item: Item): HTMLElement {
+    const cardContainer = WebManager.createWebElement('div', ['card-container'], 'inventory-item-card-' + item.id);
+    const thisCardInfo = WebManager.createWebElement('div', ['card-info'], 'inventory-item-info-' + item.id);
+    const thisCardInfoText = WebManager.createWebElement('h2', ['card-info-text'], 'inventory-item-text-' + item.id, item.name);
+
+    thisCardInfo.appendChild(thisCardInfoText);
+    cardContainer.appendChild(thisCardInfo);
+
+    cardContainer.addEventListener('mouseover', () => mouseEvent_hoverItem(item, userData));
+    cardContainer.addEventListener('mouseout', () => mouseEvent_exitItem(item, userData));
+    cardContainer.addEventListener('click', () => mouseEvent_clickItem(item));
+
+    return cardContainer;
 }
 
 function createInventoryCard(part: Part): HTMLElement {
@@ -234,14 +255,25 @@ function createInventoryPart(part: Part, socket: Socket): HTMLElement {
     return cardContainer;
 }
 
+function handleItemOpacity(item: Item, playerData: PlayerData, opacityUnderCursor: string, otherOpacity: string, textColor: string) {
+    const partCardText = document.getElementById('inventory-item-text-' + item.id);
+    const partCard = document.getElementById('inventory-item-card-' + item.id);
+    partCard.style.opacity = opacityUnderCursor;
+    partCardText.style.color = textColor;
+
+    playerData.inventory.getItems().forEach(otherItem => {
+        if (otherItem === item) return;
+        const otherCard = document.getElementById('inventory-item-card-' + otherItem.id);
+        otherCard.style.opacity = otherOpacity;
+    });
+}
+
 function handleCardOpacity(part: Part, playerData: PlayerData, opacityUnderCursor: string, otherOpacity: string, textColor: string) {
     const partCardText = document.getElementById('inventory-text-' + part.id);
     const partCard = document.getElementById('inventory-card-' + part.id);
     partCard.style.opacity = opacityUnderCursor;
     partCardText.style.color = textColor;
-    
-    // let firstSocket = part.sockets[0];
-    // const socketExists = document.getElementById('socket-card-' + firstSocket.id);
+
     playerData.inventory.parts.forEach(otherPart => {
         if (otherPart === part) return;
         const getSocket = otherPart.getSocketWithPart(part);
@@ -270,6 +302,27 @@ function handleSocketOpacity(part: Part, socket: Socket, opacityUnderCursor: str
     });
 }
 
+function mouseEvent_hoverItem(item: Item, playerData: PlayerData) {
+    handleItemOpacity(item, playerData, '1', '0.4', '#fff');
+}
+
+function mouseEvent_exitItem(item: Item, playerData: PlayerData) {
+    handleItemOpacity(item, playerData, '0.4', '0.4', '#777');
+}
+
+function mouseEvent_clickItem(item: Item): void {
+    const inventoryContainer = document.getElementById('inventory-container');
+    const inventoryItemsContainer = document.getElementById('inventory-items-container');
+
+    inventoryItemsContainer.innerHTML = '';
+    inventoryContainer.innerHTML = '';
+    item.parts.forEach(part => {
+        const card = createInventoryCard(part);
+        inventoryContainer.append(card);
+        card.style.opacity = '0.4';
+    });
+}
+
 function mouseEvent_hoverCard(part: Part, playerData: PlayerData) {
     handleCardOpacity(part, playerData, '1', '0.4', '#fff');
 }
@@ -287,6 +340,7 @@ function mouseEvent_clickCard(part: Part): void {
     part.sockets.forEach(socket => {
         const card = createInventorySocket(part, socket);
         inventorySocketsContainer.append(card);
+        card.style.opacity = '0.4';
     });
 }
 
@@ -295,7 +349,7 @@ function mouseEvent_hoverSocket(part: Part, socket: Socket) {
 }
 
 function mouseEvent_exitSocket(part: Part, socket: Socket) {
-    handleSocketOpacity(part, socket, '1', '1', '#777');
+    handleSocketOpacity(part, socket, '0.4', '0.4', '#777');
 }
 
 function mouseEvent_clickSocket(part: Part, socket: Socket): void {
