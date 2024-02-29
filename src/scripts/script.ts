@@ -202,8 +202,8 @@ function createInventoryItemCard(item: Item): HTMLElement {
     thisCardInfo.appendChild(thisCardInfoText);
     cardContainer.appendChild(thisCardInfo);
 
-    cardContainer.addEventListener('mouseover', () => mouseEvent_hoverItem(item, userData));
-    cardContainer.addEventListener('mouseout', () => mouseEvent_exitItem(item, userData));
+    cardContainer.addEventListener('mouseover', () => mouseEvent_hoverItem(item));
+    cardContainer.addEventListener('mouseout', () => mouseEvent_exitItem(item));
     cardContainer.addEventListener('click', () => mouseEvent_clickItem(item));
 
     return cardContainer;
@@ -255,17 +255,11 @@ function createInventoryPart(part: Part, socket: Socket): HTMLElement {
     return cardContainer;
 }
 
-function handleItemOpacity(item: Item, playerData: PlayerData, opacityUnderCursor: string, otherOpacity: string, textColor: string) {
-    const partCardText = document.getElementById('inventory-item-text-' + item.id);
-    const partCard = document.getElementById('inventory-item-card-' + item.id);
-    partCard.style.opacity = opacityUnderCursor;
-    partCardText.style.color = textColor;
-
-    playerData.inventory.getItems().forEach(otherItem => {
-        if (otherItem === item) return;
-        const otherCard = document.getElementById('inventory-item-card-' + otherItem.id);
-        otherCard.style.opacity = otherOpacity;
-    });
+function handleItemOpacity(item: Item, opacityUnderCursor: string, textColor: string) {
+    const itemCardText = document.getElementById('inventory-item-text-' + item.id);
+    const itemCard = document.getElementById('inventory-item-card-' + item.id);
+    itemCard.style.opacity = opacityUnderCursor;
+    itemCardText.style.color = textColor;
 }
 
 function handleCardOpacity(part: Part, playerData: PlayerData, opacityUnderCursor: string, otherOpacity: string, textColor: string) {
@@ -302,20 +296,20 @@ function handleSocketOpacity(part: Part, socket: Socket, opacityUnderCursor: str
     });
 }
 
-function mouseEvent_hoverItem(item: Item, playerData: PlayerData) {
-    handleItemOpacity(item, playerData, '1', '0.4', '#fff');
+function mouseEvent_hoverItem(item: Item) {
+    handleItemOpacity(item, '1', '#fff');
 }
 
-function mouseEvent_exitItem(item: Item, playerData: PlayerData) {
-    handleItemOpacity(item, playerData, '0.4', '0.4', '#777');
+function mouseEvent_exitItem(item: Item) {
+    handleItemOpacity(item, '0.4', '#777');
 }
 
 function mouseEvent_clickItem(item: Item): void {
     const inventoryContainer = document.getElementById('inventory-container');
-    const inventoryItemsContainer = document.getElementById('inventory-items-container');
+    const inventorySocketsContainer = document.getElementById('inventory-sockets-container');
 
-    inventoryItemsContainer.innerHTML = '';
     inventoryContainer.innerHTML = '';
+    inventorySocketsContainer.innerHTML = '';
     item.parts.forEach(part => {
         const card = createInventoryCard(part);
         inventoryContainer.append(card);
