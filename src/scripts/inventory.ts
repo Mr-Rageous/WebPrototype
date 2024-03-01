@@ -20,18 +20,19 @@ export class Inventory {
     }
 
     getItems() {
-        let thisArray = [];
+        let thisItemArray = [];
         this.parts.forEach(part => {
-            if (part.item != null && !thisArray.includes(part.item)) {
-                thisArray.push(part.item);
+            if (part.item != null && !thisItemArray.includes(part.item)) {
+                thisItemArray.push(part.item);
             }
         });
         this.getUnattachedParts().forEach(part => {
             const itemWrapper = new Item([ part ], part.name, part.description)
             part.item = itemWrapper;
-            thisArray.push(itemWrapper);
+            thisItemArray.push(itemWrapper);
         })
-        return thisArray;
+        thisItemArray.sort((itemA, itemB) => itemB.parts.length - itemA.parts.length);
+        return thisItemArray;
     }
 
     removePartFromList(part) {

@@ -1,5 +1,15 @@
 import { Item } from './item.js';
 
+export enum Rarity {
+    Zero = 'Black',
+    Common = 'Gray',
+    Uncommon = 'Green',
+    Rare = 'Cyan',
+    Epic = 'Purple',
+    Legendary = 'Orange',
+    Unique = 'Gold'
+}
+
 class TypeList {
     types: string[];
     requiresAll: boolean;
@@ -35,7 +45,7 @@ export class Socket {
     part: Part;
     parent: Part;
     rules: Ruleset;
-    constructor(parent, whitelist = [], whiteRequiresAll = false, blacklist = [], blackRequiresAll = false, part = null) {
+    constructor(parent: Part, whitelist = [], whiteRequiresAll = false, blacklist = [], blackRequiresAll = false, part = null) {
         this.id = crypto.randomUUID();
         this.part = part;
         this.parent = parent;
@@ -93,14 +103,16 @@ export class Part {
     types: string[];
     sockets: Socket[];
     item?: Item;
+    rarity: Rarity;
 
-    constructor(name: string, description: string, types: string[] = [], sockets: Socket[] = []) {
+    constructor(name: string, description: string, rarity: Rarity, types: string[] = [], sockets: Socket[] = []) {
         this.id = crypto.randomUUID();
         this.name = name;
         this.description = description;
         this.types = types;
         this.sockets = sockets;
         this.item = null;
+        this.rarity = rarity;
     }
 
     isInItem(item: Item = null): boolean {
@@ -119,61 +131,6 @@ export class Part {
         const partIndex = this.item.parts.indexOf(this.getSocketWithPart(part).part);
         if (partIndex !== -1) {
             return this.item.parts.splice(partIndex, 1);
-        }
-    }
-
-    detachSelfFromItemIfLonely() {
-        if (this.item.parts.length < 2) {
-            this.item = null;
-        }
-    }
-
-    detach(part: Part) {
-        if (part == null) { return; }
-        part.getSocketWithPart(this).part = null;
-        this.detachPartFromSharedItem(part); // maybe move ownership to Item
-        this.getSocketWithPart(part).part = null;
-        this.detachSelfFromItemIfLonely(); // maybe move ownership to Item
-    }
-
-    canAttach(part: Part) {
-        let thisSocket = false;
-        let otherSocket = false;
-        let bothSockets = false;
-        this.sockets.forEach(socket => {
-            if (socket.canAttach(part)) {
-                thisSocket = true;
-            }
-        });
-        part.sockets.forEach(socket => {
-            if (socket.canAttach(this)) {
-                otherSocket = true;
-            }
-        });
-        if (thisSocket && otherSocket) {
-            bothSockets = true;
-        }
-        return bothSockets;
-    }
-
-    getFirstValidEmptySocket(part: Part): Socket | undefined {
-        return this.sockets.find(socket => socket.canAttach(part));
-        // myPart.getFirstValidEmptySocket() -> First empty socket, where part = null
-        // myPart.getFirstValidEmptySocket(myOtherPart -> First Socket where part = myOtherPart
-    }
-    
-
-    attachToFirstValidEmptySlot(part: Part) {
-        if (this.canAttach(part)) {
-            if (this.item == null) {
-                const newItem = new Item([this]);
-                this.item = newItem;
-            }
-            part.item = this.item;
-            this.item.parts.push(part);
-            // this.item.name = this.gptItemName();
-            this.getFirstValidEmptySocket(part).attach(part);
-            part.getFirstValidEmptySocket(this).attach(this);
         }
     }
 }

@@ -24,6 +24,11 @@ tabs.forEach(tab => {
     });
 });
 
+document.addEventListener("contextmenu", function(e) {
+    e.preventDefault(); // Prevent default context menu
+    // provide right click method to rename items here...
+});
+
 function loadContent(tabName: string) {
     mainContent.innerHTML = '';
 
@@ -126,17 +131,6 @@ function createInventoryPageContent(): HTMLElement {
     return pageContent;
 }
 
-function populateInventoryContainer(inventoryContainer: HTMLElement) {
-    if (userData.inventory.parts.length !== 0) {
-        userData.inventory.getUnattachedParts().forEach(part => {
-            const card = createInventoryCard(part);
-            inventoryContainer.appendChild(card);
-            card.style.opacity = '0.4';
-        });
-    }
-
-}
-
 function populateInventoryItemsContainer(inventoryContainer: HTMLElement) {
     if (userData.inventory.parts.length !== 0) {
         userData.inventory.getItems().forEach(item => {
@@ -217,6 +211,7 @@ function createInventoryCard(part: Part): HTMLElement {
 
     thisCardInfo.appendChild(thisCardInfoText);
     cardContainer.appendChild(thisCardInfo);
+    thisCardInfoText.style.color = part.rarity;
 
     cardContainer.addEventListener('mouseover', () => mouseEvent_hoverCard(part, userData));
     cardContainer.addEventListener('mouseout', () => mouseEvent_exitCard(part, userData));
@@ -249,8 +244,8 @@ function createInventoryPart(part: Part, socket: Socket): HTMLElement {
     thisCardInfo.appendChild(thisCardInfoText);
     cardContainer.appendChild(thisCardInfo);
 
-    cardContainer.addEventListener('mouseover', () => mouseEvent_hoverPart(part, userData));
-    cardContainer.addEventListener('mouseout', () => mouseEvent_exitPart(part, userData));
+    cardContainer.addEventListener('mouseover', () => mouseEvent_hoverPart(part));
+    cardContainer.addEventListener('mouseout', () => mouseEvent_exitPart(part));
     cardContainer.addEventListener('click', () => mouseEvent_clickPart(part, socket));
 
     return cardContainer;
@@ -303,14 +298,6 @@ function handlePartOpacity(part: Part, opacityUnderCursor: string, otherOpacity:
     const partCard = document.getElementById('part-card-' + part.id);
     partText.style.color = textColor;
     partCard.style.opacity = opacityUnderCursor;
-    
-    part.sockets.forEach(otherPart => {
-        if (otherPart.id === part.id) return;
-        const otherPartText = document.getElementById('part-text-' + otherPart.id);
-        const otherPartCard = document.getElementById('part-card-' + otherPart.id);
-        otherPartText.style.color = textColor;
-        otherPartCard.style.opacity = otherOpacity;
-    });
 }
 
 function mouseEvent_hoverItem(item: Item) {
@@ -330,18 +317,18 @@ function mouseEvent_clickItem(item: Item): void {
     inventorySocketsContainer.innerHTML = '';
     inventoryPartsContainer.innerHTML = '';
     item.parts.forEach(part => {
-        const card = createInventoryCard(part);
+        const card = createInventoryCard(part) as HTMLElement;
         inventoryContainer.append(card);
         card.style.opacity = '0.4';
     });
 }
 
 function mouseEvent_hoverCard(part: Part, playerData: PlayerData) {
-    handleCardOpacity(part, playerData, '1', '0.4', '#fff');
+    handleCardOpacity(part, playerData, '1', '0.4', part.rarity);
 }
 
 function mouseEvent_exitCard(part: Part, playerData: PlayerData) {
-    handleCardOpacity(part, playerData, '0.4', '0.4', '#777');
+    handleCardOpacity(part, playerData, '0.4', '0.4', part.rarity);
 }
 
 function mouseEvent_clickCard(part: Part): void {
@@ -367,7 +354,7 @@ function mouseEvent_exitSocket(part: Part, socket: Socket) {
 
 function mouseEvent_clickSocket(part: Part, socket: Socket): void {
     const inventoryPartsContainer = document.getElementById('inventory-parts-container');
-        const inventoryItemsContainer = document.getElementById('inventory-items-container');
+    const inventoryItemsContainer = document.getElementById('inventory-items-container');
 
     if (socket.part) {
         // remove item and all parts which are attached through it from this item
@@ -380,6 +367,7 @@ function mouseEvent_clickSocket(part: Part, socket: Socket): void {
                         arrayOfNewItemParts.push(connectedSocket.part); // add it to the array also
                     }
                 }) // the array now contains the part you want to detach, and the parts in its sockets
+                console.log(arrayOfNewItemParts);
                 arrayOfNewItemParts.forEach(newItemPart => { // for each item in the array
                     newItemPart.item = null; // set its item to null so it is wrapped by the inventory
                     if (socket.parent.item.parts.includes(newItemPart)) { // if this part is in the old item
@@ -394,11 +382,6 @@ function mouseEvent_clickSocket(part: Part, socket: Socket): void {
         socket.detach(); // detach the part from this socket
         inventoryItemsContainer.innerHTML = ''; // clear the inventory container
         populateInventoryItemsContainer(inventoryItemsContainer); // repopulate it -- should rewrap the parts with no item
-        
-        console.log(userData.inventory.parts);
-        console.log(userData.inventory.getUnattachedParts());
-        console.log(userData.inventory.getItems());
-        console.log(socket.parent.item.parts);
     }
     inventoryPartsContainer.innerHTML = '';
     userData.inventory.parts.forEach(part => {
@@ -409,11 +392,11 @@ function mouseEvent_clickSocket(part: Part, socket: Socket): void {
     });
 }
 
-function mouseEvent_hoverPart(part: Part, playerData: PlayerData) {
+function mouseEvent_hoverPart(part: Part) {
     handlePartOpacity(part, '1', '0.4', '#d3d3d3');
 }
 
-function mouseEvent_exitPart(part: Part, playerData: PlayerData) {
+function mouseEvent_exitPart(part: Part) {
     handlePartOpacity(part, '1', '1', '#777');
 }
 
@@ -421,7 +404,7 @@ function mouseEvent_clickPart(part: Part, socket: Socket): void {
     const inventoryPartsContainer = document.getElementById('inventory-parts-container');
     inventoryPartsContainer.innerHTML = '';
     // check if (the part to socket) is in a different item
-    if (part.name != part.item.name) {
+    if (part.name == part.item.name) {
         // - if it is in an item
         // - - move the (the part to socket).item.parts to item.parts
         socket.parent.item.parts = socket.parent.item.parts.concat(part.item.parts);
