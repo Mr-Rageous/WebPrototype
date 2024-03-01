@@ -1,5 +1,6 @@
 .inventory-page {
   display: flex;
+  flex-wrap: wrap;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   margin-left: 1%;
   margin-right: 1%;
@@ -16,6 +17,23 @@
 }
 
 .inventory-container {
+  display: grid;
+  align-items: center;
+  font-size: 1.2rem;
+  position: relative;
+}
+
+.inventory-info-container-wrapper {
+  flex-grow: 1; /* First item takes up the entire top row */
+  width: 100%; /* Ensure it spans the entire width */
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  justify-content: center;
+  align-items: center;
+  margin-left: 1%;
+  margin-right: 1%;
+}
+
+.inventory-info-container {
   display: grid;
   align-items: center;
   font-size: 1.2rem;

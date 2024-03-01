@@ -113,10 +113,13 @@ function loadSettingsPage() {
 function loadInventoryPage() {
     const pageContent = createInventoryPageContent();
 
+    const inventoryInfoContainerWrapper = createInventoryInfoContainerWrapper();
     const inventoryItemsContainerWrapper = createInventoryItemsContainerWrapper();
     const inventoryContainerWrapper = createInventoryContainerWrapper();
     const inventorySocketsContainerWrapper = createInventorySocketsContainerWrapper();
     const inventoryPartsContainerWrapper = createInventoryPartsContainerWrapper();
+
+    pageContent.appendChild(inventoryInfoContainerWrapper);
 
     pageContent.appendChild(inventoryItemsContainerWrapper);
     pageContent.appendChild(inventoryContainerWrapper);
@@ -138,6 +141,30 @@ function populateInventoryItemsContainer(inventoryContainer: HTMLElement) {
             inventoryContainer.appendChild(card);
             card.style.opacity = '0.4';
         });
+    }
+}
+
+function createInventoryInfoContainerWrapper(): HTMLElement {
+    const inventoryInfoContainerWrapper = WebManager.createWebElement('div', ['inventory-info-container-wrapper'], 'inventory-info-container-wrapper');
+    const headerContainer = createHeaderContainer('Item Information');
+    const inventoryInfoContainer = WebManager.createWebElement('div', ['inventory-info-container'], 'inventory-info-container');
+    const nameProperty = WebManager.createWebElement('h2', ['card-info-text'], 'inventory-info-name', ''); // not appearing yet
+
+    inventoryInfoContainerWrapper.appendChild(headerContainer);
+    inventoryInfoContainer.appendChild(nameProperty);
+    inventoryInfoContainerWrapper.appendChild(inventoryInfoContainer);
+
+    // populateInventoryInfoContainer();
+
+    return inventoryInfoContainerWrapper;
+}
+
+function populateInventoryInfoContainer(item: Item = null) {
+    const nameProperty = document.getElementById('inventory-info-name');
+    if (item) {
+        nameProperty.textContent = 'Name: ' + item.name;
+    } else {
+        nameProperty.textContent = 'Name:';
     }
 }
 
