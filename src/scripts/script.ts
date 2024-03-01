@@ -324,9 +324,11 @@ function mouseEvent_exitItem(item: Item) {
 function mouseEvent_clickItem(item: Item): void {
     const inventoryContainer = document.getElementById('inventory-container');
     const inventorySocketsContainer = document.getElementById('inventory-sockets-container');
+    const inventoryPartsContainer = document.getElementById('inventory-parts-container');
 
     inventoryContainer.innerHTML = '';
     inventorySocketsContainer.innerHTML = '';
+    inventoryPartsContainer.innerHTML = '';
     item.parts.forEach(part => {
         const card = createInventoryCard(part);
         inventoryContainer.append(card);
@@ -365,8 +367,39 @@ function mouseEvent_exitSocket(part: Part, socket: Socket) {
 
 function mouseEvent_clickSocket(part: Part, socket: Socket): void {
     const inventoryPartsContainer = document.getElementById('inventory-parts-container');
+        const inventoryItemsContainer = document.getElementById('inventory-items-container');
 
-    if (socket.part) { socket.detach(); }
+    if (socket.part) {
+        // remove item and all parts which are attached through it from this item
+        socket.parent.item.parts.forEach(otherPart => { // for each part in the same item as this one
+            let arrayOfNewItemParts: Part[] = []; // make a new array to hold items for detaching
+            if (socket.part === otherPart) { // if the part in this socket is (in the same item as this one)
+                arrayOfNewItemParts.push(otherPart); // add it to the array
+                otherPart.sockets.forEach(connectedSocket => { // then for each socket in that part
+                    if (connectedSocket.part !== null) { // if it isnt empty
+                        arrayOfNewItemParts.push(connectedSocket.part); // add it to the array also
+                    }
+                }) // the array now contains the part you want to detach, and the parts in its sockets
+                arrayOfNewItemParts.forEach(newItemPart => { // for each item in the array
+                    newItemPart.item = null; // set its item to null so it is wrapped by the inventory
+                    if (socket.parent.item.parts.includes(newItemPart)) { // if this part is in the old item
+                        const partIndex = socket.parent.item.parts.indexOf(newItemPart); // find its index
+                        if (partIndex !== -1) { // if you cant not find it
+                            socket.parent.item.parts.splice(partIndex, 1); // remove it
+                        }
+                    }
+                })
+            }
+        })
+        socket.detach(); // detach the part from this socket
+        inventoryItemsContainer.innerHTML = ''; // clear the inventory container
+        populateInventoryItemsContainer(inventoryItemsContainer); // repopulate it -- should rewrap the parts with no item
+        
+        console.log(userData.inventory.parts);
+        console.log(userData.inventory.getUnattachedParts());
+        console.log(userData.inventory.getItems());
+        console.log(socket.parent.item.parts);
+    }
     inventoryPartsContainer.innerHTML = '';
     userData.inventory.parts.forEach(part => {
         if (socket.canAttach(part)) {
@@ -388,7 +421,7 @@ function mouseEvent_clickPart(part: Part, socket: Socket): void {
     const inventoryPartsContainer = document.getElementById('inventory-parts-container');
     inventoryPartsContainer.innerHTML = '';
     // check if (the part to socket) is in a different item
-    if (part.item) {
+    if (part.name != part.item.name) {
         // - if it is in an item
         // - - move the (the part to socket).item.parts to item.parts
         socket.parent.item.parts = socket.parent.item.parts.concat(part.item.parts);
@@ -402,7 +435,7 @@ function mouseEvent_clickPart(part: Part, socket: Socket): void {
     socket.attach(part);
 
     // maybe clear and repopulate items container
-    const inventoryItemsContainer = WebManager.createWebElement('div', ['inventory-container'], 'inventory-items-container');
+    const inventoryItemsContainer = document.getElementById('inventory-items-container');
     inventoryItemsContainer.innerHTML = '';
     populateInventoryItemsContainer(inventoryItemsContainer);
 }
