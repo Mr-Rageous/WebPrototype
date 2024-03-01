@@ -136,6 +136,7 @@ function populateInventoryContainer(inventoryContainer: HTMLElement) {
     }
 
 }
+
 function populateInventoryItemsContainer(inventoryContainer: HTMLElement) {
     if (userData.inventory.parts.length !== 0) {
         userData.inventory.getItems().forEach(item => {
@@ -149,11 +150,11 @@ function populateInventoryItemsContainer(inventoryContainer: HTMLElement) {
 function createInventoryItemsContainerWrapper(): HTMLElement {
     const inventoryItemsContainerWrapper = WebManager.createWebElement('div', ['inventory-container-wrapper'], 'inventory-items-container-wrapper');
     const headerContainer = createHeaderContainer('Stored Items');
-    const inventoryContainer = WebManager.createWebElement('div', ['inventory-container'], 'inventory-items-container');
+    const inventoryItemsContainer = WebManager.createWebElement('div', ['inventory-container'], 'inventory-items-container');
 
     inventoryItemsContainerWrapper.appendChild(headerContainer);
-    inventoryItemsContainerWrapper.appendChild(inventoryContainer);
-    populateInventoryItemsContainer(inventoryContainer);
+    inventoryItemsContainerWrapper.appendChild(inventoryItemsContainer);
+    populateInventoryItemsContainer(inventoryItemsContainer);
 
     return inventoryItemsContainerWrapper;
 }
@@ -170,7 +171,7 @@ function createInventoryContainerWrapper(): HTMLElement {
 }
 
 function createInventorySocketsContainerWrapper(): HTMLElement {
-    const inventorySocketsContainerWrapper = WebManager.createWebElement('div', ['inventory-container-wrapper'], 'inventory-container-wrapper');
+    const inventorySocketsContainerWrapper = WebManager.createWebElement('div', ['inventory-container-wrapper'], 'inventory-sockets-container-wrapper');
     const headerContainer = createHeaderContainer('Part Sockets');
     const inventorySocketsContainer = WebManager.createWebElement('div', ['inventory-container'], 'inventory-sockets-container');
     inventorySocketsContainerWrapper.appendChild(headerContainer);
@@ -179,7 +180,7 @@ function createInventorySocketsContainerWrapper(): HTMLElement {
 }
 
 function createInventoryPartsContainerWrapper(): HTMLElement {
-    const inventoryPartsContainerWrapper = WebManager.createWebElement('div', ['inventory-container-wrapper'], 'inventory-container-wrapper');
+    const inventoryPartsContainerWrapper = WebManager.createWebElement('div', ['inventory-container-wrapper'], 'inventory-parts-container-wrapper');
     const headerContainer = createHeaderContainer('Valid Parts');
     const inventoryPartsContainer = WebManager.createWebElement('div', ['inventory-container'], 'inventory-parts-container');
     inventoryPartsContainerWrapper.appendChild(headerContainer);
@@ -272,6 +273,7 @@ function handleCardOpacity(part: Part, playerData: PlayerData, opacityUnderCurso
         if (otherPart === part) return;
         const getSocket = otherPart.getSocketWithPart(part);
         const otherCard = document.getElementById('inventory-card-' + otherPart.id);
+        if (!otherCard) { return; }
         if (getSocket) {
             partCardText.style.color = textColor;
             otherCard.style.opacity = opacityUnderCursor;
@@ -293,6 +295,21 @@ function handleSocketOpacity(part: Part, socket: Socket, opacityUnderCursor: str
         const otherSocketCard = document.getElementById('socket-card-' + otherSocket.id);
         otherSocketText.style.color = textColor;
         otherSocketCard.style.opacity = otherOpacity;
+    });
+}
+
+function handlePartOpacity(part: Part, opacityUnderCursor: string, otherOpacity: string, textColor: string) {
+    const partText = document.getElementById('part-text-' + part.id);
+    const partCard = document.getElementById('part-card-' + part.id);
+    partText.style.color = textColor;
+    partCard.style.opacity = opacityUnderCursor;
+    
+    part.sockets.forEach(otherPart => {
+        if (otherPart.id === part.id) return;
+        const otherPartText = document.getElementById('part-text-' + otherPart.id);
+        const otherPartCard = document.getElementById('part-card-' + otherPart.id);
+        otherPartText.style.color = textColor;
+        otherPartCard.style.opacity = otherOpacity;
     });
 }
 
@@ -360,17 +377,32 @@ function mouseEvent_clickSocket(part: Part, socket: Socket): void {
 }
 
 function mouseEvent_hoverPart(part: Part, playerData: PlayerData) {
-    handleCardOpacity(part, playerData, '1', '0.4', '#d3d3d3');
+    handlePartOpacity(part, '1', '0.4', '#d3d3d3');
 }
 
 function mouseEvent_exitPart(part: Part, playerData: PlayerData) {
-    handleCardOpacity(part, playerData, '1', '1', '#777');
+    handlePartOpacity(part, '1', '1', '#777');
 }
 
 function mouseEvent_clickPart(part: Part, socket: Socket): void {
     const inventoryPartsContainer = document.getElementById('inventory-parts-container');
-    const socketText = document.getElementById('socket-text-' + socket.id);
     inventoryPartsContainer.innerHTML = '';
+    // check if (the part to socket) is in a different item
+    if (part.item) {
+        // - if it is in an item
+        // - - move the (the part to socket).item.parts to item.parts
+        socket.parent.item.parts = socket.parent.item.parts.concat(part.item.parts);
+        // - - set each otherPart.item to item
+        part.item.parts.forEach(part => {
+            part.item = socket.parent.item;
+        });
+    } else {
+        // - if it isnt in an item
+    }
     socket.attach(part);
-}
 
+    // maybe clear and repopulate items container
+    const inventoryItemsContainer = WebManager.createWebElement('div', ['inventory-container'], 'inventory-items-container');
+    inventoryItemsContainer.innerHTML = '';
+    populateInventoryItemsContainer(inventoryItemsContainer);
+}

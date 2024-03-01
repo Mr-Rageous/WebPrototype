@@ -74,6 +74,7 @@ export class Socket {
     attach(part: Part, fillReflectedSocket: boolean = false) {
         if (this.canAttach(part)) {
             this.part = part;
+            part.item = this.parent.item;
             if (fillReflectedSocket) {
                 part.sockets.find(socket => socket.canAttach(this.parent)).part = this.parent;
                 const thisSocketText = document.getElementById('socket-text-' + this.id);

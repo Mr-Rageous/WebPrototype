@@ -28,6 +28,7 @@ export class Inventory {
         });
         this.getUnattachedParts().forEach(part => {
             const itemWrapper = new Item([ part ], part.name, part.description)
+            part.item = itemWrapper;
             thisArray.push(itemWrapper);
         })
         return thisArray;
