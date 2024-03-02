@@ -25,7 +25,7 @@ tabs.forEach(tab => {
 });
 
 document.addEventListener("contextmenu", function(e) {
-    e.preventDefault(); // Prevent default context menu
+    // e.preventDefault(); // Prevent default context menu
     // provide right click method to rename items here...
     const elementUnderCursor = document.elementFromPoint(e.clientX, e.clientY);
     let itemPrefix = 'inventory-item-info-';
@@ -283,13 +283,13 @@ function createInventoryItemCard(item: Item): HTMLElement {
 
 function createInventoryCard(part: Part): HTMLElement {
     const cardContainer = WebManager.createWebElement('div', ['card-container'], 'inventory-card-' + part.id);
-    const thisCardInfo = WebManager.createWebElement('div', ['card-info'], 'inventory-info-' + part.id);
+    const thisCardInfo = WebManager.createWebElement('div', ['card-info', part.rarity], 'inventory-info-' + part.id);
     const thisCardInfoText = WebManager.createWebElement('h2', ['card-info-text'], 'inventory-text-' + part.id, part.name);
 
     thisCardInfo.appendChild(thisCardInfoText);
     cardContainer.appendChild(thisCardInfo);
-    thisCardInfoText.style.color = part.rarity;
 
+    
     cardContainer.addEventListener('mouseover', () => mouseEvent_hoverCard(part, userData));
     cardContainer.addEventListener('mouseout', () => mouseEvent_exitCard(part, userData));
     cardContainer.addEventListener('click', () => mouseEvent_clickCard(part));
