@@ -27,6 +27,16 @@ tabs.forEach(tab => {
 document.addEventListener("contextmenu", function(e) {
     e.preventDefault(); // Prevent default context menu
     // provide right click method to rename items here...
+    const elementUnderCursor = document.elementFromPoint(e.clientX, e.clientY);
+    let itemPrefix = 'inventory-item-info-';
+    let itemID = '';
+    if (elementUnderCursor.id.startsWith(itemPrefix)) {
+        itemID = elementUnderCursor.id.substring(itemPrefix.length);
+    }
+    if (itemID != '') {
+        console.log(elementUnderCursor);
+        console.log(itemID);
+    }
 });
 
 function loadContent(tabName: string) {
@@ -144,17 +154,59 @@ function populateInventoryItemsContainer(inventoryContainer: HTMLElement) {
     }
 }
 
+function replaceTextWithInput() {
+    // Get the editable content element
+    const editableContent = document.getElementById('inventory-info-name');
+    
+    // Get the current text content
+    const textContent = editableContent.textContent;
+    
+    // Create an input element
+    const inputElement = document.createElement('input');
+    inputElement.type = 'text';
+    inputElement.value = textContent;
+    inputElement.addEventListener('blur', saveTextContent); // Attach blur event listener
+    
+    // Replace the text content with the input field
+    editableContent.textContent = '';
+    editableContent.appendChild(inputElement);
+    
+    // Display the input field
+    inputElement.style.display = 'inline';
+    
+    // Focus on the input field
+    inputElement.focus();
+}
+
+function saveTextContent() {
+    // Get the input element
+    const inputElement = document.getElementById('inventory-info-name-input');
+    
+    // Get the new text content
+    const newTextContent = (inputElement as HTMLInputElement).value;
+    
+    // Get the editable content element
+    const editableContent = document.getElementById('inventory-info-name');
+    
+    // Update the text content with the new value
+    editableContent.textContent = newTextContent;
+    
+    // Hide the input field
+    inputElement.style.display = 'none';
+}
+
 function createInventoryInfoContainerWrapper(): HTMLElement {
     const inventoryInfoContainerWrapper = WebManager.createWebElement('div', ['inventory-info-container-wrapper'], 'inventory-info-container-wrapper');
     const headerContainer = createHeaderContainer('Item Information');
     const inventoryInfoContainer = WebManager.createWebElement('div', ['inventory-info-container'], 'inventory-info-container');
-    const nameProperty = WebManager.createWebElement('h2', ['card-info-text'], 'inventory-info-name', ''); // not appearing yet
+    const nameProperty = WebManager.createWebElement('h2', ['card-info-text'], 'inventory-info-name', 'Name:');
+    const nameEditProperty = WebManager.createWebElement('input', ['card-info-text-input'], 'inventory-info-name-input');
 
     inventoryInfoContainerWrapper.appendChild(headerContainer);
     inventoryInfoContainer.appendChild(nameProperty);
     inventoryInfoContainerWrapper.appendChild(inventoryInfoContainer);
 
-    // populateInventoryInfoContainer();
+    populateInventoryInfoContainer();
 
     return inventoryInfoContainerWrapper;
 }
@@ -163,8 +215,6 @@ function populateInventoryInfoContainer(item: Item = null) {
     const nameProperty = document.getElementById('inventory-info-name');
     if (item) {
         nameProperty.textContent = 'Name: ' + item.name;
-    } else {
-        nameProperty.textContent = 'Name:';
     }
 }
 
@@ -348,6 +398,7 @@ function mouseEvent_clickItem(item: Item): void {
         inventoryContainer.append(card);
         card.style.opacity = '0.4';
     });
+    populateInventoryInfoContainer(item);
 }
 
 function mouseEvent_hoverCard(part: Part, playerData: PlayerData) {
@@ -399,7 +450,7 @@ function mouseEvent_clickSocket(part: Part, socket: Socket): void {
                     newItemPart.item = null; // set its item to null so it is wrapped by the inventory
                     if (socket.parent.item.parts.includes(newItemPart)) { // if this part is in the old item
                         const partIndex = socket.parent.item.parts.indexOf(newItemPart); // find its index
-                        if (partIndex !== -1) { // if you cant not find it
+                        if (partIndex !== -1) { // if you can find it
                             socket.parent.item.parts.splice(partIndex, 1); // remove it
                         }
                     }

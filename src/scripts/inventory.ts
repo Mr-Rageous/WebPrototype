@@ -9,6 +9,10 @@ export class Inventory {
         this.locked = locked;
     }
 
+    // getPartByID? {
+    //    
+    // }
+
     getUnattachedParts() {
         let thisArray = [];
         this.parts.forEach(part => {
