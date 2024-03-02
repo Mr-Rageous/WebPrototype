@@ -2,7 +2,7 @@ import { PlayerData } from './playerData.js';
 import { settings, initialSettings } from './settings.js';
 import { WebManager, checkObjectForProperty } from './utility.js';
 import { sword_item } from './parts.js';
-import { Part, Socket } from './part.js';
+import { Part, Rarity, Socket } from './part.js';
 import { Item } from './item.js';
 
 // --------------------------------------------------------------------------------------------------------------------------------------------------------------------- USERDATA ------
@@ -288,6 +288,7 @@ function createInventoryCard(part: Part): HTMLElement {
 
     thisCardInfo.appendChild(thisCardInfoText);
     cardContainer.appendChild(thisCardInfo);
+    thisCardInfoText.style.color = part.rarity;
 
     
     cardContainer.addEventListener('mouseover', () => mouseEvent_hoverCard(part, userData));
@@ -402,7 +403,7 @@ function mouseEvent_clickItem(item: Item): void {
 }
 
 function mouseEvent_hoverCard(part: Part, playerData: PlayerData) {
-    handleCardOpacity(part, playerData, '1', '0.4', part.rarity);
+    handleCardOpacity(part, playerData, '1', '0.4', 'white');
 }
 
 function mouseEvent_exitCard(part: Part, playerData: PlayerData) {
