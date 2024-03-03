@@ -1,4 +1,5 @@
 import { Item } from './item.js';
+import { v4 as uuidv4 } from 'uuid';
 
 export enum Rarity {
     Zero = 'Black',
@@ -46,7 +47,7 @@ export class Socket {
     parent: Part;
     rules: Ruleset;
     constructor(parent: Part, whitelist = [], whiteRequiresAll = false, blacklist = [], blackRequiresAll = false, part = null) {
-        this.id = crypto.randomUUID();
+        this.id = generateRandomUuid();
         this.part = part;
         this.parent = parent;
         this.rules = new Ruleset(whitelist, whiteRequiresAll, blacklist, blackRequiresAll);
@@ -106,7 +107,7 @@ export class Part {
     rarity: Rarity;
 
     constructor(name: string, description: string, rarity: Rarity, types: string[] = [], sockets: Socket[] = []) {
-        this.id = crypto.randomUUID();
+        this.id = generateRandomUuid();
         this.name = name;
         this.description = description;
         this.types = types;
@@ -133,4 +134,22 @@ export class Part {
             return this.item.parts.splice(partIndex, 1);
         }
     }
+}
+
+export function generateRandomUuid(): string {
+    const randomBytes = new Uint8Array(16);
+    crypto.getRandomValues(randomBytes);
+
+    // Set the version bits (bits 12-15 of the time_hi_and_version field to 0010)
+    randomBytes[6] = (randomBytes[6] & 0x0f) | 0x40;
+    // Set the variant bits (bits 6 and 7 of the clock_seq_hi_and_reserved to 10)
+    randomBytes[8] = (randomBytes[8] & 0x3f) | 0x80;
+
+    // Convert UUID byte array to string representation
+    const hex = Array.from(randomBytes)
+        .map(byte => byte.toString(16).padStart(2, '0'))
+        .join('');
+
+    // Format the UUID according to the UUID standard format
+    return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
 }

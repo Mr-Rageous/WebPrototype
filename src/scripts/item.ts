@@ -1,4 +1,4 @@
-import { Part } from './part.js';
+import { Part, generateRandomUuid } from './part.js';
 
 export class Item {
     id: string;
@@ -7,7 +7,7 @@ export class Item {
     parts: Part[];
 
     constructor(parts: Part[], name: string = 'Nameless Item', description: string = 'A Collection of Parts') {
-        this.id = crypto.randomUUID();
+        this.id = generateRandomUuid();
         this.name = name;
         this.description = description;
         this.parts = parts;

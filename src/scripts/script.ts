@@ -90,10 +90,10 @@ function loadWorldPage() {
     const mapContainer = WebManager.createWebElement('div', ['map-container'], 'map-container');
     const mapHeader = createHeaderContainer('Map');
 
-    let mapWidth = 180;
-    let mapHeight = 130;
-    let tileSize = 10;
-    let tileDensity = 5;
+    let mapWidth = 32;
+    let mapHeight = 32;
+    let tileSize = 20;
+    let tileDensity = 10;
     const mapActual = loadMapGeneration(mapWidth, mapHeight); // Assuming this function returns the map data
 
     // Loop through each cell in the map data and create corresponding elements
@@ -567,10 +567,13 @@ function loadMapGeneration(w: number = 10, h: number = 10): number[][] {
     const width = w;
     const height = h;
     const terrainPatterns = [
-        TilePatterns.grass,
+        TilePatterns.grassy_town,
     ];
-    const buildingPatterns = [
-        TilePatterns.house,
+    const largeBuildingPatterns = [
+        TilePatterns.house_8_8,
+    ];
+    const smallBuildingPatterns = [
+        TilePatterns.house_4_4,
     ];
     const treePatterns = [
         TilePatterns.treeSmall,
@@ -580,9 +583,9 @@ function loadMapGeneration(w: number = 10, h: number = 10): number[][] {
     const mapGenerator = new MapGenerator(width, height);
     // mapGenerator.applyRules(); // broken right now
     mapGenerator.generateMap(terrainPatterns, -1);
-    mapGenerator.generateMap(buildingPatterns, 1);
-    mapGenerator.generateMap(treePatterns, 0);
-    const generatedMap = mapGenerator.generateMap(terrainPatterns, 2);
+    mapGenerator.generateMap(largeBuildingPatterns, 6);
+    mapGenerator.generateMap(smallBuildingPatterns, 5);
+    const generatedMap = mapGenerator.generateMap(treePatterns, 4);
     console.log(generatedMap);
     return generatedMap;
 }
