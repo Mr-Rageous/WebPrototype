@@ -25,8 +25,28 @@
     z-index: 1;
   }
 
+  .card-container:has(.Grey):hover > .card-info:before {
+    background: linear-gradient(350deg, transparent, hsla(0, 0%, 91%, 0.34) 100%)
+  }
+
+  .card-container:has(.Green):hover > .card-info:before {
+    background: linear-gradient(350deg, transparent, hsla(125, 100%, 50%, 0.34) 100%)
+  }
+
   .card-container:has(.Cyan):hover > .card-info:before {
     background: linear-gradient(350deg, transparent, hsla(198, 100%, 50%, 0.34) 100%)
+  }
+
+  .card-container:has(.Purple):hover > .card-info:before {
+    background: linear-gradient(350deg, transparent, hsla(293, 100%, 50%, 0.34) 100%)
+  }
+
+  .card-container:has(.Orange):hover > .card-info:before {
+    background: linear-gradient(350deg, transparent, hsla(51, 100%, 50%, 0.34) 100%)
+  }
+
+  .card-container:has(.Gold):hover > .card-info:before {
+    background: linear-gradient(350deg, transparent, hsla(335, 100%, 50%, 0.34) 100%)
   }
   
   .card-info-text {

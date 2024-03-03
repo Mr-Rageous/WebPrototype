@@ -4,6 +4,7 @@ import { WebManager, checkObjectForProperty } from './utility.js';
 import { sword_item } from './parts.js';
 import { Part, Rarity, Socket } from './part.js';
 import { Item } from './item.js';
+import { MapGenerator } from './MapGenerator.js';
 
 // --------------------------------------------------------------------------------------------------------------------------------------------------------------------- USERDATA ------
 const userData = new PlayerData('userData');
@@ -83,7 +84,7 @@ function loadHomePage() {
 }
 
 function loadWorldPage() {
-
+    loadMapGeneration(30, 30);
 }
 
 function loadPlayerPage() {
@@ -500,4 +501,41 @@ function mouseEvent_clickPart(part: Part, socket: Socket): void {
     const inventoryItemsContainer = document.getElementById('inventory-items-container');
     inventoryItemsContainer.innerHTML = '';
     populateInventoryItemsContainer(inventoryItemsContainer);
+}
+
+function loadMapGeneration(w: number = 10, h: number = 10) {
+    const width = w;
+    const height = h;
+    const patterns = [
+        [
+          [1, 1, 1, 1],
+          [1, 1, 1, 1],
+          [1, 1, 1, 1],
+          [1, 1, 1, 1]
+        ],
+        [
+          [1, 1, 0, 1],
+          [1, 1, 0, 1],
+          [0, 0, 0, 0],
+          [1, 1, 0, 1]
+        ],
+        [
+          [1, 1, 1, 1],
+          [1, 1, 1, 1],
+          [0, 0, 0, 0],
+          [1, 1, 1, 1]
+        ],
+        [
+          [1, 1, 0, 1],
+          [1, 1, 0, 1],
+          [1, 1, 0, 1],
+          [1, 1, 0, 1]
+        ]
+      
+      // Add more patterns here
+    ];
+    
+    const mapGenerator = new MapGenerator(width, height, patterns);
+    const generatedMap = mapGenerator.generateMap();
+    console.log(generatedMap);
 }
