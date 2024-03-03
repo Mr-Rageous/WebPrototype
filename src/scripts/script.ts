@@ -5,6 +5,7 @@ import { sword_item } from './parts.js';
 import { Part, Rarity, Socket } from './part.js';
 import { Item } from './item.js';
 import { MapGenerator } from './mapGenerator.js';
+import * as TilePatterns from './patterns.js';
 
 // --------------------------------------------------------------------------------------------------------------------------------------------------------------------- USERDATA ------
 const userData = new PlayerData('userData');
@@ -134,6 +135,10 @@ function getColorForTileValue(tileValue) {
             return 'blue';
         case 1:
             return 'green';
+        case 2:
+            return 'grey';
+        case 3:
+            return 'brown';
         // Add more cases as needed for other tile values
         default:
             return 'black'; // Default color
@@ -560,12 +565,8 @@ function loadMapGeneration(w: number = 10, h: number = 10): number[][] {
     const width = w;
     const height = h;
     const patterns = [
-        [
-          [1, 1, 1, 1],
-          [1, 1, 1, 1],
-          [1, 1, 1, 1],
-          [1, 1, 1, 1]
-        ],
+        TilePatterns.grass,
+        TilePatterns.house,
         [
           [1, 1, 0, 1],
           [1, 1, 0, 1],
@@ -589,6 +590,7 @@ function loadMapGeneration(w: number = 10, h: number = 10): number[][] {
     ];
     
     const mapGenerator = new MapGenerator(width, height, patterns);
+    // mapGenerator.applyRules(); // broken right now
     const generatedMap = mapGenerator.generateMap();
     console.log(generatedMap);
     return generatedMap;

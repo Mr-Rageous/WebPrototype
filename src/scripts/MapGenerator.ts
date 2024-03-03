@@ -65,11 +65,11 @@ export class MapGenerator {
     const startCol = Math.floor(Math.random() * this.width);
     const startRow = 0;
     this.outputMap[startRow][startCol] = 0;
-  
+
     for (let col = 1; col < this.width; col++) {
       const prevCol = col - 1;
       const possibleMoves = [];
-  
+
       // Check adjacent cells
       if (prevCol - 1 >= 0 && this.outputMap[startRow][prevCol - 1] === 0) {
         possibleMoves.push(-1);
@@ -80,13 +80,12 @@ export class MapGenerator {
       if (prevCol + 1 < this.width && this.outputMap[startRow][prevCol + 1] === 0) {
         possibleMoves.push(1);
       }
-  
+
       // Choose a random move
       const move = possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
-  
+
       // Apply the move
       this.outputMap[startRow][col] = move;
     }
   }
 }
-  
