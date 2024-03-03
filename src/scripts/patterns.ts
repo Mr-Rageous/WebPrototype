@@ -49,12 +49,12 @@ export const house_4_4 =
   [2, 3, 3, 2],
   [2, 2, 2, 2],
 ]
-export const treeSmall =
-[
-  [4],
-]
 export const treeNormal =
 [
   [4, 4],
   [4, 4]
+]
+export const treeSmall =
+[
+  [4],
 ]
