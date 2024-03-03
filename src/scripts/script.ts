@@ -4,7 +4,7 @@ import { WebManager, checkObjectForProperty } from './utility.js';
 import { sword_item } from './parts.js';
 import { Part, Rarity, Socket } from './part.js';
 import { Item } from './item.js';
-import { MapGenerator } from './MapGenerator.js';
+import { MapGenerator } from './mapGenerator.js';
 
 // --------------------------------------------------------------------------------------------------------------------------------------------------------------------- USERDATA ------
 const userData = new PlayerData('userData');
@@ -84,7 +84,60 @@ function loadHomePage() {
 }
 
 function loadWorldPage() {
-    loadMapGeneration(30, 30);
+    const pageContent = WebManager.createWebElement('div', ['world-page'], 'page-content');
+    const mapContainerWrapper = WebManager.createWebElement('div', ['map-container-wrapper'], 'map-container-wrapper');
+    const mapContainer = WebManager.createWebElement('div', ['map-container'], 'map-container');
+    const mapHeader = createHeaderContainer('Map');
+
+    let mapWidth = 180;
+    let mapHeight = 130;
+    let tileSize = 10;
+    let tileDensity = 5;
+    const mapActual = loadMapGeneration(mapWidth, mapHeight); // Assuming this function returns the map data
+
+    // Loop through each cell in the map data and create corresponding elements
+    for (let y = 0; y < mapHeight; y++) {
+        for (let x = 0; x < mapWidth; x++) {
+            let thisTile = mapActual[y][x];
+            const mapTile = WebManager.createWebElement('h2', ['map-tile'], 'mapTile-' + x + '-' + y, thisTile.toString());
+
+            // Set font size to half of current font size
+            // const currentFontSize = parseInt(window.getComputedStyle(mapTile).fontSize);
+            mapTile.style.fontSize = `${tileSize}px`;
+
+            // Set color based on tile value
+            mapTile.style.color = getColorForTileValue(thisTile);
+
+            mapContainer.appendChild(mapTile);
+        }
+    }
+
+    // Set grid layout CSS to display the elements in a grid
+    mapContainer.style.display = 'grid';
+    mapContainer.style.gridTemplateColumns = `repeat(${mapWidth}, ${tileDensity}px)`;
+    mapContainer.style.gridTemplateRows = `repeat(${mapHeight}, ${tileDensity}px)`;
+    mapContainer.style.gap = '1px';
+
+    mapContainerWrapper.appendChild(mapHeader);
+    mapContainerWrapper.appendChild(mapContainer);
+
+    pageContent.appendChild(mapContainerWrapper);
+    mainContent.appendChild(pageContent);
+}
+
+// Function to get color for tile value
+function getColorForTileValue(tileValue) {
+    // Define color mapping based on tile value
+    // For example, if tileValue is 0, set color to blue; if tileValue is 1, set color to green, etc.
+    switch (tileValue) {
+        case 0:
+            return 'blue';
+        case 1:
+            return 'green';
+        // Add more cases as needed for other tile values
+        default:
+            return 'black'; // Default color
+    }
 }
 
 function loadPlayerPage() {
@@ -503,7 +556,7 @@ function mouseEvent_clickPart(part: Part, socket: Socket): void {
     populateInventoryItemsContainer(inventoryItemsContainer);
 }
 
-function loadMapGeneration(w: number = 10, h: number = 10) {
+function loadMapGeneration(w: number = 10, h: number = 10): number[][] {
     const width = w;
     const height = h;
     const patterns = [
@@ -538,4 +591,5 @@ function loadMapGeneration(w: number = 10, h: number = 10) {
     const mapGenerator = new MapGenerator(width, height, patterns);
     const generatedMap = mapGenerator.generateMap();
     console.log(generatedMap);
+    return generatedMap;
 }
