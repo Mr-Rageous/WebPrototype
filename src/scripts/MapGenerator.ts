@@ -1,13 +1,14 @@
 export class MapGenerator {
   width: number;
   height: number;
-  patterns: number[][][];
+  terrainPatterns: number[][][];
+  buildingPatterns: number[][][];
+  treePatterns: number[][][];
   outputMap: number[][];
   
-  constructor(width: number, height: number, patterns: number[][][]) {
+  constructor(width: number, height: number) {
     this.width = width;
     this.height = height;
-    this.patterns = patterns;
     this.outputMap = this.initializeOutputMap();
   }
   
@@ -17,11 +18,12 @@ export class MapGenerator {
   }
   
   // Generate the map using wave collapse algorithm
-  generateMap(): number[][] {
+  generateMap(patterns: number[][][], outputFilter: number = -1): number[][] {
+    // terrain pass
     for (let y = 0; y < this.height; y++) {
       for (let x = 0; x < this.width; x++) {
-        if (this.outputMap[y][x] === -1) {
-          this.collapseWave(x, y);
+        if (this.outputMap[y][x] === outputFilter) {
+          this.collapseWave(x, y, patterns, outputFilter);
         }
       }
     }
@@ -29,25 +31,25 @@ export class MapGenerator {
   }
   
   // Collapse wave at the given position
-  collapseWave(x: number, y: number): void {
-    const pattern = this.selectRandomPattern();
-    this.applyPattern(pattern, x, y);
+  collapseWave(x: number, y: number, patterns: number[][][], outputFilter: number = -1): void {
+    const pattern = this.selectRandomPattern(patterns);
+    this.applyPattern(pattern, x, y, outputFilter);
   }
   
   // Select a random pattern from available patterns
-  selectRandomPattern(): number[][] {
-    const patternIndex = Math.floor(Math.random() * this.patterns.length);
-    return this.patterns[patternIndex];
+  selectRandomPattern(patterns: number[][][]): number[][] {
+    const patternIndex = Math.floor(Math.random() * patterns.length);
+    return patterns[patternIndex];
   }
   
   // Apply the chosen pattern to the output map at the given position
-  applyPattern(pattern: number[][], x: number, y: number): void {
+  applyPattern(pattern: number[][], x: number, y: number, outputFilter: number = -1): void {
     for (let py = 0; py < pattern.length; py++) {
       for (let px = 0; px < pattern[py].length; px++) {
         const mapX = x + px;
         const mapY = y + py;
   
-        if (this.isWithinBounds(mapX, mapY) && this.outputMap[mapY][mapX] === -1) {
+        if (this.isWithinBounds(mapX, mapY) && this.outputMap[mapY][mapX] === outputFilter) {
           this.outputMap[mapY][mapX] = pattern[py][px];
         }
       }

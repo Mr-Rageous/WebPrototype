@@ -131,13 +131,15 @@ function getColorForTileValue(tileValue) {
     // Define color mapping based on tile value
     // For example, if tileValue is 0, set color to blue; if tileValue is 1, set color to green, etc.
     switch (tileValue) {
-        case 0:
+        case 0: // water
             return 'blue';
-        case 1:
+        case 1: // grass
             return 'green';
-        case 2:
+        case 2: // building walls
             return 'grey';
-        case 3:
+        case 3: // building floor -- hidden
+            return 'black';
+        case 4: // trees
             return 'brown';
         // Add more cases as needed for other tile values
         default:
@@ -564,34 +566,23 @@ function mouseEvent_clickPart(part: Part, socket: Socket): void {
 function loadMapGeneration(w: number = 10, h: number = 10): number[][] {
     const width = w;
     const height = h;
-    const patterns = [
+    const terrainPatterns = [
         TilePatterns.grass,
+    ];
+    const buildingPatterns = [
         TilePatterns.house,
-        [
-          [1, 1, 0, 1],
-          [1, 1, 0, 1],
-          [0, 0, 0, 0],
-          [1, 1, 0, 1]
-        ],
-        [
-          [1, 1, 1, 1],
-          [1, 1, 1, 1],
-          [0, 0, 0, 0],
-          [1, 1, 1, 1]
-        ],
-        [
-          [1, 1, 0, 1],
-          [1, 1, 0, 1],
-          [1, 1, 0, 1],
-          [1, 1, 0, 1]
-        ]
-      
-      // Add more patterns here
+    ];
+    const treePatterns = [
+        TilePatterns.treeSmall,
+        TilePatterns.treeNormal,
     ];
     
-    const mapGenerator = new MapGenerator(width, height, patterns);
+    const mapGenerator = new MapGenerator(width, height);
     // mapGenerator.applyRules(); // broken right now
-    const generatedMap = mapGenerator.generateMap();
+    mapGenerator.generateMap(terrainPatterns, -1);
+    mapGenerator.generateMap(buildingPatterns, 1);
+    mapGenerator.generateMap(treePatterns, 0);
+    const generatedMap = mapGenerator.generateMap(terrainPatterns, 2);
     console.log(generatedMap);
     return generatedMap;
 }
