@@ -4,7 +4,7 @@ import { WebManager, checkObjectForProperty } from './utility.js';
 import { sword_item } from './parts.js';
 import { Part, Rarity, Socket } from './part.js';
 import { Item } from './item.js';
-import { MapGenerator } from './mapGenerator.js';
+import { MapGenerator, Pattern, TileFacing } from './mapGenerator.js';
 import * as TilePatterns from './patterns.js';
 
 // --------------------------------------------------------------------------------------------------------------------------------------------------------------------- USERDATA ------
@@ -90,19 +90,19 @@ function loadWorldPage() {
     const mapContainer = WebManager.createWebElement('div', ['map-container'], 'map-container');
     const mapHeader = createHeaderContainer('Map');
 
-    let mapWidth = 32;
-    let mapHeight = 32;
-    let tileSize = 20;
+    let mapWidth = 64;
+    let mapHeight = 64;
+    let tileSize = 15;
     let tileDensity = 10;
-    const mapActual = loadMapGeneration(mapWidth, mapHeight); // Assuming this function returns the map data
+    const mapActual = buildHouse(mapWidth, mapHeight); // Assuming this function returns the map data
 
     // Loop through each cell in the map data and create corresponding elements
     for (let y = 0; y < mapHeight; y++) {
         for (let x = 0; x < mapWidth; x++) {
-            let thisTile = mapActual[y][x];
+            let thisTile = mapActual.content[y][x];
             const mapTile = WebManager.createWebElement('h2', ['map-tile'], 'mapTile-' + x + '-' + y, thisTile.toString());
 
-            // Set font size to half of current font size
+            // Set font size
             // const currentFontSize = parseInt(window.getComputedStyle(mapTile).fontSize);
             mapTile.style.fontSize = `${tileSize}px`;
 
@@ -563,29 +563,34 @@ function mouseEvent_clickPart(part: Part, socket: Socket): void {
     populateInventoryItemsContainer(inventoryItemsContainer);
 }
 
-function loadMapGeneration(w: number = 10, h: number = 10): number[][] {
+function buildHouse(w: number = 10, h: number = 10): Pattern {
     const width = w;
     const height = h;
-    const terrainPatterns = [
-        TilePatterns.grassy_town,
+    const basePatterns = [
+        TilePatterns.house_pattern_base,
     ];
-    const largeBuildingPatterns = [
-        TilePatterns.house_8_8,
+    const passOne = [
+        TilePatterns.house_int_topleft, TilePatterns.house_int_topright, TilePatterns.house_int_botleft, TilePatterns.house_int_botright,
     ];
-    const smallBuildingPatterns = [
-        TilePatterns.house_4_4,
+    const passTwo = [
+        TilePatterns.house_int_topleft, TilePatterns.house_int_topright, TilePatterns.house_int_botleft, TilePatterns.house_int_botright,
     ];
-    const treePatterns = [
-        TilePatterns.treeSmall,
-        TilePatterns.treeNormal,
+    const passThree = [
+        TilePatterns.house_int_topleft, TilePatterns.house_int_topright, TilePatterns.house_int_botleft, TilePatterns.house_int_botright,
+    ];
+    const passFour = [
+        TilePatterns.house_int_topleft, TilePatterns.house_int_topright, TilePatterns.house_int_botleft, TilePatterns.house_int_botright,
     ];
     
     const mapGenerator = new MapGenerator(width, height);
     // mapGenerator.applyRules(); // broken right now
-    mapGenerator.generateMap(terrainPatterns, -1);
-    mapGenerator.generateMap(largeBuildingPatterns, 6);
-    mapGenerator.generateMap(smallBuildingPatterns, 5);
-    const generatedMap = mapGenerator.generateMap(treePatterns, 4);
-    console.log(generatedMap);
+    mapGenerator.applyGeneration(basePatterns, -1);
+    mapGenerator.applyGeneration(passOne, 9);
+    mapGenerator.applyGeneration(passTwo, 8);
+    mapGenerator.applyGeneration(passThree, 7);
+    mapGenerator.applyGeneration(passFour, 6);
+    mapGenerator.outputMap = mapGenerator.rotate90Degrees(mapGenerator.outputMap);
+    mapGenerator.outputMap = mapGenerator.rotate90Degrees(mapGenerator.outputMap);
+    const generatedMap = mapGenerator.outputMap;
     return generatedMap;
 }
