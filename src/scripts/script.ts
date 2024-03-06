@@ -566,31 +566,55 @@ function mouseEvent_clickPart(part: Part, socket: Socket): void {
 function buildHouse(w: number = 10, h: number = 10): Pattern {
     const width = w;
     const height = h;
-    const basePatterns = [
-        TilePatterns.house_pattern_base,
-    ];
-    const passOne = [
-        TilePatterns.house_int_topleft, TilePatterns.house_int_topright, TilePatterns.house_int_botleft, TilePatterns.house_int_botright,
-    ];
-    const passTwo = [
-        TilePatterns.house_int_topleft, TilePatterns.house_int_topright, TilePatterns.house_int_botleft, TilePatterns.house_int_botright,
-    ];
-    const passThree = [
-        TilePatterns.house_int_topleft, TilePatterns.house_int_topright, TilePatterns.house_int_botleft, TilePatterns.house_int_botright,
-    ];
-    const passFour = [
-        TilePatterns.house_int_topleft, TilePatterns.house_int_topright, TilePatterns.house_int_botleft, TilePatterns.house_int_botright,
-    ];
-    
     const mapGenerator = new MapGenerator(width, height);
-    // mapGenerator.applyRules(); // broken right now
+    
+    // randomly rotate the direction of the front door
+    const house_pattern_base_1 = mapGenerator.rotate90Degrees(TilePatterns.house_pattern_base);
+    const house_pattern_base_2 = mapGenerator.rotate90Degrees(house_pattern_base_1);
+    const house_pattern_base_3 = mapGenerator.rotate90Degrees(house_pattern_base_2);
+
+    // procedurally add the rotations to the base layer, this should be done more elegantly.
+    const basePatterns = [
+        TilePatterns.house_pattern_base, house_pattern_base_1, house_pattern_base_2, house_pattern_base_3
+    ];
+    // the following is top left area (9 on base template)
+    const passOne = [
+        TilePatterns.house_int_topleft,
+        TilePatterns.house_int_topright,
+        TilePatterns.house_int_botleft,
+        TilePatterns.house_int_botright,
+    ];
+    // the following is top right area (8 on base template)
+    const passTwo = [
+        TilePatterns.house_int_topleft,
+        TilePatterns.house_int_topright,
+        TilePatterns.house_int_botleft,
+        TilePatterns.house_int_botright,
+    ];
+    // the following is bottom right area (7 on base template)
+    const passThree = [
+        TilePatterns.house_int_topleft,
+        TilePatterns.house_int_topright,
+        TilePatterns.house_int_botleft,
+        TilePatterns.house_int_botright,
+    ];
+    // the following is bottom left area (6 on base template)
+    const passFour = [
+        TilePatterns.house_int_topleft,
+        TilePatterns.house_int_topright,
+        TilePatterns.house_int_botleft,
+        TilePatterns.house_int_botright,
+    ];
+    // run the base pattern list over the entire map size
     mapGenerator.applyGeneration(basePatterns, -1);
+    // pass for each room, though this can be achieved with
+    // turning the bandFilter into an array, and then checking
+    // the array instead of just the single filter number.
     mapGenerator.applyGeneration(passOne, 9);
     mapGenerator.applyGeneration(passTwo, 8);
     mapGenerator.applyGeneration(passThree, 7);
     mapGenerator.applyGeneration(passFour, 6);
-    mapGenerator.outputMap = mapGenerator.rotate90Degrees(mapGenerator.outputMap);
-    mapGenerator.outputMap = mapGenerator.rotate90Degrees(mapGenerator.outputMap);
+    // grab the map for logging purposes, otherwise dont cache.
     const generatedMap = mapGenerator.outputMap;
     return generatedMap;
 }

@@ -144,9 +144,9 @@ export const house_pattern_base = new Pattern(
 )
 export const house_int_topleft = new Pattern(
   [
-    [3, 3, 4],
+    [3, 3, 0],
     [3, 3, 2],
-    [4, 2, 2],
+    [0, 2, 2],
   ]
 );
 export const house_int_topright = new Pattern(
@@ -158,7 +158,7 @@ export const house_int_topright = new Pattern(
 );
 export const house_int_botleft = new Pattern(
   [
-    [3, 3, 4],
+    [3, 3, 0],
     [3, 3, 2],
     [3, 3, 2],
   ]
