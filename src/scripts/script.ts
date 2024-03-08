@@ -5,16 +5,16 @@ import { sword_item } from './parts.js';
 import { Part, Rarity, Socket } from './part.js';
 import { Item } from './item.js';
 import { MapGenerator, Pattern, PatternFacing, Tile } from './mapGenerator.js';
-import * as TilePatterns from './patterns.js';
+import * as HousePatterns from './patterns/house_patterns.js';
+import * as ShopPatterns from './patterns/shop_patterns.js';
 
-// --------------------------------------------------------------------------------------------------------------------------------------------------------------------- USERDATA ------
 const userData = new PlayerData('userData');
-// --------------------------------------------------------------------------------------------------------------------------------------------------------------------- SETTINGS ------
+
 function addSettingToSettingPage(setting: any) { settings.push(setting); }
 initialSettings.forEach(setting => { addSettingToSettingPage(setting); });
-// --------------------------------------------------------------------------------------------------------------------------------------------------------------------- CRAFTING ------
+
 sword_item.forEach(part => { userData.inventory.parts.push(part); });
-// --------------------------------------------------------------------------------------------------------------------------------------------------------------------- TABS ----------
+
 const tabs = document.querySelectorAll('.tabs li');
 const mainContent = document.querySelector('.main-content');
 
@@ -78,83 +78,31 @@ function virtualClickOnTab(tabName: string) {
     });
 }
 
-virtualClickOnTab('Inventory');
-
+virtualClickOnTab('World');
+// -- home --
 function loadHomePage() {
 
 }
-
+// -- world --
 function loadWorldPage() {
     const pageContent = WebManager.createWebElement('div', ['world-page'], 'page-content');
-    const mapContainerWrapper = WebManager.createWebElement('div', ['map-container-wrapper'], 'map-container-wrapper');
-    const mapContainer = WebManager.createWebElement('div', ['map-container'], 'map-container');
-    const mapHeader = createHeaderContainer('Map');
-
-    let mapWidth = 64;
-    let mapHeight = 64;
-    let tileSize = 15;
-    let tileDensity = 9;
-    const mapActual = buildHouse(mapWidth, mapHeight); // Assuming this function returns the map data
-
-    // Loop through each cell in the map data and create corresponding elements
-    for (let y = 0; y < mapHeight; y++) {
-        for (let x = 0; x < mapWidth; x++) {
-            let thisTile = mapActual.content[y][x];
-            const mapTile = WebManager.createWebElement('h2', ['map-tile'], 'mapTile-' + x + '-' + y, '■');
-
-            // Set font size
-            // const currentFontSize = parseInt(window.getComputedStyle(mapTile).fontSize);
-            mapTile.style.fontSize = `${tileSize}px`;
-
-            // Set color based on tile value
-            mapTile.style.color = thisTile.color;
-
-            mapContainer.appendChild(mapTile);
-        }
-    }
-
-    // Set grid layout CSS to display the elements in a grid
-    mapContainer.style.display = 'grid';
-    mapContainer.style.gridTemplateColumns = `repeat(${mapWidth}, ${tileDensity}px)`;
-    mapContainer.style.gridTemplateRows = `repeat(${mapHeight}, ${tileDensity}px)`;
-    mapContainer.style.gap = '1px';
-
-    mapContainerWrapper.appendChild(mapHeader);
-    mapContainerWrapper.appendChild(mapContainer);
-
-    pageContent.appendChild(mapContainerWrapper);
+    const tileSize = 15;
+    const tileDensity = 9;
+    const mapShopContainerWrapper = createMapShopContainer(64, 12, tileSize, tileDensity);
+    pageContent.appendChild(mapShopContainerWrapper);
+    const mapHouseContainerWrapper = createMapHouseContainer(64, 8, tileSize, tileDensity);
+    pageContent.appendChild(mapHouseContainerWrapper);
     mainContent.appendChild(pageContent);
 }
-
-// Function to get color for tile value
-function getColorForTileValue(tileValue) {
-    // Define color mapping based on tile value
-    // For example, if tileValue is 0, set color to blue; if tileValue is 1, set color to green, etc.
-    switch (tileValue) {
-        case 0: // water
-            return 'blue';
-        case 1: // grass
-            return 'green';
-        case 2: // building walls
-            return 'grey';
-        case 3: // building floor -- hidden
-            return 'black';
-        case 4: // trees
-            return 'brown';
-        // Add more cases as needed for other tile values
-        default:
-            return 'black'; // Default color
-    }
-}
-
+// -- player --
 function loadPlayerPage() {
 
 }
-
+// -- research --
 function loadResearchPage() {
 
 }
-
+// -- settings --
 function loadSettingsPage() {
     const settingsContent = WebManager.createWebElement('div', ['settings-content'], '');
     const settingsContainerWrapper = WebManager.createWebElement('div', ['settings-container-wrapper'], '');
@@ -180,7 +128,7 @@ function loadSettingsPage() {
 
     mainContent.appendChild(settingsContent);
 }
-
+// -- inventory --
 function loadInventoryPage() {
     const pageContent = createInventoryPageContent();
 
@@ -438,7 +386,7 @@ function handlePartOpacity(part: Part, opacityUnderCursor: string, otherOpacity:
     partText.style.color = textColor;
     partCard.style.opacity = opacityUnderCursor;
 }
-
+// -- mouse events --
 function mouseEvent_hoverItem(item: Item) {
     handleItemOpacity(item, '1', '#fff');
 }
@@ -562,60 +510,136 @@ function mouseEvent_clickPart(part: Part, socket: Socket): void {
     inventoryItemsContainer.innerHTML = '';
     populateInventoryItemsContainer(inventoryItemsContainer);
 }
-
+// -- mapping --
 function buildHouse(w: number = 10, h: number = 10): Pattern {
     const width = w;
     const height = h;
     const mapGenerator = new MapGenerator(width, height);
     
     // randomly rotate the direction of the front door
-    const house_pattern_base_1 = mapGenerator.rotate90Degrees(TilePatterns.house_pattern_base);
+    const house_pattern_base_1 = mapGenerator.rotate90Degrees(HousePatterns.house1_base);
     const house_pattern_base_2 = mapGenerator.rotate90Degrees(house_pattern_base_1);
     const house_pattern_base_3 = mapGenerator.rotate90Degrees(house_pattern_base_2);
 
     // procedurally add the rotations to the base layer, this should be done more elegantly.
     const basePatterns = [
-        TilePatterns.house_pattern_base, house_pattern_base_1, house_pattern_base_2, house_pattern_base_3
+        HousePatterns.house1_base, house_pattern_base_1, house_pattern_base_2, house_pattern_base_3
     ];
     // the following is top left area (9 on base template)
     const passOne = [
-        TilePatterns.house_int_topleft,
-        TilePatterns.house_int_topright,
-        TilePatterns.house_int_botleft,
-        TilePatterns.house_int_botright,
+        HousePatterns.house1_zone1,
     ];
     // the following is top right area (8 on base template)
     const passTwo = [
-        TilePatterns.house_int_topleft,
-        TilePatterns.house_int_topright,
-        TilePatterns.house_int_botleft,
-        TilePatterns.house_int_botright,
+        HousePatterns.house1_zone2,
     ];
     // the following is bottom right area (7 on base template)
     const passThree = [
-        TilePatterns.house_int_topleft,
-        TilePatterns.house_int_topright,
-        TilePatterns.house_int_botleft,
-        TilePatterns.house_int_botright,
+        HousePatterns.house1_zone3,
     ];
     // the following is bottom left area (6 on base template)
     const passFour = [
-        TilePatterns.house_int_topleft,
-        TilePatterns.house_int_topright,
-        TilePatterns.house_int_botleft,
-        TilePatterns.house_int_botright,
+        HousePatterns.house1_zone4,
     ];
     // run the base pattern list over the entire map size
     mapGenerator.applyGeneration(basePatterns, Tile.tiles['empty']);
     // pass for each room, though this can be achieved with
     // turning the bandFilter into an array, and then checking
     // the array instead of just the single filter number.
-    mapGenerator.applyGeneration(passOne, Tile.tiles['hidden']);
-    mapGenerator.applyGeneration(passTwo, Tile.tiles['grass']);
-    mapGenerator.applyGeneration(passThree, Tile.tiles['wood']);
-    mapGenerator.applyGeneration(passFour, Tile.tiles['water']);
+    mapGenerator.applyGeneration(passOne, Tile.tiles['zone1']);
+    mapGenerator.applyGeneration(passTwo, Tile.tiles['zone2']);
+    mapGenerator.applyGeneration(passThree, Tile.tiles['zone3']);
+    mapGenerator.applyGeneration(passFour, Tile.tiles['zone4']);
     // grab the map for logging purposes, otherwise dont cache.
     const generatedMap = mapGenerator.outputMap;
-    // console.log(generatedMap);
+    console.log(generatedMap);
     return generatedMap;
+}
+
+function buildCityShop(w: number = 10, h: number = 10): Pattern {
+    const width = w;
+    const height = h;
+    const mapGenerator = new MapGenerator(width, height);
+    
+    const shop1_base_90deg = mapGenerator.rotate90Degrees(ShopPatterns.shop1_base);
+    const shop1_base_180deg = mapGenerator.rotate90Degrees(shop1_base_90deg);
+    const shop1_base_270deg = mapGenerator.rotate90Degrees(shop1_base_180deg);
+
+    const basePatterns = [
+        ShopPatterns.shop1_base,
+    ];
+    const passOne = [
+        ShopPatterns.shop1_zone1_0, ShopPatterns.shop1_zone1_1, ShopPatterns.shop1_zone1_2
+    ];
+    const passTwo = [
+        ShopPatterns.shop1_zone2_0, ShopPatterns.shop1_zone2_1
+    ];
+    const passThree = [
+        ShopPatterns.shop1_zone3_0, ShopPatterns.shop1_zone3_1, ShopPatterns.shop1_zone3_2,
+        ShopPatterns.shop1_zone3_3, ShopPatterns.shop1_zone3_4, ShopPatterns.shop1_zone3_5,
+        ShopPatterns.shop1_zone3_6
+    ];
+    const passFour = [
+        ShopPatterns.shop1_zone4_0, ShopPatterns.shop1_zone4_1, ShopPatterns.shop1_zone4_2
+    ];
+    mapGenerator.applyGeneration(basePatterns, Tile.tiles['empty']);
+    mapGenerator.applyGeneration(passOne, Tile.tiles['zone1']);
+    mapGenerator.applyGeneration(passTwo, Tile.tiles['zone2']);
+    mapGenerator.applyGeneration(passThree, Tile.tiles['zone3']);
+    mapGenerator.applyGeneration(passFour, Tile.tiles['zone4']);
+    const generatedMap = mapGenerator.outputMap;
+    console.log(generatedMap);
+    return generatedMap;
+}
+
+function displayPattern(patternType: string, mapWidth: number, mapHeight: number, tileSize: number, mapContainer: HTMLElement, pattern: Pattern) {
+    const mapActual = pattern; // Assuming this function returns the map data
+
+    for (let y = 0; y < mapHeight; y++) {
+        for (let x = 0; x < mapWidth; x++) {
+            let thisTile = mapActual.content[y][x];
+            const mapTile = WebManager.createWebElement('h2', ['map-tile'], 'mapTile-' + patternType.toLowerCase() + '-' + x + '-' + y, '■');
+            mapTile.style.fontSize = `${tileSize}px`;
+            mapTile.style.color = thisTile.color;
+            mapContainer.appendChild(mapTile);
+        }
+    }
+}
+
+function createMapHouseContainer(mapWidth: number, mapHeight: number, tileSize: number, tileDensity: number) {
+    const mapContainerWrapper = WebManager.createWebElement('div', ['map-container-wrapper'], 'map-house-container-wrapper');
+    const mapContainer = WebManager.createWebElement('div', ['map-container'], 'map-house-container');
+    mapContainerWrapper.style.marginLeft = '2%';
+    const mapHeader = createHeaderContainer('Random Houses (8x8)');
+    
+    displayPattern('House', mapWidth, mapHeight, tileSize, mapContainer, buildHouse(mapWidth, mapHeight));
+
+    mapContainer.style.display = 'grid';
+    mapContainer.style.gridTemplateColumns = `repeat(${mapWidth}, ${tileDensity}px)`;
+    mapContainer.style.gridTemplateRows = `repeat(${mapHeight}, ${tileDensity}px)`;
+    mapContainer.style.gap = '1px';
+
+    mapContainerWrapper.appendChild(mapHeader);
+    mapContainerWrapper.appendChild(mapContainer);
+
+    return mapContainerWrapper;
+}
+
+function createMapShopContainer(mapWidth: number, mapHeight: number, tileSize: number, tileDensity: number) {
+    const mapContainerWrapper = WebManager.createWebElement('div', ['map-container-wrapper'], 'map-house-container-wrapper');
+    mapContainerWrapper.style.marginLeft = '2%';
+    const mapContainer = WebManager.createWebElement('div', ['map-container'], 'map-shop-container');
+    const mapHeader = createHeaderContainer('Random City Shops');
+
+    displayPattern('Shop', mapWidth, mapHeight, tileSize, mapContainer, buildCityShop(mapWidth, mapHeight));
+
+    mapContainer.style.display = 'grid';
+    mapContainer.style.gridTemplateColumns = `repeat(${mapWidth}, ${tileDensity}px)`;
+    mapContainer.style.gridTemplateRows = `repeat(${mapHeight}, ${tileDensity}px)`;
+    mapContainer.style.gap = '1px';
+
+    mapContainerWrapper.appendChild(mapHeader);
+    mapContainerWrapper.appendChild(mapContainer);
+
+    return mapContainerWrapper;
 }

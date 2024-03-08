@@ -81,30 +81,9 @@ html, body {
 
 .page-header {
   text-align: start;
-  margin-bottom: 15px;
   border-bottom: 1mm ridge rgba(189, 189, 189, 0.6);
   user-select: none;
   font-size: 20px;
-}
-
-.resource-container-wrapper {
-  position: relative;
-  top: 0px;
-  left: 10px;
-  right: 10px;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  justify-content: center;
-  align-items: center;
-}
-
-.resource-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 1.2rem;
-  position: relative;
-  transform: scale(0.9);
 }
 
 .box {
