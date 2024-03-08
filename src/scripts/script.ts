@@ -41,6 +41,61 @@ document.addEventListener("contextmenu", function(e) {
     }
 });
 
+function createTileTooltip(tile: Tile) {
+    const tooltipContainer = WebManager.createWebElement('div', ['tooltip-container'], 'tooltip-container');
+    let headerText = tile.name;
+    const tooltipHeaderContainer = WebManager.createWebElement('div', ['tooltip-header-container'], 'tooltip-header-container-' + headerText.toLowerCase());
+    const tooltipHeader = WebManager.createWebElement('h2', ['tooltip-header'], 'tooltip-header-' + headerText.toLowerCase(), headerText);
+
+    tooltipContainer.style.display = 'flex';
+    tooltipContainer.style.width = '20%';
+    tooltipContainer.style.justifyContent = 'center';
+    tooltipContainer.style.alignContent = 'center';
+    tooltipContainer.style.background = 'url(https://vidcdn.123rf.com/450nwm/vectorv/vectorv2208/vectorv220827703.jpg)';
+
+    tooltipHeader.style.border = '1mm ridge rgba(189, 189, 189, 0.6)';
+    tooltipHeader.style.fontSize = '15px';
+    tooltipHeader.style.paddingLeft = '10px';
+    tooltipHeader.style.paddingRight = '10px';
+
+    tooltipHeaderContainer.appendChild(tooltipHeader);
+    tooltipContainer.appendChild(tooltipHeaderContainer);
+    return tooltipContainer;
+}
+
+document.addEventListener("mouseover", function(e) {
+    // e.preventDefault(); // Prevent default context menu
+    const elementUnderCursor = document.elementFromPoint(e.clientX, e.clientY);
+    const elementParent = elementUnderCursor.parentElement;
+    let tilePrefix = 'mapTile-'; let tileInfo = '';
+    let mapPrefix = 'map-';  let mapInfo = '';
+   
+    if (elementUnderCursor.id.startsWith(tilePrefix)) {
+        mapInfo = elementParent.id.substring(mapPrefix.length);
+        tileInfo = elementUnderCursor.id.substring(tilePrefix.length);
+    }
+    if (tileInfo != '') {
+        const [tileXStr, tileYStr] = tileInfo.split('-');
+
+        const thisMapArray: MapGenerator = MapGenerator.maps[mapInfo];
+
+        const tileX = parseInt(tileXStr);
+        const tileY = parseInt(tileYStr);
+
+        const thisTile = thisMapArray.outputMap.content[tileY][tileX];
+
+        createTileTooltip(thisTile); // not fully implemented yet
+
+        console.log('(x:' + tileX + ', y:' + tileY + ')');
+    }
+});
+
+document.addEventListener("mouseout", function(e) {
+    // e.preventDefault(); // Prevent default context menu
+    const tooltipElement: HTMLElement = document.getElementById('tooltip-container');
+    if (tooltipElement) { tooltipElement.remove(); }
+});
+
 function loadContent(tabName: string) {
     mainContent.innerHTML = '';
 
@@ -79,6 +134,7 @@ function virtualClickOnTab(tabName: string) {
 }
 
 virtualClickOnTab('World');
+
 // -- home --
 function loadHomePage() {
 
@@ -88,9 +144,9 @@ function loadWorldPage() {
     const pageContent = WebManager.createWebElement('div', ['world-page'], 'page-content');
     const tileSize = 15;
     const tileDensity = 9;
-    const mapShopContainerWrapper = createMapShopContainer(64, 13, tileSize, tileDensity);
+    const mapShopContainerWrapper = createMapShopContainer(8, 13, tileSize, tileDensity);
     pageContent.appendChild(mapShopContainerWrapper);
-    const mapHouseContainerWrapper = createMapHouseContainer(64, 8, tileSize, tileDensity);
+    const mapHouseContainerWrapper = createMapHouseContainer(8, 8, tileSize, tileDensity);
     pageContent.appendChild(mapHouseContainerWrapper);
     mainContent.appendChild(pageContent);
 }
@@ -514,7 +570,7 @@ function mouseEvent_clickPart(part: Part, socket: Socket): void {
 function buildHouse(w: number = 10, h: number = 10): Pattern {
     const width = w;
     const height = h;
-    const mapGenerator = new MapGenerator(width, height);
+    const mapGenerator = new MapGenerator('house', width, height);
     
     // randomly rotate the direction of the front door
     const house_pattern_base_1 = mapGenerator.rotate90Degrees(HousePatterns.house1_base);
@@ -554,14 +610,14 @@ function buildHouse(w: number = 10, h: number = 10): Pattern {
     mapGenerator.applyGeneration(passFour, Tile.tiles['zone4']);
     // grab the map for logging purposes, otherwise dont cache.
     const generatedMap = mapGenerator.outputMap;
-    console.log(generatedMap);
+    // console.log(generatedMap);
     return generatedMap;
 }
 
 function buildCityShop(w: number = 10, h: number = 10): Pattern {
     const width = w;
     const height = h;
-    const mapGenerator = new MapGenerator(width, height);
+    const mapGenerator = new MapGenerator('shop', width, height);
     
     const shop1_base_90deg = mapGenerator.rotate90Degrees(ShopPatterns.shop1_base);
     const shop1_base_180deg = mapGenerator.rotate90Degrees(shop1_base_90deg);
@@ -590,17 +646,17 @@ function buildCityShop(w: number = 10, h: number = 10): Pattern {
     mapGenerator.applyGeneration(passThree, Tile.tiles['zone3']);
     mapGenerator.applyGeneration(passFour, Tile.tiles['zone4']);
     const generatedMap = mapGenerator.outputMap;
-    console.log(generatedMap);
+    // console.log(generatedMap);
     return generatedMap;
 }
 
-function displayPattern(patternType: string, mapWidth: number, mapHeight: number, tileSize: number, mapContainer: HTMLElement, pattern: Pattern) {
+function displayPattern(mapWidth: number, mapHeight: number, tileSize: number, mapContainer: HTMLElement, pattern: Pattern) {
     const mapActual = pattern; // Assuming this function returns the map data
 
     for (let y = 0; y < mapHeight; y++) {
         for (let x = 0; x < mapWidth; x++) {
             let thisTile = mapActual.content[y][x];
-            const mapTile = WebManager.createWebElement('h2', ['map-tile'], 'mapTile-' + patternType.toLowerCase() + '-' + x + '-' + y, '■');
+            const mapTile = WebManager.createWebElement('h2', ['map-tile'], 'mapTile-' + x +'-' + y, '■');
             mapTile.style.fontSize = `${tileSize}px`;
             mapTile.style.color = thisTile.color;
             mapContainer.appendChild(mapTile);
@@ -610,11 +666,11 @@ function displayPattern(patternType: string, mapWidth: number, mapHeight: number
 
 function createMapHouseContainer(mapWidth: number, mapHeight: number, tileSize: number, tileDensity: number) {
     const mapContainerWrapper = WebManager.createWebElement('div', ['map-container-wrapper'], 'map-house-container-wrapper');
-    const mapContainer = WebManager.createWebElement('div', ['map-container'], 'map-house-container');
+    const mapContainer = WebManager.createWebElement('div', ['map-container'], 'map-house');
     mapContainerWrapper.style.marginLeft = '2%';
     const mapHeader = createHeaderContainer('Random Houses (8x8)');
     
-    displayPattern('House', mapWidth, mapHeight, tileSize, mapContainer, buildHouse(mapWidth, mapHeight));
+    displayPattern(mapWidth, mapHeight, tileSize, mapContainer, buildHouse(mapWidth, mapHeight));
 
     mapContainer.style.display = 'grid';
     mapContainer.style.gridTemplateColumns = `repeat(${mapWidth}, ${tileDensity}px)`;
@@ -628,12 +684,12 @@ function createMapHouseContainer(mapWidth: number, mapHeight: number, tileSize: 
 }
 
 function createMapShopContainer(mapWidth: number, mapHeight: number, tileSize: number, tileDensity: number) {
-    const mapContainerWrapper = WebManager.createWebElement('div', ['map-container-wrapper'], 'map-house-container-wrapper');
+    const mapContainerWrapper = WebManager.createWebElement('div', ['map-container-wrapper'], 'map-shop-container-wrapper');
     mapContainerWrapper.style.marginLeft = '2%';
-    const mapContainer = WebManager.createWebElement('div', ['map-container'], 'map-shop-container');
+    const mapContainer = WebManager.createWebElement('div', ['map-container'], 'map-shop');
     const mapHeader = createHeaderContainer('Random City Shops');
 
-    displayPattern('Shop', mapWidth, mapHeight, tileSize, mapContainer, buildCityShop(mapWidth, mapHeight));
+    displayPattern(mapWidth, mapHeight, tileSize, mapContainer, buildCityShop(mapWidth, mapHeight));
 
     mapContainer.style.display = 'grid';
     mapContainer.style.gridTemplateColumns = `repeat(${mapWidth}, ${tileDensity}px)`;

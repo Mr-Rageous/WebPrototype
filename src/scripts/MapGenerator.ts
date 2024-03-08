@@ -1,3 +1,4 @@
+import { generateRandomUuid } from "./part.js";
 
 
 export class Tile {
@@ -33,6 +34,7 @@ export enum PatternFacing {
 }
 
 export class Pattern {
+  id: string;
   content: Tile[][];
   rotation: PatternFacing;
   
@@ -42,14 +44,21 @@ export class Pattern {
 }
 
 export class MapGenerator {
+  static maps: { [key: string]: MapGenerator } = {};
+
+  static addMapGenerator(map: MapGenerator, key: string) {
+    this.maps[key] = map;
+  }
+
   width: number;
   height: number;
   outputMap: Pattern;
   
-  constructor(width: number, height: number) {
+  constructor(public name: string, width: number, height: number) {
     this.width = width;
     this.height = height;
     this.outputMap = this.initializeOutputMap(empty);
+    MapGenerator.addMapGenerator(this, this.name);
   }
   
   // Initialize the output map with -1 to represent unset cells
