@@ -113,9 +113,9 @@ function loadWorldPage() {
     pageContent.style.userSelect = 'none';
     const tileSize = 15;
     const tileDensity = 9;
-    const mapShopContainerWrapper = createMapShopContainer(8, 13, tileSize, tileDensity);
+    const mapShopContainerWrapper = createMapShopContainer(8, 13, tileSize);
     pageContent.appendChild(mapShopContainerWrapper);
-    const mapHouseContainerWrapper = createMapHouseContainer(8, 8, tileSize, tileDensity);
+    const mapHouseContainerWrapper = createMapHouseContainer(8, 8, tileSize);
     pageContent.appendChild(mapHouseContainerWrapper);
     mainContent.appendChild(pageContent);
 }
@@ -625,8 +625,9 @@ function displayPattern(mapWidth: number, mapHeight: number, tileSize: number, m
     for (let y = 0; y < mapHeight; y++) {
         for (let x = 0; x < mapWidth; x++) {
             let thisTile = mapActual.content[y][x];
-            const mapTile = WebManager.createWebElement('h2', ['map-tile'], 'mapTile-' + x +'-' + y, '■');
+            const mapTile = WebManager.createWebElement('h2', ['map-tile'], 'mapTile-' + x +'-' + y, ' ');
             addTooltipEvents(mapTile);
+            mapTile.style.backgroundColor = `${thisTile.color}`;
             mapTile.style.fontSize = `${tileSize}px`;
             mapTile.style.color = thisTile.color;
             mapContainer.appendChild(mapTile);
@@ -634,7 +635,7 @@ function displayPattern(mapWidth: number, mapHeight: number, tileSize: number, m
     }
 }
 
-function createMapHouseContainer(mapWidth: number, mapHeight: number, tileSize: number, tileDensity: number) {
+function createMapHouseContainer(mapWidth: number, mapHeight: number, tileSize: number) {
     const mapContainerWrapper = WebManager.createWebElement('div', ['map-container-wrapper'], 'map-house-container-wrapper');
     const mapContainer = WebManager.createWebElement('div', ['map-container'], 'map-house');
     mapContainerWrapper.style.marginLeft = '2%';
@@ -643,9 +644,8 @@ function createMapHouseContainer(mapWidth: number, mapHeight: number, tileSize: 
     displayPattern(mapWidth, mapHeight, tileSize, mapContainer, buildHouse(mapWidth, mapHeight));
 
     mapContainer.style.display = 'grid';
-    mapContainer.style.gridTemplateColumns = `repeat(${mapWidth}, ${tileDensity}px)`;
-    mapContainer.style.gridTemplateRows = `repeat(${mapHeight}, ${tileDensity}px)`;
-    mapContainer.style.gap = '1px';
+    mapContainer.style.gridTemplateColumns = `repeat(${mapWidth}, ${tileSize}px)`;
+    mapContainer.style.gridTemplateRows = `repeat(${mapHeight}, ${tileSize}px)`;
 
     mapContainerWrapper.appendChild(mapHeader);
     mapContainerWrapper.appendChild(mapContainer);
@@ -653,7 +653,7 @@ function createMapHouseContainer(mapWidth: number, mapHeight: number, tileSize: 
     return mapContainerWrapper;
 }
 
-function createMapShopContainer(mapWidth: number, mapHeight: number, tileSize: number, tileDensity: number) {
+function createMapShopContainer(mapWidth: number, mapHeight: number, tileSize: number) {
     const mapContainerWrapper = WebManager.createWebElement('div', ['map-container-wrapper'], 'map-shop-container-wrapper');
     mapContainerWrapper.style.marginLeft = '2%';
     const mapContainer = WebManager.createWebElement('div', ['map-container'], 'map-shop');
@@ -662,8 +662,8 @@ function createMapShopContainer(mapWidth: number, mapHeight: number, tileSize: n
     displayPattern(mapWidth, mapHeight, tileSize, mapContainer, buildCityShop(mapWidth, mapHeight));
 
     mapContainer.style.display = 'grid';
-    mapContainer.style.gridTemplateColumns = `repeat(${mapWidth}, ${tileDensity}px)`;
-    mapContainer.style.gridTemplateRows = `repeat(${mapHeight}, ${tileDensity}px)`;
+    mapContainer.style.gridTemplateColumns = `repeat(${mapWidth}, ${tileSize}px)`;
+    mapContainer.style.gridTemplateRows = `repeat(${mapHeight}, ${tileSize}px)`;
     // mapContainer.style.gap = '1px';
 
     mapContainerWrapper.appendChild(mapHeader);
@@ -675,8 +675,8 @@ function createMapShopContainer(mapWidth: number, mapHeight: number, tileSize: n
 function addTooltipEvents(element: HTMLElement) {
     element.addEventListener("mouseover", function(e) {
         let tooltipContainer: HTMLElement = document.getElementById('tooltip-container');
-        if (tooltipContainer) { tooltipContainer.setAttribute("hidden", ""); }
-
+        let tooltipHeader: HTMLElement = document.getElementById('tooltip-header');
+        
         const elementUnderCursor = document.elementFromPoint(e.clientX, e.clientY);
         const elementParent = elementUnderCursor.parentElement;
         let tilePrefix = 'mapTile-'; let tileInfo = '';
@@ -697,7 +697,6 @@ function addTooltipEvents(element: HTMLElement) {
 
             if (!tooltipContainer) { tooltipContainer = createTileTooltip(thisTile); }
             else {
-                let tooltipHeader: HTMLElement = document.getElementById('tooltip-header');
                 tooltipHeader.textContent = thisTile.name;
                 tooltipContainer.style.position = "absolute";
                 tooltipContainer.style.left = `${e.clientX}px`;

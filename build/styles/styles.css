@@ -86,6 +86,6 @@ html, body {
   font-size: 20px;
 }
 
-.box {
-  width: 120px;
+.map-tile {
+  margin: 0px;
 }
