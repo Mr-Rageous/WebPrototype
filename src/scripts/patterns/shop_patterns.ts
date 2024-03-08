@@ -23,6 +23,7 @@ export const shop1_base = new Pattern(
       [a, d, d, d, d, d, d, a],
       [a, d, d, d, d, d, d, a],
       [a, e, e, e, e, e, e, a],
+      [a, e, e, e, e, e, e, a],
       [a, a, h, f, f, h, a, a],
     ]
   )
@@ -83,7 +84,7 @@ export const shop1_base = new Pattern(
     [
       [g, i, i, i, i, g],
       [g, g, g, g, g, g],
-      [g, i, i, i, i, g],
+      [i, i, g, g, i, i],
     ]
   );
   export const shop1_zone3_4 = new Pattern(
@@ -110,15 +111,18 @@ export const shop1_base = new Pattern(
   export const shop1_zone4_0 = new Pattern(
     [
       [g, g, g, g, g, g],
+      [g, g, g, g, g, g],
     ]
   );
   export const shop1_zone4_1 = new Pattern(
     [
+      [g, g, g, g, g, g],
       [i, g, g, g, g, i],
     ]
   );
   export const shop1_zone4_2 = new Pattern(
     [
+      [g, g, g, g, g, g],
       [i, i, g, g, i, i],
     ]
   );

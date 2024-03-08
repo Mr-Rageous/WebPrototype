@@ -88,7 +88,7 @@ function loadWorldPage() {
     const pageContent = WebManager.createWebElement('div', ['world-page'], 'page-content');
     const tileSize = 15;
     const tileDensity = 9;
-    const mapShopContainerWrapper = createMapShopContainer(64, 12, tileSize, tileDensity);
+    const mapShopContainerWrapper = createMapShopContainer(64, 13, tileSize, tileDensity);
     pageContent.appendChild(mapShopContainerWrapper);
     const mapHouseContainerWrapper = createMapHouseContainer(64, 8, tileSize, tileDensity);
     pageContent.appendChild(mapHouseContainerWrapper);
@@ -523,23 +523,25 @@ function buildHouse(w: number = 10, h: number = 10): Pattern {
 
     // procedurally add the rotations to the base layer, this should be done more elegantly.
     const basePatterns = [
-        HousePatterns.house1_base, house_pattern_base_1, house_pattern_base_2, house_pattern_base_3
+        HousePatterns.house1_base
     ];
     // the following is top left area (9 on base template)
     const passOne = [
-        HousePatterns.house1_zone1,
+        HousePatterns.house1_zone1_0, HousePatterns.house1_zone1_1, HousePatterns.house1_zone1_2,
+         HousePatterns.house1_zone1_3,
     ];
     // the following is top right area (8 on base template)
     const passTwo = [
-        HousePatterns.house1_zone2,
+        HousePatterns.house1_zone2_0, HousePatterns.house1_zone2_1, HousePatterns.house1_zone2_2,
+        HousePatterns.house1_zone2_3, HousePatterns.house1_zone2_4,
     ];
     // the following is bottom right area (7 on base template)
     const passThree = [
-        HousePatterns.house1_zone3,
+        HousePatterns.house1_zone3_0, HousePatterns.house1_zone3_1, HousePatterns.house1_zone3_2,
     ];
     // the following is bottom left area (6 on base template)
     const passFour = [
-        HousePatterns.house1_zone4,
+        HousePatterns.house1_zone4_0, HousePatterns.house1_zone4_1,
     ];
     // run the base pattern list over the entire map size
     mapGenerator.applyGeneration(basePatterns, Tile.tiles['empty']);
