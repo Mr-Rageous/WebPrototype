@@ -1,4 +1,26 @@
-export enum TileFacing {
+
+
+export class Tile {
+  static tiles: { [key: string]: Tile } = {};
+
+  static addTile(tile: Tile, key: string) {
+    this.tiles[key] = tile;
+  }
+
+  constructor(public name: string, public color: string) {
+    this.color = color;
+    Tile.addTile(this, name);
+  }
+}
+
+export const empty = new Tile('empty', 'white');
+export const water = new Tile('water', 'blue');
+export const grass = new Tile('grass', 'green');
+export const wall = new Tile('wall', 'grey');
+export const hidden = new Tile('hidden', 'black');
+export const wood = new Tile('wood', 'brown');
+
+export enum PatternFacing {
   None,
   Right,
   Down,
@@ -6,10 +28,10 @@ export enum TileFacing {
 }
 
 export class Pattern {
-  content: number[][];
-  rotation: TileFacing;
+  content: Tile[][];
+  rotation: PatternFacing;
   
-  constructor(pattern: number[][]) {
+  constructor(pattern: Tile[][]) {
     this.content = pattern;
   }
 }
@@ -22,17 +44,17 @@ export class MapGenerator {
   constructor(width: number, height: number) {
     this.width = width;
     this.height = height;
-    this.outputMap = this.initializeOutputMap(-1);
+    this.outputMap = this.initializeOutputMap(empty);
   }
   
   // Initialize the output map with -1 to represent unset cells
-  initializeOutputMap(baseFilter: number): Pattern {
+  initializeOutputMap(baseFilter: Tile): Pattern {
     const outputPattern = new Pattern(new Array(this.height).fill(null).map(() => new Array(this.width).fill(baseFilter)));
     return outputPattern;
   }
   
   // Generate the map using wave collapse algorithm
-  applyGeneration(patterns: Pattern[], bandFilter: number = -1): Pattern {
+  applyGeneration(patterns: Pattern[], bandFilter: Tile): Pattern {
     for (let y = 0; y < this.height; y++) {
       for (let x = 0; x < this.width; x++) {
         if (this.outputMap.content[y][x] === bandFilter) {
@@ -44,7 +66,7 @@ export class MapGenerator {
   }
   
   // Collapse wave at the given position
-  collapseWave(x: number, y: number, patterns: Pattern[], bandFilter: number = -1): void {
+  collapseWave(x: number, y: number, patterns: Pattern[], bandFilter: Tile): void {
     const pattern = this.selectRandomPattern(patterns);
     const rotatedPattern = this.rotatePattern(pattern); // Rotate the pattern randomly
     this.applyPattern(rotatedPattern, x, y, bandFilter);
@@ -78,7 +100,7 @@ export class MapGenerator {
   }
 
   // Apply the chosen pattern to the output map at the given position
-  applyPattern(pattern: Pattern, x: number, y: number, outputFilter: number): void {
+  applyPattern(pattern: Pattern, x: number, y: number, outputFilter: Tile): void {
     for (let py = 0; py < pattern.content.length; py++) {
       for (let px = 0; px < pattern.content[py].length; px++) {
         const mapX = x + px;
@@ -94,35 +116,5 @@ export class MapGenerator {
   // Check if the given coordinates are within the bounds of the output map
   isWithinBounds(x: number, y: number): boolean {
     return x >= 0 && x < this.width && y >= 0 && y < this.height;
-  }
-    
-  applyRules(): void {
-    // Implement rules here
-    // Example: Ensure there is at least one path from top to bottom of the map
-    const startCol = Math.floor(Math.random() * this.width);
-    const startRow = 0;
-    this.outputMap.content[startRow][startCol] = 0;
-
-    for (let col = 1; col < this.width; col++) {
-      const prevCol = col - 1;
-      const possibleMoves = [];
-
-      // Check adjacent cells
-      if (prevCol - 1 >= 0 && this.outputMap.content[startRow][prevCol - 1] === 0) {
-        possibleMoves.push(-1);
-      }
-      if (this.outputMap[startRow][prevCol] === 0) {
-        possibleMoves.push(0);
-      }
-      if (prevCol + 1 < this.width && this.outputMap.content[startRow][prevCol + 1] === 0) {
-        possibleMoves.push(1);
-      }
-
-      // Choose a random move
-      const move = possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
-
-      // Apply the move
-      this.outputMap.content[startRow][col] = move;
-    }
   }
 }

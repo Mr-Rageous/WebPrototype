@@ -4,7 +4,7 @@ import { WebManager, checkObjectForProperty } from './utility.js';
 import { sword_item } from './parts.js';
 import { Part, Rarity, Socket } from './part.js';
 import { Item } from './item.js';
-import { MapGenerator, Pattern, TileFacing } from './mapGenerator.js';
+import { MapGenerator, Pattern, PatternFacing, Tile } from './mapGenerator.js';
 import * as TilePatterns from './patterns.js';
 
 // --------------------------------------------------------------------------------------------------------------------------------------------------------------------- USERDATA ------
@@ -93,21 +93,21 @@ function loadWorldPage() {
     let mapWidth = 64;
     let mapHeight = 64;
     let tileSize = 15;
-    let tileDensity = 10;
+    let tileDensity = 9;
     const mapActual = buildHouse(mapWidth, mapHeight); // Assuming this function returns the map data
 
     // Loop through each cell in the map data and create corresponding elements
     for (let y = 0; y < mapHeight; y++) {
         for (let x = 0; x < mapWidth; x++) {
             let thisTile = mapActual.content[y][x];
-            const mapTile = WebManager.createWebElement('h2', ['map-tile'], 'mapTile-' + x + '-' + y, thisTile.toString());
+            const mapTile = WebManager.createWebElement('h2', ['map-tile'], 'mapTile-' + x + '-' + y, '■');
 
             // Set font size
             // const currentFontSize = parseInt(window.getComputedStyle(mapTile).fontSize);
             mapTile.style.fontSize = `${tileSize}px`;
 
             // Set color based on tile value
-            mapTile.style.color = getColorForTileValue(thisTile);
+            mapTile.style.color = thisTile.color;
 
             mapContainer.appendChild(mapTile);
         }
@@ -606,15 +606,16 @@ function buildHouse(w: number = 10, h: number = 10): Pattern {
         TilePatterns.house_int_botright,
     ];
     // run the base pattern list over the entire map size
-    mapGenerator.applyGeneration(basePatterns, -1);
+    mapGenerator.applyGeneration(basePatterns, Tile.tiles['empty']);
     // pass for each room, though this can be achieved with
     // turning the bandFilter into an array, and then checking
     // the array instead of just the single filter number.
-    mapGenerator.applyGeneration(passOne, 9);
-    mapGenerator.applyGeneration(passTwo, 8);
-    mapGenerator.applyGeneration(passThree, 7);
-    mapGenerator.applyGeneration(passFour, 6);
+    mapGenerator.applyGeneration(passOne, Tile.tiles['hidden']);
+    mapGenerator.applyGeneration(passTwo, Tile.tiles['grass']);
+    mapGenerator.applyGeneration(passThree, Tile.tiles['wood']);
+    mapGenerator.applyGeneration(passFour, Tile.tiles['water']);
     // grab the map for logging purposes, otherwise dont cache.
     const generatedMap = mapGenerator.outputMap;
+    // console.log(generatedMap);
     return generatedMap;
 }
