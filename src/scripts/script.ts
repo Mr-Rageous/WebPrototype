@@ -44,8 +44,10 @@ document.addEventListener("contextmenu", function(e) {
 function createTileTooltip(tile: Tile) {
     const tooltipContainer = WebManager.createWebElement('div', ['tooltip-container'], 'tooltip-container');
     let headerText = tile.name;
-    const tooltipHeaderContainer = WebManager.createWebElement('div', ['tooltip-header-container'], 'tooltip-header-container-' + headerText.toLowerCase());
-    const tooltipHeader = WebManager.createWebElement('h2', ['tooltip-header'], 'tooltip-header-' + headerText.toLowerCase(), headerText);
+    const tooltipHeaderContainer = WebManager.createWebElement('div', ['tooltip-header-container'], 'tooltip-header-container');
+    const tooltipHeader = WebManager.createWebElement('h2', ['tooltip-header'], 'tooltip-header', headerText);
+
+    tooltipContainer.setAttribute("hidden", "");
 
     tooltipHeaderContainer.style.background = 'url(https://vidcdn.123rf.com/450nwm/vectorv/vectorv2208/vectorv220827703.jpg)';
     tooltipHeaderContainer.style.backgroundSize = 'cover';
@@ -61,45 +63,6 @@ function createTileTooltip(tile: Tile) {
     return tooltipContainer;
 }
 
-document.addEventListener("mouseover", function(e) {
-    // e.preventDefault(); // Prevent default context menu
-    const elementUnderCursor = document.elementFromPoint(e.clientX, e.clientY);
-    const elementParent = elementUnderCursor.parentElement;
-    let tilePrefix = 'mapTile-'; let tileInfo = '';
-    let mapPrefix = 'map-';  let mapInfo = '';
-   
-    if (elementUnderCursor.id.startsWith(tilePrefix)) {
-        mapInfo = elementParent.id.substring(mapPrefix.length);
-        tileInfo = elementUnderCursor.id.substring(tilePrefix.length);
-    }
-    if (tileInfo != '') {
-        const [tileXStr, tileYStr] = tileInfo.split('-');
-
-        const thisMapArray: MapGenerator = MapGenerator.maps[mapInfo];
-
-        const tileX = parseInt(tileXStr);
-        const tileY = parseInt(tileYStr);
-
-        const thisTile = thisMapArray.outputMap.content[tileY][tileX];
-
-        const tooltipContainer = createTileTooltip(thisTile); // not fully implemented yet
-        tooltipContainer.style.position = "absolute";
-        tooltipContainer.style.left = `${e.clientX}px`;
-        tooltipContainer.style.top = `${e.clientY}px`;
-
-        const pageContent = document.getElementById('page-content');
-
-        pageContent.appendChild(tooltipContainer);
-
-        // console.log(thisTile.name, '(x:' + tileX + ', y:' + tileY + ')');
-    }
-});
-
-document.addEventListener("mouseout", function(e) {
-    // e.preventDefault(); // Prevent default context menu
-    const tooltipElement: HTMLElement = document.getElementById('tooltip-container');
-    if (tooltipElement) { tooltipElement.remove(); }
-});
 
 function loadContent(tabName: string) {
     mainContent.innerHTML = '';
@@ -147,6 +110,7 @@ function loadHomePage() {
 // -- world --
 function loadWorldPage() {
     const pageContent = WebManager.createWebElement('div', ['world-page'], 'page-content');
+    pageContent.style.userSelect = 'none';
     const tileSize = 15;
     const tileDensity = 9;
     const mapShopContainerWrapper = createMapShopContainer(8, 13, tileSize, tileDensity);
@@ -662,6 +626,7 @@ function displayPattern(mapWidth: number, mapHeight: number, tileSize: number, m
         for (let x = 0; x < mapWidth; x++) {
             let thisTile = mapActual.content[y][x];
             const mapTile = WebManager.createWebElement('h2', ['map-tile'], 'mapTile-' + x +'-' + y, '■');
+            addTooltipEvents(mapTile);
             mapTile.style.fontSize = `${tileSize}px`;
             mapTile.style.color = thisTile.color;
             mapContainer.appendChild(mapTile);
@@ -699,10 +664,57 @@ function createMapShopContainer(mapWidth: number, mapHeight: number, tileSize: n
     mapContainer.style.display = 'grid';
     mapContainer.style.gridTemplateColumns = `repeat(${mapWidth}, ${tileDensity}px)`;
     mapContainer.style.gridTemplateRows = `repeat(${mapHeight}, ${tileDensity}px)`;
-    mapContainer.style.gap = '1px';
+    // mapContainer.style.gap = '1px';
 
     mapContainerWrapper.appendChild(mapHeader);
     mapContainerWrapper.appendChild(mapContainer);
 
     return mapContainerWrapper;
+}
+
+function addTooltipEvents(element: HTMLElement) {
+    element.addEventListener("mouseover", function(e) {
+        let tooltipContainer: HTMLElement = document.getElementById('tooltip-container');
+        if (tooltipContainer) { tooltipContainer.setAttribute("hidden", ""); }
+
+        const elementUnderCursor = document.elementFromPoint(e.clientX, e.clientY);
+        const elementParent = elementUnderCursor.parentElement;
+        let tilePrefix = 'mapTile-'; let tileInfo = '';
+        let mapPrefix = 'map-';  let mapInfo = '';
+       
+        if (elementUnderCursor.id.startsWith(tilePrefix)) {
+            mapInfo = elementParent.id.substring(mapPrefix.length);
+            tileInfo = elementUnderCursor.id.substring(tilePrefix.length);
+        }
+        if (tileInfo != '') {
+            const [tileXStr, tileYStr] = tileInfo.split('-');
+    
+            const thisMapArray: MapGenerator = MapGenerator.maps[mapInfo];
+    
+            const tileX = parseInt(tileXStr); const tileY = parseInt(tileYStr);
+    
+            const thisTile = thisMapArray.outputMap.content[tileY][tileX];
+
+            if (!tooltipContainer) { tooltipContainer = createTileTooltip(thisTile); }
+            else {
+                let tooltipHeader: HTMLElement = document.getElementById('tooltip-header');
+                tooltipHeader.textContent = thisTile.name;
+                tooltipContainer.style.position = "absolute";
+                tooltipContainer.style.left = `${e.clientX}px`;
+                tooltipContainer.style.top = `${e.clientY}px`;
+                tooltipContainer.removeAttribute("hidden");
+            }
+            // how do I make this tooltip show up properly?
+    
+            const pageContent = document.getElementById('page-content');
+    
+            pageContent.appendChild(tooltipContainer);
+    
+            // console.log(thisTile.name, '(x:' + tileX + ', y:' + tileY + ')');
+        }
+    });
+    element.addEventListener("mouseout", function(e) {
+        const tooltipElement: HTMLElement = document.getElementById('tooltip-container');
+        if (tooltipElement) { tooltipElement.setAttribute("hidden", ""); }
+    });
 }
