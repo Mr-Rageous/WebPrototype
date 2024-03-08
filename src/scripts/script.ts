@@ -47,13 +47,11 @@ function createTileTooltip(tile: Tile) {
     const tooltipHeaderContainer = WebManager.createWebElement('div', ['tooltip-header-container'], 'tooltip-header-container-' + headerText.toLowerCase());
     const tooltipHeader = WebManager.createWebElement('h2', ['tooltip-header'], 'tooltip-header-' + headerText.toLowerCase(), headerText);
 
-    tooltipContainer.style.display = 'flex';
-    tooltipContainer.style.width = '20%';
-    tooltipContainer.style.justifyContent = 'center';
-    tooltipContainer.style.alignContent = 'center';
-    tooltipContainer.style.background = 'url(https://vidcdn.123rf.com/450nwm/vectorv/vectorv2208/vectorv220827703.jpg)';
+    tooltipHeaderContainer.style.background = 'url(https://vidcdn.123rf.com/450nwm/vectorv/vectorv2208/vectorv220827703.jpg)';
+    tooltipHeaderContainer.style.backgroundSize = 'cover';
+    tooltipHeaderContainer.style.backgroundPosition = 'center';
 
-    tooltipHeader.style.border = '1mm ridge rgba(189, 189, 189, 0.6)';
+    tooltipHeader.style.border = '1mm ridge rgba(189, 189, 189, 0.3)';
     tooltipHeader.style.fontSize = '15px';
     tooltipHeader.style.paddingLeft = '10px';
     tooltipHeader.style.paddingRight = '10px';
@@ -84,9 +82,16 @@ document.addEventListener("mouseover", function(e) {
 
         const thisTile = thisMapArray.outputMap.content[tileY][tileX];
 
-        createTileTooltip(thisTile); // not fully implemented yet
+        const tooltipContainer = createTileTooltip(thisTile); // not fully implemented yet
+        tooltipContainer.style.position = "absolute";
+        tooltipContainer.style.left = `${e.clientX}px`;
+        tooltipContainer.style.top = `${e.clientY}px`;
 
-        console.log('(x:' + tileX + ', y:' + tileY + ')');
+        const pageContent = document.getElementById('page-content');
+
+        pageContent.appendChild(tooltipContainer);
+
+        // console.log(thisTile.name, '(x:' + tileX + ', y:' + tileY + ')');
     }
 });
 
