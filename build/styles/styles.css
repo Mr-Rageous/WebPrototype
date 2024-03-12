@@ -90,3 +90,7 @@ html, body {
 .map-tile {
   margin: 0px;
 }
+
+.hidden {
+  opacity: 0%;
+}

@@ -14,17 +14,17 @@ export class Tile {
   }
 }
 // --- default empty tile ---
-export const empty = new Tile('empty', 'white');
+export const empty = new Tile('empty', 'silver');
 // -- default tiles module -- 
 export const zone1 = new Tile('zone1', 'black');
 export const zone2 = new Tile('zone2', 'black');
 export const zone3 = new Tile('zone3', 'black');
 export const zone4 = new Tile('zone4', 'black');
-export const wall = new Tile('wall', 'darkgrey');
-export const floor = new Tile('floor', 'grey');
-export const door = new Tile('door', 'lightgrey');
-export const window = new Tile('window', 'lightblue');
-export const shelf = new Tile('shelf', 'brown');
+export const wall = new Tile('wall', 'silver');
+export const floor = new Tile('floor', 'gray');
+export const door = new Tile('door', 'fuchsia');
+export const window = new Tile('window', 'cyan');
+export const shelf = new Tile('shelf', 'olive');
 // -- end of main tile module --
 export enum PatternFacing {
   None,

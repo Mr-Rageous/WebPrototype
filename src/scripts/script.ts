@@ -7,6 +7,7 @@ import { Item } from './item.js';
 import { MapGenerator, Pattern, PatternFacing, Tile } from './mapGenerator.js';
 import * as HousePatterns from './patterns/house_patterns.js';
 import * as ShopPatterns from './patterns/shop_patterns.js';
+import { PixelMatrixRenderer } from './pixelMatrixRenderer.js';
 
 const userData = new PlayerData('userData');
 
@@ -17,6 +18,9 @@ sword_item.forEach(part => { userData.inventory.parts.push(part); });
 
 const tabs = document.querySelectorAll('.tabs li');
 const mainContent = document.querySelector('.main-content');
+const gameContent = document.querySelector('.game-content');
+
+loadGameContent(); // on new game?
 
 tabs.forEach(tab => {
     tab.addEventListener('click', function() {
@@ -24,6 +28,30 @@ tabs.forEach(tab => {
         this.classList.add('active');
         loadContent(this.textContent);
     });
+});
+
+let isHidden = false;
+document.addEventListener("keydown", function(event) {
+    if (event.key === "Escape") {
+        const sidebar = document.getElementById("sidebar");
+        const mainContent = document.getElementById("main-content");
+        const gameContent = document.getElementById("game-content");
+
+        if (sidebar && mainContent && gameContent) {
+            if (isHidden) {
+                sidebar.classList.remove("hidden");
+                mainContent.classList.remove("hidden");
+                gameContent.classList.add("hidden");
+            } else {
+                sidebar.classList.add("hidden");
+                mainContent.classList.add("hidden");
+                gameContent.classList.remove("hidden");
+            }
+
+            // Toggle visibility state
+            isHidden = !isHidden;
+        }
+    }
 });
 
 document.addEventListener("contextmenu", function(e) {
@@ -103,6 +131,20 @@ function virtualClickOnTab(tabName: string) {
 
 virtualClickOnTab('World');
 
+function loadGameContent() {
+    // player on map ui, context actions list to the right
+    // possibly contextmenu on right click on tile in the future
+    const gamePage = WebManager.createWebElement('div', ['game-page'], 'game-page');
+    gamePage.style.position = 'absolute';
+    gamePage.style.top = '0';
+    gamePage.style.left = '0';
+    gamePage.style.userSelect = 'none';
+    gameContent.appendChild(gamePage);
+
+    // add ruleset to mapgenerator, and patterns, and tiles
+    // use Ruleset class to whitelist blacklist valid tile stitching
+}
+
 // -- home --
 function loadHomePage() {
 
@@ -112,7 +154,6 @@ function loadWorldPage() {
     const pageContent = WebManager.createWebElement('div', ['world-page'], 'page-content');
     pageContent.style.userSelect = 'none';
     const tileSize = 15;
-    const tileDensity = 9;
     const mapShopContainerWrapper = createMapShopContainer(8, 13, tileSize);
     pageContent.appendChild(mapShopContainerWrapper);
     const mapHouseContainerWrapper = createMapHouseContainer(8, 8, tileSize);
@@ -626,7 +667,7 @@ function displayPattern(mapWidth: number, mapHeight: number, tileSize: number, m
         for (let x = 0; x < mapWidth; x++) {
             let thisTile = mapActual.content[y][x];
             const mapTile = WebManager.createWebElement('h2', ['map-tile'], 'mapTile-' + x +'-' + y, ' ');
-            addTooltipEvents(mapTile);
+            // addTooltipEvents(mapTile);
             mapTile.style.backgroundColor = `${thisTile.color}`;
             mapTile.style.fontSize = `${tileSize}px`;
             mapTile.style.color = thisTile.color;
@@ -659,12 +700,8 @@ function createMapShopContainer(mapWidth: number, mapHeight: number, tileSize: n
     const mapContainer = WebManager.createWebElement('div', ['map-container'], 'map-shop');
     const mapHeader = createHeaderContainer('Random City Shops');
 
-    displayPattern(mapWidth, mapHeight, tileSize, mapContainer, buildCityShop(mapWidth, mapHeight));
-
-    mapContainer.style.display = 'grid';
-    mapContainer.style.gridTemplateColumns = `repeat(${mapWidth}, ${tileSize}px)`;
-    mapContainer.style.gridTemplateRows = `repeat(${mapHeight}, ${tileSize}px)`;
-    // mapContainer.style.gap = '1px';
+    // displayPattern(mapWidth, mapHeight, tileSize, mapContainer, buildCityShop(mapWidth, mapHeight));
+    const displayPattern = new PixelMatrixRenderer(mapHeight, mapWidth, tileSize, 1, 0.1, mapContainer, buildCityShop(mapWidth, mapHeight));
 
     mapContainerWrapper.appendChild(mapHeader);
     mapContainerWrapper.appendChild(mapContainer);
