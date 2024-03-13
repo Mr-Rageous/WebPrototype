@@ -1,4 +1,5 @@
 import { Pattern, Tile } from "./mapGenerator.js";
+import { WebManager } from "./utility.js";
 
 export class PixelMatrixRenderer {
     private canvas: HTMLCanvasElement;
@@ -34,6 +35,53 @@ export class PixelMatrixRenderer {
 
         // Set up zoom functionality
         this.setupZoom();
+
+        // Add mousemove event listener to the canvas
+        this.canvas.addEventListener('mousemove', (e: MouseEvent) => {
+            const rect = this.canvas.getBoundingClientRect(); // Get the bounding rectangle of the canvas
+            const mouseX = e.clientX - rect.left; // Get the x-coordinate of the mouse relative to the canvas
+            const mouseY = e.clientY - rect.top; // Get the y-coordinate of the mouse relative to the canvas
+
+            // Calculate the row and column indices of the tile
+            const y = Math.floor(mouseY / this.pixelSize);
+            const x = Math.floor(mouseX / this.pixelSize);
+            if (x < 0 || y < 0) { return; }
+            // Do something with the row and column indices, such as highlighting the tile
+            const thisTile = mapOutput.content[y][x];
+            if (!thisTile) { return; }
+            const tileToolTip: HTMLElement = this.createTileTooltip(thisTile, e);
+            const pageContent = document.getElementById('page-content');
+            pageContent.appendChild(tileToolTip);
+        });
+    }
+
+    private createTileTooltip(tile: Tile, e: MouseEvent) {
+        let tooltipContainer = document.getElementById('tooltip-container');
+        if (tooltipContainer) { tooltipContainer.remove(); }
+        tooltipContainer = WebManager.createWebElement('div', ['tooltip-container'], 'tooltip-container');
+        tooltipContainer.style.position = 'absolute';
+        tooltipContainer.style.left = `${e.clientX}px`;
+        tooltipContainer.style.top = `${e.clientY}px`;
+        tooltipContainer.addEventListener('mousemove', () => {
+            tooltipContainer.remove();
+        })
+
+        let headerText = tile.name;
+        const tooltipHeaderContainer = WebManager.createWebElement('div', ['tooltip-header-container'], 'tooltip-header-container');
+        const tooltipHeader = WebManager.createWebElement('h2', ['tooltip-header'], 'tooltip-header', headerText);
+    
+        tooltipHeaderContainer.style.background = 'url(https://vidcdn.123rf.com/450nwm/vectorv/vectorv2208/vectorv220827703.jpg)';
+        tooltipHeaderContainer.style.backgroundSize = 'cover';
+        tooltipHeaderContainer.style.backgroundPosition = 'center';
+    
+        tooltipHeader.style.border = '1mm ridge rgba(189, 189, 189, 0.3)';
+        tooltipHeader.style.fontSize = '15px';
+        tooltipHeader.style.paddingLeft = '10px';
+        tooltipHeader.style.paddingRight = '10px';
+    
+        tooltipHeaderContainer.appendChild(tooltipHeader);
+        tooltipContainer.appendChild(tooltipHeaderContainer);
+        return tooltipContainer;
     }
 
     // Initialize canvas size and initial scale
@@ -47,6 +95,8 @@ export class PixelMatrixRenderer {
         this.canvas.style.height = canvasHeight + 'px';
         this.canvas.style.transformOrigin = 'top left'; // Set transform origin to top-left corner
         this.canvas.style.transform = `scale(${this.zoomLevel})`;
+        // if larger than max size (should be default size normally), set overflow: hidden on container of canvas
+        // build a move on left click drag method to allow the player to traverse while scaled
     }
 
     // Function to draw the pixel matrix

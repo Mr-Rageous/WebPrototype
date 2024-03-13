@@ -69,28 +69,6 @@ document.addEventListener("contextmenu", function(e) {
     }
 });
 
-function createTileTooltip(tile: Tile) {
-    const tooltipContainer = WebManager.createWebElement('div', ['tooltip-container'], 'tooltip-container');
-    let headerText = tile.name;
-    const tooltipHeaderContainer = WebManager.createWebElement('div', ['tooltip-header-container'], 'tooltip-header-container');
-    const tooltipHeader = WebManager.createWebElement('h2', ['tooltip-header'], 'tooltip-header', headerText);
-
-    tooltipContainer.setAttribute("hidden", "");
-
-    tooltipHeaderContainer.style.background = 'url(https://vidcdn.123rf.com/450nwm/vectorv/vectorv2208/vectorv220827703.jpg)';
-    tooltipHeaderContainer.style.backgroundSize = 'cover';
-    tooltipHeaderContainer.style.backgroundPosition = 'center';
-
-    tooltipHeader.style.border = '1mm ridge rgba(189, 189, 189, 0.3)';
-    tooltipHeader.style.fontSize = '15px';
-    tooltipHeader.style.paddingLeft = '10px';
-    tooltipHeader.style.paddingRight = '10px';
-
-    tooltipHeaderContainer.appendChild(tooltipHeader);
-    tooltipContainer.appendChild(tooltipHeaderContainer);
-    return tooltipContainer;
-}
-
 
 function loadContent(tabName: string) {
     mainContent.innerHTML = '';
@@ -227,47 +205,6 @@ function populateInventoryItemsContainer(inventoryContainer: HTMLElement) {
             card.style.opacity = '0.4';
         });
     }
-}
-
-function replaceTextWithInput() {
-    // Get the editable content element
-    const editableContent = document.getElementById('inventory-info-name');
-    
-    // Get the current text content
-    const textContent = editableContent.textContent;
-    
-    // Create an input element
-    const inputElement = document.createElement('input');
-    inputElement.type = 'text';
-    inputElement.value = textContent;
-    inputElement.addEventListener('blur', saveTextContent); // Attach blur event listener
-    
-    // Replace the text content with the input field
-    editableContent.textContent = '';
-    editableContent.appendChild(inputElement);
-    
-    // Display the input field
-    inputElement.style.display = 'inline';
-    
-    // Focus on the input field
-    inputElement.focus();
-}
-
-function saveTextContent() {
-    // Get the input element
-    const inputElement = document.getElementById('inventory-info-name-input');
-    
-    // Get the new text content
-    const newTextContent = (inputElement as HTMLInputElement).value;
-    
-    // Get the editable content element
-    const editableContent = document.getElementById('inventory-info-name');
-    
-    // Update the text content with the new value
-    editableContent.textContent = newTextContent;
-    
-    // Hide the input field
-    inputElement.style.display = 'none';
 }
 
 function createInventoryInfoContainerWrapper(): HTMLElement {
@@ -682,7 +619,8 @@ function createMapHouseContainer(mapWidth: number, mapHeight: number, tileSize: 
     mapContainerWrapper.style.marginLeft = '2%';
     const mapHeader = createHeaderContainer('Random Houses (8x8)');
     
-    displayPattern(mapWidth, mapHeight, tileSize, mapContainer, buildHouse(mapWidth, mapHeight));
+    // displayPattern(mapWidth, mapHeight, tileSize, mapContainer, buildHouse(mapWidth, mapHeight));
+    const displayPattern = new PixelMatrixRenderer(mapHeight, mapWidth, tileSize, 1, 0.1, mapContainer, buildHouse(mapWidth, mapHeight));
 
     mapContainer.style.display = 'grid';
     mapContainer.style.gridTemplateColumns = `repeat(${mapWidth}, ${tileSize}px)`;
@@ -707,50 +645,4 @@ function createMapShopContainer(mapWidth: number, mapHeight: number, tileSize: n
     mapContainerWrapper.appendChild(mapContainer);
 
     return mapContainerWrapper;
-}
-
-function addTooltipEvents(element: HTMLElement) {
-    element.addEventListener("mouseover", function(e) {
-        let tooltipContainer: HTMLElement = document.getElementById('tooltip-container');
-        let tooltipHeader: HTMLElement = document.getElementById('tooltip-header');
-        
-        const elementUnderCursor = document.elementFromPoint(e.clientX, e.clientY);
-        const elementParent = elementUnderCursor.parentElement;
-        let tilePrefix = 'mapTile-'; let tileInfo = '';
-        let mapPrefix = 'map-';  let mapInfo = '';
-       
-        if (elementUnderCursor.id.startsWith(tilePrefix)) {
-            mapInfo = elementParent.id.substring(mapPrefix.length);
-            tileInfo = elementUnderCursor.id.substring(tilePrefix.length);
-        }
-        if (tileInfo != '') {
-            const [tileXStr, tileYStr] = tileInfo.split('-');
-    
-            const thisMapArray: MapGenerator = MapGenerator.maps[mapInfo];
-    
-            const tileX = parseInt(tileXStr); const tileY = parseInt(tileYStr);
-    
-            const thisTile = thisMapArray.outputMap.content[tileY][tileX];
-
-            if (!tooltipContainer) { tooltipContainer = createTileTooltip(thisTile); }
-            else {
-                tooltipHeader.textContent = thisTile.name;
-                tooltipContainer.style.position = "absolute";
-                tooltipContainer.style.left = `${e.clientX}px`;
-                tooltipContainer.style.top = `${e.clientY}px`;
-                tooltipContainer.removeAttribute("hidden");
-            }
-            // how do I make this tooltip show up properly?
-    
-            const pageContent = document.getElementById('page-content');
-    
-            pageContent.appendChild(tooltipContainer);
-    
-            // console.log(thisTile.name, '(x:' + tileX + ', y:' + tileY + ')');
-        }
-    });
-    element.addEventListener("mouseout", function(e) {
-        const tooltipElement: HTMLElement = document.getElementById('tooltip-container');
-        if (tooltipElement) { tooltipElement.setAttribute("hidden", ""); }
-    });
 }
