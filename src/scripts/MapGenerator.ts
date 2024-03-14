@@ -43,10 +43,10 @@ export class Pattern {
   }
 }
 
-export class MapGenerator {
-  static maps: { [key: string]: MapGenerator } = {};
+export class PatternMapper {
+  static maps: { [key: string]: PatternMapper } = {};
 
-  static addMapGenerator(map: MapGenerator, key: string) {
+  static addMap(map: PatternMapper, key: string) {
     this.maps[key] = map;
   }
 
@@ -58,7 +58,7 @@ export class MapGenerator {
     this.width = width;
     this.height = height;
     this.outputMap = this.initializeOutputMap(empty);
-    MapGenerator.addMapGenerator(this, this.name);
+    PatternMapper.addMap(this, this.name);
   }
   
   // Initialize the output map with -1 to represent unset cells
@@ -68,19 +68,19 @@ export class MapGenerator {
   }
   
   // Generate the map using wave collapse algorithm
-  applyGeneration(patterns: Pattern[], zone: Tile): Pattern {
+  applyCollapseToMap(patterns: Pattern[], zone: Tile): Pattern {
     for (let y = 0; y < this.height; y++) {
       for (let x = 0; x < this.width; x++) {
         if (this.outputMap.content[y][x] === zone) {
-          this.collapseWave(x, y, patterns, zone);
+          this.collapseWaveState(x, y, patterns, zone);
         }
       }
     }
     return this.outputMap;
   }
   
-  // Collapse wave at the given position
-  collapseWave(x: number, y: number, patterns: Pattern[], zone: Tile): void {
+  // Collapse probability moment at the given position
+  collapseWaveState(x: number, y: number, patterns: Pattern[], zone: Tile): void {
     const pattern = this.selectRandomPattern(patterns);
     const rotatedPattern = this.rotatePattern(pattern); // Rotate the pattern randomly
     this.applyPattern(rotatedPattern, x, y, zone);

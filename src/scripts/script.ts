@@ -4,10 +4,11 @@ import { WebManager, checkObjectForProperty } from './utility.js';
 import { sword_item } from './parts.js';
 import { Part, Rarity, Socket } from './part.js';
 import { Item } from './item.js';
-import { MapGenerator, Pattern, PatternFacing, Tile } from './mapGenerator.js';
+import { PatternMapper, Pattern, PatternFacing, Tile } from './mapGenerator.js';
 import * as HousePatterns from './patterns/house_patterns.js';
 import * as ShopPatterns from './patterns/shop_patterns.js';
 import { PixelMatrixRenderer } from './pixelMatrixRenderer.js';
+import { WaveCollapseTilemapGenerator } from './WaveCollapseTileMapGenerator.js';
 
 const userData = new PlayerData('userData');
 
@@ -131,11 +132,18 @@ function loadHomePage() {
 function loadWorldPage() {
     const pageContent = WebManager.createWebElement('div', ['world-page'], 'page-content');
     pageContent.style.userSelect = 'none';
+
     const tileSize = 15;
     const mapShopContainerWrapper = createMapShopContainer(8, 13, tileSize);
     pageContent.appendChild(mapShopContainerWrapper);
     const mapHouseContainerWrapper = createMapHouseContainer(8, 8, tileSize);
     pageContent.appendChild(mapHouseContainerWrapper);
+
+    const mapTestContainerWrapper = createMapTestContainer(256, 256, tileSize);
+    pageContent.appendChild(mapTestContainerWrapper);
+
+
+
     mainContent.appendChild(pageContent);
 }
 // -- player --
@@ -517,7 +525,7 @@ function mouseEvent_clickPart(part: Part, socket: Socket): void {
 function buildHouse(w: number = 10, h: number = 10): Pattern {
     const width = w;
     const height = h;
-    const mapGenerator = new MapGenerator('house', width, height);
+    const mapGenerator = new PatternMapper('house', width, height);
     
     // randomly rotate the direction of the front door
     const house_pattern_base_1 = mapGenerator.rotate90Degrees(HousePatterns.house1_base);
@@ -547,14 +555,14 @@ function buildHouse(w: number = 10, h: number = 10): Pattern {
         HousePatterns.house1_zone4_0, HousePatterns.house1_zone4_1,
     ];
     // run the base pattern list over the entire map size
-    mapGenerator.applyGeneration(basePatterns, Tile.tiles['empty']);
+    mapGenerator.applyCollapseToMap(basePatterns, Tile.tiles['empty']);
     // pass for each room, though this can be achieved with
     // turning the bandFilter into an array, and then checking
     // the array instead of just the single filter number.
-    mapGenerator.applyGeneration(passOne, Tile.tiles['zone1']);
-    mapGenerator.applyGeneration(passTwo, Tile.tiles['zone2']);
-    mapGenerator.applyGeneration(passThree, Tile.tiles['zone3']);
-    mapGenerator.applyGeneration(passFour, Tile.tiles['zone4']);
+    mapGenerator.applyCollapseToMap(passOne, Tile.tiles['zone1']);
+    mapGenerator.applyCollapseToMap(passTwo, Tile.tiles['zone2']);
+    mapGenerator.applyCollapseToMap(passThree, Tile.tiles['zone3']);
+    mapGenerator.applyCollapseToMap(passFour, Tile.tiles['zone4']);
     // grab the map for logging purposes, otherwise dont cache.
     const generatedMap = mapGenerator.outputMap;
     // console.log(generatedMap);
@@ -564,7 +572,7 @@ function buildHouse(w: number = 10, h: number = 10): Pattern {
 function buildCityShop(w: number = 10, h: number = 10): Pattern {
     const width = w;
     const height = h;
-    const mapGenerator = new MapGenerator('shop', width, height);
+    const mapGenerator = new PatternMapper('shop', width, height);
     
     const shop1_base_90deg = mapGenerator.rotate90Degrees(ShopPatterns.shop1_base);
     const shop1_base_180deg = mapGenerator.rotate90Degrees(shop1_base_90deg);
@@ -587,11 +595,11 @@ function buildCityShop(w: number = 10, h: number = 10): Pattern {
     const passFour = [
         ShopPatterns.shop1_zone4_0, ShopPatterns.shop1_zone4_1, ShopPatterns.shop1_zone4_2
     ];
-    mapGenerator.applyGeneration(basePatterns, Tile.tiles['empty']);
-    mapGenerator.applyGeneration(passOne, Tile.tiles['zone1']);
-    mapGenerator.applyGeneration(passTwo, Tile.tiles['zone2']);
-    mapGenerator.applyGeneration(passThree, Tile.tiles['zone3']);
-    mapGenerator.applyGeneration(passFour, Tile.tiles['zone4']);
+    mapGenerator.applyCollapseToMap(basePatterns, Tile.tiles['empty']);
+    mapGenerator.applyCollapseToMap(passOne, Tile.tiles['zone1']);
+    mapGenerator.applyCollapseToMap(passTwo, Tile.tiles['zone2']);
+    mapGenerator.applyCollapseToMap(passThree, Tile.tiles['zone3']);
+    mapGenerator.applyCollapseToMap(passFour, Tile.tiles['zone4']);
     const generatedMap = mapGenerator.outputMap;
     // console.log(generatedMap);
     return generatedMap;
@@ -611,6 +619,39 @@ function displayPattern(mapWidth: number, mapHeight: number, tileSize: number, m
             mapContainer.appendChild(mapTile);
         }
     }
+}
+
+function createMapTestContainer(mapWidth: number, mapHeight: number, tileSize: number) {
+    const mapContainerWrapper = WebManager.createWebElement('div', ['map-container-wrapper'], 'map-test-container-wrapper');
+    const mapContainer = WebManager.createWebElement('div', ['map-container'], 'map-test');
+    mapContainerWrapper.style.marginLeft = '2%';
+    const mapHeader = createHeaderContainer('Test');
+    
+    // displayPattern(mapWidth, mapHeight, tileSize, mapContainer, buildHouse(mapWidth, mapHeight));
+// ---
+    const a = Tile.tiles['wall'];
+    const b = Tile.tiles['floor'];
+
+    // Example usage
+    const patterns: Pattern[] = [
+        new Pattern([[a, a], [a, a]]),
+        new Pattern([[a, b], [b, a]]),
+        new Pattern([[b, a], [a, b]]),
+    ];
+    const outputSizeX = mapWidth; // Size of the tilemap
+    const outputSizeY = mapHeight; // Size of the tilemap
+    const generator = new WaveCollapseTilemapGenerator(patterns, outputSizeX, outputSizeY);
+    const tilemap = generator.generateTilemap();
+    const displayPattern = new PixelMatrixRenderer(outputSizeY, outputSizeX, tileSize, 1, 0.1, mapContainer, tilemap);
+// ---
+    mapContainer.style.display = 'grid';
+    mapContainer.style.gridTemplateColumns = `repeat(${mapWidth}, ${tileSize}px)`;
+    mapContainer.style.gridTemplateRows = `repeat(${mapHeight}, ${tileSize}px)`;
+
+    mapContainerWrapper.appendChild(mapHeader);
+    mapContainerWrapper.appendChild(mapContainer);
+
+    return mapContainerWrapper;
 }
 
 function createMapHouseContainer(mapWidth: number, mapHeight: number, tileSize: number) {
