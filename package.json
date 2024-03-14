@@ -2,18 +2,25 @@
   "name": "webprototype",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "app.js",
   "type": "module",
   "scripts": {
-    "dev": "tsc --watch"
+    "dev": "tsc-watch --onSuccess \"node ./build/app.js\""
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/body-parser": "^1.19.5",
+    "@types/express": "^4.17.21",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-import": "^2.29.1",
+    "tsc-watch": "^6.0.4",
     "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "express": "^4.18.3",
+    "uuid": "^9.0.1"
   }
 }
