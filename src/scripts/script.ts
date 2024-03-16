@@ -8,7 +8,7 @@ import { PatternMapper, Pattern, PatternFacing, Tile } from './mapGenerator.js';
 import * as HousePatterns from './patterns/house_patterns.js';
 import * as ShopPatterns from './patterns/shop_patterns.js';
 import { PixelMatrixRenderer } from './pixelMatrixRenderer.js';
-import { WaveCollapseTilemapGenerator } from './WaveCollapseTileMapGenerator.js';
+import { WaveCollapseTilemapGenerator } from './waveCollapseTileMapGenerator.js';
 
 const userData = new PlayerData('userData');
 
@@ -139,7 +139,7 @@ function loadWorldPage() {
     const mapHouseContainerWrapper = createMapHouseContainer(8, 8, tileSize);
     pageContent.appendChild(mapHouseContainerWrapper);
 
-    const mapTestContainerWrapper = createMapTestContainer(256, 256, tileSize);
+    const mapTestContainerWrapper = createMapTestContainer(16, 16, tileSize);
     pageContent.appendChild(mapTestContainerWrapper);
 
 

@@ -5,14 +5,12 @@ import { Pattern, Tile } from "./mapGenerator.js";
 export class WaveCollapseTilemapGenerator {
     private outputMap: Pattern;
     private patterns: Pattern[];
-    private patternSize: number;
     private outputWidth: number;
     private outputHeight: number;
     private collapsed: boolean[][];
 
     constructor(patterns: Pattern[], outputWidth: number, outputHeight: number) {
         this.patterns = patterns;
-        this.patternSize = patterns.length;
         this.outputWidth = outputWidth;
         this.outputHeight = outputHeight;
         this.outputMap = new Pattern([]);
@@ -30,8 +28,9 @@ export class WaveCollapseTilemapGenerator {
         const initialPattern = this.patterns[initialPatternIndex];
 
         // Place the initial pattern in the center of the output tilemap
-        const startX = Math.floor((this.outputWidth - this.patternSize) / 2);
-        const startY = Math.floor((this.outputHeight - this.patternSize) / 2);
+        const startY = Math.floor((this.outputHeight - initialPattern.content.length) / 2);
+        const startX = Math.floor((this.outputWidth - initialPattern.content[0].length) / 2);
+        console.log('0', initialPattern, 'x:'+startX, 'y:'+startY);
         this.placePattern(initialPattern, startX, startY);
 
         // Collapse the tilemap using wave collapse algorithm
@@ -47,15 +46,16 @@ export class WaveCollapseTilemapGenerator {
             const { x, y } = collapseCandidates[Math.floor(Math.random() * collapseCandidates.length)];
             const patternIndex = this.choosePatternIndex(x, y);
             const pattern = this.patterns[patternIndex];
-            this.placePattern(pattern, x, y);
+            this.placePattern(pattern, x, y); // breaks here
+            console.log(patternIndex, pattern, 'x:'+x, 'y:'+y);
         }
 
         return this.outputMap;
     }
 
     private placePattern(pattern: Pattern, x: number, y: number) {
-        for (let i = 0; i < this.patternSize; i++) {
-            for (let j = 0; j < this.patternSize; j++) {
+        for (let i = 0; i < pattern.content.length; i++) {
+            for (let j = 0; j < pattern.content[0].length; j++) {
                 this.outputMap.content[y + i][x + j] = pattern.content[i][j];
                 this.collapsed[y + i][x + j] = true;
             }
@@ -79,8 +79,8 @@ export class WaveCollapseTilemapGenerator {
         for (let i = 0; i < this.patterns.length; i++) {
             const pattern = this.patterns[i];
             let valid = true;
-            for (let dy = 0; dy < this.patternSize; dy++) {
-                for (let dx = 0; dx < this.patternSize; dx++) {
+            for (let dy = 0; dy < pattern.content.length; dy++) {
+                for (let dx = 0; dx < pattern.content[0].length; dx++) {
                     const tx = x + dx;
                     const ty = y + dy;
                     if (
