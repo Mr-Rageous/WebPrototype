@@ -10,6 +10,9 @@ export class WaveCollapseTilemapGenerator {
     private collapsed: boolean[][];
 
     constructor(patterns: Pattern[], outputWidth: number, outputHeight: number) {
+        if (!Array.isArray(patterns) || patterns.length === 0) {
+            throw new Error("Patterns array must be a non-empty array of Pattern objects.");
+        }
         this.patterns = patterns;
         this.outputWidth = outputWidth;
         this.outputHeight = outputHeight;
@@ -43,7 +46,7 @@ export class WaveCollapseTilemapGenerator {
             }
 
             // Choose a random candidate and collapse it
-            const { x, y } = collapseCandidates[Math.floor(Math.random() * collapseCandidates.length)];
+            const { x, y } = collapseCandidates[Math.floor(Math.random() * collapseCandidates.length - 1)];
             const patternIndex = this.choosePatternIndex(x, y);
             const pattern = this.patterns[patternIndex];
             this.placePattern(pattern, x, y); // breaks here
@@ -54,6 +57,9 @@ export class WaveCollapseTilemapGenerator {
     }
 
     private placePattern(pattern: Pattern, x: number, y: number) {
+        if (!pattern || !pattern.content || !Array.isArray(pattern.content)) {
+            console.log("Invalid pattern object or content: ", pattern);
+        }
         for (let i = 0; i < pattern.content.length; i++) {
             for (let j = 0; j < pattern.content[0].length; j++) {
                 this.outputMap.content[y + i][x + j] = pattern.content[i][j];
@@ -73,30 +79,32 @@ export class WaveCollapseTilemapGenerator {
         }
         return candidates;
     }
-
+    
     private choosePatternIndex(x: number, y: number): number {
         const validPatternIndices: number[] = [];
         for (let i = 0; i < this.patterns.length; i++) {
             const pattern = this.patterns[i];
-            let valid = true;
-            for (let dy = 0; dy < pattern.content.length; dy++) {
-                for (let dx = 0; dx < pattern.content[0].length; dx++) {
-                    const tx = x + dx;
-                    const ty = y + dy;
-                    if (
-                        tx < 0 || tx >= this.outputWidth || ty < 0 || ty >= this.outputHeight ||
-                        (this.outputMap.content[ty][tx] !== Tile.tiles['empty'] && this.outputMap.content[ty][tx] !== pattern.content[dy][dx])
-                    ) {
-                        valid = false;
-                        break;
+            if (x + pattern.content[0].length <= this.outputWidth && y + pattern.content.length <= this.outputHeight) {
+                let valid = true;
+                for (let dy = 0; dy < pattern.content.length; dy++) {
+                    for (let dx = 0; dx < pattern.content[0].length; dx++) {
+                        const tx = x + dx;
+                        const ty = y + dy;
+                        if (
+                            (this.outputMap.content[ty][tx] !== Tile.tiles['empty'] && this.outputMap.content[ty][tx] !== pattern.content[dy][dx])
+                        ) {
+                            valid = false;
+                            break;
+                        }
                     }
+                    if (!valid) break;
                 }
-                if (!valid) break;
+                if (valid) validPatternIndices.push(i);
             }
-            if (valid) validPatternIndices.push(i);
         }
         return validPatternIndices[Math.floor(Math.random() * validPatternIndices.length)];
     }
+    
 
     private isFullyCollapsed(): boolean {
         for (let y = 0; y < this.outputHeight; y++) {

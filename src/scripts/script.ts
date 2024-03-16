@@ -139,7 +139,7 @@ function loadWorldPage() {
     const mapHouseContainerWrapper = createMapHouseContainer(8, 8, tileSize);
     pageContent.appendChild(mapHouseContainerWrapper);
 
-    const mapTestContainerWrapper = createMapTestContainer(16, 16, tileSize);
+    const mapTestContainerWrapper = createMapTestContainer(12, 12, tileSize);
     pageContent.appendChild(mapTestContainerWrapper);
 
 
@@ -632,11 +632,15 @@ function createMapTestContainer(mapWidth: number, mapHeight: number, tileSize: n
     const a = Tile.tiles['wall'];
     const b = Tile.tiles['floor'];
 
+    const pattern1 = new Pattern([[a, a], [a, a]]);
+    const pattern2 = new Pattern([[a, b], [b, a]]);
+    const pattern3 = new Pattern([[b, a], [a, b]]);
+
     // Example usage
     const patterns: Pattern[] = [
-        new Pattern([[a, a], [a, a]]),
-        new Pattern([[a, b], [b, a]]),
-        new Pattern([[b, a], [a, b]]),
+        pattern1,
+        pattern2,
+        pattern3,
     ];
     const outputSizeX = mapWidth; // Size of the tilemap
     const outputSizeY = mapHeight; // Size of the tilemap
