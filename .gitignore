@@ -365,3 +365,5 @@ FodyWeavers.xsd
 build/scripts
 build/app.js
 build/app.js.map
+
+.env
