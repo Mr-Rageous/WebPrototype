@@ -8,12 +8,9 @@ export class WaveCollapseTilemapGenerator {
     private outputWidth: number;
     private outputHeight: number;
     private collapsed: boolean[][];
-    
-    private canvas: HTMLCanvasElement;
-    private ctx: CanvasRenderingContext2D;
     private tileSize: number; // Assuming each tile is 32x32 pixels
 
-    constructor(patterns: Pattern[], outputWidth: number, outputHeight: number, parentElement: HTMLElement, tileSize: number) {
+    constructor(patterns: Pattern[], outputWidth: number, outputHeight: number, tileSize: number) {
         if (!Array.isArray(patterns) || patterns.length === 0) {
             throw new Error("Patterns array must be a non-empty array of Pattern objects.");
         }
@@ -28,15 +25,12 @@ export class WaveCollapseTilemapGenerator {
             this.collapsed.push(new Array(this.outputWidth).fill(false));
         }
         
-        this.canvas = document.createElement('canvas') as HTMLCanvasElement; // current issue
-        parentElement.appendChild(this.canvas);
-        this.ctx = this.canvas.getContext('2d'); // current issue
         this.tileSize = tileSize;
-        this.canvas.width = this.outputWidth * this.tileSize;
-        this.canvas.height = this.outputHeight * this.tileSize;
     }
 
     public generateTilemap(): Pattern {
+        let tilemapGenerated = false; // Flag to track if the tilemap has been successfully generated
+       
         // Choose a random pattern as the initial state
         const initialPatternIndex = Math.floor(Math.random() * this.patterns.length);
         const initialPattern = this.patterns[initialPatternIndex];
@@ -80,7 +74,7 @@ export class WaveCollapseTilemapGenerator {
             const { x, y } = collapseCandidates[Math.floor(Math.random() * collapseCandidates.length)];
             const patternIndex = this.choosePatternIndex(x, y);
             if (patternIndex === -1) {
-                console.log("No valid pattern index found. Backtracking...");
+                console.log("No valid pattern index found. Backtracking..."); // limit this
                 this.backtrack(); // Handle the situation by backtracking
                 continue;
             }
@@ -88,32 +82,7 @@ export class WaveCollapseTilemapGenerator {
             this.placePattern(pattern, x, y);
         }
 
-        this.renderTilemap();
-
         return this.outputMap;
-    }
-
-    private renderTilemap() {
-        // Clear canvas
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    
-        // Render each tile based on outputMap
-        for (let y = 0; y < this.outputHeight; y++) {
-            for (let x = 0; x < this.outputWidth; x++) {
-                const tile = this.outputMap.content[y][x];
-                this.ctx.fillStyle = tile.color;
-                this.ctx.fillRect(x * this.tileSize, y * this.tileSize, this.tileSize, this.tileSize);
-            }
-        }
-    }
-
-    private getTileColor(tile: Tile): string {
-        // Return color based on tile type (assuming Tile.tiles['empty'] and Tile.tiles['filled'] exist)
-        if (tile === Tile.tiles['empty']) {
-            return '#FFFFFF'; // Example: white color for empty tiles
-        } else {
-            return '#000000'; // Example: black color for filled tiles
-        }
     }
 
     private placePattern(pattern: Pattern, x: number, y: number) {

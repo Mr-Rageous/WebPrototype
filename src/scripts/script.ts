@@ -129,23 +129,52 @@ function loadHomePage() {
 
 }
 // -- world --
-function loadWorldPage() {
-    const pageContent = WebManager.createWebElement('div', ['world-page'], 'page-content');
+function loadWorldPage(): void {
+    const pageContent: HTMLElement = WebManager.createWebElement('div', ['world-page'], 'page-content');
     pageContent.style.userSelect = 'none';
 
-    const tileSize = 15;
-    const mapShopContainerWrapper = createMapShopContainer(8, 13, tileSize);
-    pageContent.appendChild(mapShopContainerWrapper);
-    const mapHouseContainerWrapper = createMapHouseContainer(8, 8, tileSize);
-    pageContent.appendChild(mapHouseContainerWrapper);
+    const tileSize: number = 15;
 
-    const mapTestContainerWrapper = createMapTestContainer(8, 9, tileSize);
-    pageContent.appendChild(mapTestContainerWrapper);
-
-
-
+    // Append page content to the main content
     mainContent.appendChild(pageContent);
+
+    // Define functions to create map containers
+    const createMapShop = (): Promise<void> => {
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                const mapShopContainerWrapper: HTMLElement = createMapShopContainer(8, 13, tileSize);
+                pageContent.appendChild(mapShopContainerWrapper);
+                resolve();
+            });
+        });
+    };
+
+    const createMapHouse = (): Promise<void> => {
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                const mapHouseContainerWrapper: HTMLElement = createMapHouseContainer(8, 8, tileSize);
+                pageContent.appendChild(mapHouseContainerWrapper);
+                resolve();
+            });
+        });
+    };
+
+    const createMapTest = (): Promise<void> => {
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                const mapTestContainerWrapper: HTMLElement = createMapTestContainer(8, 8, tileSize);
+                pageContent.appendChild(mapTestContainerWrapper);
+                resolve();
+            });
+        });
+    };
+
+    // Load map containers asynchronously
+    Promise.all([createMapShop(), createMapHouse(), createMapTest()]);
 }
+
+
+
 // -- player --
 function loadPlayerPage() {
 
@@ -628,27 +657,25 @@ function createMapTestContainer(mapWidth: number, mapHeight: number, tileSize: n
     const mapHeader = createHeaderContainer('Test');
     
     // displayPattern(mapWidth, mapHeight, tileSize, mapContainer, buildHouse(mapWidth, mapHeight));
-    document.addEventListener('DOMContentLoaded', () => {
-        const a = Tile.tiles['wall'];
-        const b = Tile.tiles['floor'];
     
-        const pattern1 = new Pattern([[a, a], [a, a]]);
-        const pattern2 = new Pattern([[a, b], [b, a]]);
-        const pattern3 = new Pattern([[b, a], [a, b]]);
-        const pattern4 = new Pattern([[b, b], [b, b]]);
-    
-        // Example usage
-        const patterns: Pattern[] = [
-            pattern1,
-            pattern4,
-        ];
-        const outputSizeX = mapWidth; // Size of the tilemap
-        const outputSizeY = mapHeight; // Size of the tilemap
-        const generator = new WaveCollapseTilemapGenerator(patterns, outputSizeX, outputSizeY, mapContainer, tileSize);
-        const tilemap = generator.generateTilemap();
-    });
-// ---
-// ---
+    const a = Tile.tiles['wall'];
+    const b = Tile.tiles['floor'];
+
+    const pattern1 = new Pattern([[a, a], [a, a]]);
+    const pattern2 = new Pattern([[a, b], [b, a]]);
+    const pattern3 = new Pattern([[b, a], [a, b]]);
+    const pattern4 = new Pattern([[b, b], [b, b]]);
+
+    // Example usage
+    const patterns: Pattern[] = [
+        pattern1,
+        pattern4,
+    ];
+    const outputSizeX = mapWidth; // Size of the tilemap
+    const outputSizeY = mapHeight; // Size of the tilemap
+    const generator = new WaveCollapseTilemapGenerator(patterns, outputSizeX, outputSizeY, tileSize);
+    const tilemap = generator.generateTilemap();
+    const displayPattern = new PixelMatrixRenderer(mapHeight, mapWidth, tileSize, 1, 0.1, mapContainer, tilemap);
 
     mapContainerWrapper.appendChild(mapHeader);
     mapContainerWrapper.appendChild(mapContainer);
