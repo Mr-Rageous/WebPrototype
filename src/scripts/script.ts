@@ -139,7 +139,7 @@ function loadWorldPage() {
     const mapHouseContainerWrapper = createMapHouseContainer(8, 8, tileSize);
     pageContent.appendChild(mapHouseContainerWrapper);
 
-    const mapTestContainerWrapper = createMapTestContainer(12, 12, tileSize);
+    const mapTestContainerWrapper = createMapTestContainer(8, 9, tileSize);
     pageContent.appendChild(mapTestContainerWrapper);
 
 
@@ -628,29 +628,27 @@ function createMapTestContainer(mapWidth: number, mapHeight: number, tileSize: n
     const mapHeader = createHeaderContainer('Test');
     
     // displayPattern(mapWidth, mapHeight, tileSize, mapContainer, buildHouse(mapWidth, mapHeight));
+    document.addEventListener('DOMContentLoaded', () => {
+        const a = Tile.tiles['wall'];
+        const b = Tile.tiles['floor'];
+    
+        const pattern1 = new Pattern([[a, a], [a, a]]);
+        const pattern2 = new Pattern([[a, b], [b, a]]);
+        const pattern3 = new Pattern([[b, a], [a, b]]);
+        const pattern4 = new Pattern([[b, b], [b, b]]);
+    
+        // Example usage
+        const patterns: Pattern[] = [
+            pattern1,
+            pattern4,
+        ];
+        const outputSizeX = mapWidth; // Size of the tilemap
+        const outputSizeY = mapHeight; // Size of the tilemap
+        const generator = new WaveCollapseTilemapGenerator(patterns, outputSizeX, outputSizeY, mapContainer, tileSize);
+        const tilemap = generator.generateTilemap();
+    });
 // ---
-    const a = Tile.tiles['wall'];
-    const b = Tile.tiles['floor'];
-
-    const pattern1 = new Pattern([[a, a], [a, a]]);
-    const pattern2 = new Pattern([[a, b], [b, a]]);
-    const pattern3 = new Pattern([[b, a], [a, b]]);
-
-    // Example usage
-    const patterns: Pattern[] = [
-        pattern1,
-        pattern2,
-        pattern3,
-    ];
-    const outputSizeX = mapWidth; // Size of the tilemap
-    const outputSizeY = mapHeight; // Size of the tilemap
-    const generator = new WaveCollapseTilemapGenerator(patterns, outputSizeX, outputSizeY);
-    const tilemap = generator.generateTilemap();
-    const displayPattern = new PixelMatrixRenderer(outputSizeY, outputSizeX, tileSize, 1, 0.1, mapContainer, tilemap);
 // ---
-    mapContainer.style.display = 'grid';
-    mapContainer.style.gridTemplateColumns = `repeat(${mapWidth}, ${tileSize}px)`;
-    mapContainer.style.gridTemplateRows = `repeat(${mapHeight}, ${tileSize}px)`;
 
     mapContainerWrapper.appendChild(mapHeader);
     mapContainerWrapper.appendChild(mapContainer);
