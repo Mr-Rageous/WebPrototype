@@ -139,48 +139,22 @@ function createMapTest(pageContent: HTMLElement, tileSize: number): Promise<void
     });
 }
 // -- world --
-function loadWorldPage(): void {
+async function loadWorldPage(): Promise<void> {
     const pageContent: HTMLElement = WebManager.createWebElement('div', ['world-page'], 'page-content');
     pageContent.style.userSelect = 'none';
 
     const tileSize: number = 15;
 
-    // Append page content to the main content
     mainContent.appendChild(pageContent);
 
-    // Define functions to create map containers
-    const createMapShop = (): Promise<void> => {
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                const mapShopContainerWrapper: HTMLElement = createMapShopContainer(8, 13, tileSize);
-                pageContent.appendChild(mapShopContainerWrapper);
-                resolve();
-            });
-        });
-    };
-
-    const createMapHouse = (): Promise<void> => {
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                const mapHouseContainerWrapper: HTMLElement = createMapHouseContainer(8, 8, tileSize);
-                pageContent.appendChild(mapHouseContainerWrapper);
-                resolve();
-            });
-        });
-    };
-
-    const createMapTest = (): Promise<void> => {
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                const mapTestContainerWrapper: HTMLElement = createMapTestContainer(6, 6, tileSize);
-                pageContent.appendChild(mapTestContainerWrapper);
-                resolve();
-            });
-        });
-    };
-
-    // Load map containers asynchronously
-    Promise.all([createMapShop(), createMapHouse(), createMapTest()]);
+    const mapShopContainerWrapper = createMapShopContainer(8, 13, tileSize);
+    pageContent.appendChild(await mapShopContainerWrapper);
+    
+    const mapHouseContainerWrapper: HTMLElement = createMapHouseContainer(8, 8, tileSize);
+    pageContent.appendChild(mapHouseContainerWrapper);
+    
+    const mapTestContainerWrapper: HTMLElement = createMapTestContainer(6, 6, tileSize);
+    pageContent.appendChild(mapTestContainerWrapper);
 }
 
 
@@ -608,40 +582,38 @@ function buildHouse(w: number = 10, h: number = 10): Pattern {
     return generatedMap;
 }
 
-function buildCityShop(w: number = 10, h: number = 10): Pattern {
-    const width = w;
-    const height = h;
-    const mapGenerator = new PatternMapper('shop', width, height);
-    
-    const shop1_base_90deg = mapGenerator.rotate90Degrees(ShopPatterns.shop1_base);
-    const shop1_base_180deg = mapGenerator.rotate90Degrees(shop1_base_90deg);
-    const shop1_base_270deg = mapGenerator.rotate90Degrees(shop1_base_180deg);
+async function buildCityShop(w: number = 10, h: number = 10): Promise<Pattern> {
+    return new Promise((resolve) => {
+        const width = w;
+        const height = h;
+        const mapGenerator = new PatternMapper('shop', width, height);
 
-    const basePatterns = [
-        ShopPatterns.shop1_base,
-    ];
-    const passOne = [
-        ShopPatterns.shop1_zone1_0, ShopPatterns.shop1_zone1_1, ShopPatterns.shop1_zone1_2
-    ];
-    const passTwo = [
-        ShopPatterns.shop1_zone2_0, ShopPatterns.shop1_zone2_1
-    ];
-    const passThree = [
-        ShopPatterns.shop1_zone3_0, ShopPatterns.shop1_zone3_1, ShopPatterns.shop1_zone3_2,
-        ShopPatterns.shop1_zone3_3, ShopPatterns.shop1_zone3_4, ShopPatterns.shop1_zone3_5,
-        ShopPatterns.shop1_zone3_6
-    ];
-    const passFour = [
-        ShopPatterns.shop1_zone4_0, ShopPatterns.shop1_zone4_1, ShopPatterns.shop1_zone4_2
-    ];
-    mapGenerator.applyCollapseToMap(basePatterns, Tile.tiles['empty']);
-    mapGenerator.applyCollapseToMap(passOne, Tile.tiles['zone1']);
-    mapGenerator.applyCollapseToMap(passTwo, Tile.tiles['zone2']);
-    mapGenerator.applyCollapseToMap(passThree, Tile.tiles['zone3']);
-    mapGenerator.applyCollapseToMap(passFour, Tile.tiles['zone4']);
-    const generatedMap = mapGenerator.outputMap;
-    // console.log(generatedMap);
-    return generatedMap;
+        const basePatterns = [
+            ShopPatterns.shop1_base,
+        ];
+        const passOne = [
+            ShopPatterns.shop1_zone1_0, ShopPatterns.shop1_zone1_1, ShopPatterns.shop1_zone1_2
+        ];
+        const passTwo = [
+            ShopPatterns.shop1_zone2_0, ShopPatterns.shop1_zone2_1
+        ];
+        const passThree = [
+            ShopPatterns.shop1_zone3_0, ShopPatterns.shop1_zone3_1, ShopPatterns.shop1_zone3_2,
+            ShopPatterns.shop1_zone3_3, ShopPatterns.shop1_zone3_4, ShopPatterns.shop1_zone3_5,
+            ShopPatterns.shop1_zone3_6
+        ];
+        const passFour = [
+            ShopPatterns.shop1_zone4_0, ShopPatterns.shop1_zone4_1, ShopPatterns.shop1_zone4_2
+        ];
+        mapGenerator.applyCollapseToMap(basePatterns, Tile.tiles['empty']);
+        mapGenerator.applyCollapseToMap(passOne, Tile.tiles['zone1']);
+        mapGenerator.applyCollapseToMap(passTwo, Tile.tiles['zone2']);
+        mapGenerator.applyCollapseToMap(passThree, Tile.tiles['zone3']);
+        mapGenerator.applyCollapseToMap(passFour, Tile.tiles['zone4']);
+        const generatedMap = mapGenerator.outputMap;
+
+        resolve(generatedMap);
+    });
 }
 
 function displayPattern(mapWidth: number, mapHeight: number, tileSize: number, mapContainer: HTMLElement, pattern: Pattern) {
@@ -749,14 +721,24 @@ function createMapHouseContainer(mapWidth: number, mapHeight: number, tileSize: 
     return mapContainerWrapper;
 }
 
-function createMapShopContainer(mapWidth: number, mapHeight: number, tileSize: number) {
+async function createMapShopContainer(mapWidth: number, mapHeight: number, tileSize: number) {
     const mapContainerWrapper = WebManager.createWebElement('div', ['map-container-wrapper'], 'map-shop-container-wrapper');
     mapContainerWrapper.style.marginLeft = '2%';
     const mapContainer = WebManager.createWebElement('div', ['map-container'], 'map-shop');
     const mapHeader = createHeaderContainer('Random City Shops');
 
-    // displayPattern(mapWidth, mapHeight, tileSize, mapContainer, buildCityShop(mapWidth, mapHeight));
-    const displayPattern = new PixelMatrixRenderer(mapHeight, mapWidth, tileSize, 1, 0.1, mapContainer, buildCityShop(mapWidth, mapHeight));
+    // Create a placeholder pattern until buildCityShop finishes
+    const placeholderTilemap: Tile[][] = Array.from({ length: mapHeight }, () => Array.from({ length: mapWidth }, () => Tile.tiles['empty']));
+    const placeholderPattern = new Pattern(placeholderTilemap);
+
+    // Display the placeholder pattern first
+    const displayPattern: PixelMatrixRenderer = new PixelMatrixRenderer(mapHeight, mapWidth, tileSize, 1, 0.1, mapContainer, placeholderPattern);
+
+    // Then asynchronously build the actual city shop
+    const actualPattern = await buildCityShop(mapWidth, mapHeight);
+
+    // Update the PixelMatrixRenderer with the actual pattern
+    displayPattern.setTilemap(actualPattern);
 
     mapContainerWrapper.appendChild(mapHeader);
     mapContainerWrapper.appendChild(mapContainer);

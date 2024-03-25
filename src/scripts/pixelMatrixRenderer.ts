@@ -55,6 +55,8 @@ export class PixelMatrixRenderer {
         });
     }
 
+    public setTilemap(pattern: Pattern) { this.drawPixelMatrix(pattern); }
+
     private createTileTooltip(tile: Tile, e: MouseEvent) {
         let tooltipContainer = document.getElementById('tooltip-container');
         if (tooltipContainer) { tooltipContainer.remove(); }
