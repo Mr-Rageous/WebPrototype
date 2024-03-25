@@ -128,6 +128,16 @@ function loadGameContent() {
 function loadHomePage() {
 
 }
+
+function createMapTest(pageContent: HTMLElement, tileSize: number): Promise<void> {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            const mapTestContainerWrapper: HTMLElement = createMapTestContainer(5, 15, tileSize);
+            pageContent.appendChild(mapTestContainerWrapper);
+            resolve();
+        });
+    });
+}
 // -- world --
 function loadWorldPage(): void {
     const pageContent: HTMLElement = WebManager.createWebElement('div', ['world-page'], 'page-content');
@@ -162,7 +172,7 @@ function loadWorldPage(): void {
     const createMapTest = (): Promise<void> => {
         return new Promise((resolve) => {
             setTimeout(() => {
-                const mapTestContainerWrapper: HTMLElement = createMapTestContainer(8, 8, tileSize);
+                const mapTestContainerWrapper: HTMLElement = createMapTestContainer(6, 6, tileSize);
                 pageContent.appendChild(mapTestContainerWrapper);
                 resolve();
             });
@@ -660,16 +670,53 @@ function createMapTestContainer(mapWidth: number, mapHeight: number, tileSize: n
     
     const a = Tile.tiles['wall'];
     const b = Tile.tiles['floor'];
+    const c = Tile.tiles['door'];
+    const d = Tile.tiles['window'];
+    const e = Tile.tiles['shelf'];
 
-    const pattern1 = new Pattern([[a, a], [a, a]]);
-    const pattern2 = new Pattern([[a, b], [b, a]]);
-    const pattern3 = new Pattern([[b, a], [a, b]]);
-    const pattern4 = new Pattern([[b, b], [b, b]]);
+    const pattern1 = new Pattern([
+        [a, a],
+        [e, a]
+    ]);
+    const pattern2 = new Pattern([
+        [a, c],
+        [b, e]
+    ]);
+    const pattern3 = new Pattern([
+        [c, a], 
+        [a, b]
+    ]);
+    const pattern4 = new Pattern([
+        [e, b], 
+        [b, b]
+    ]);
+    const pattern5 = new Pattern([
+        [a, b],
+        [c, d]
+    ]);
+    const pattern6 = new Pattern([
+        [a, d],
+        [b, a]
+    ]);
+    const pattern7 = new Pattern([
+        [b, a], 
+        [c, d]
+    ]);
+    const pattern8 = new Pattern([
+        [b, d], 
+        [c, e]
+    ]);
 
     // Example usage
     const patterns: Pattern[] = [
         pattern1,
+        pattern2,
+        pattern3,
         pattern4,
+        pattern5,
+        pattern6,
+        pattern7,
+        pattern8,
     ];
     const outputSizeX = mapWidth; // Size of the tilemap
     const outputSizeY = mapHeight; // Size of the tilemap
