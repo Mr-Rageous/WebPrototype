@@ -55,7 +55,29 @@ export class PixelMatrixRenderer {
         });
     }
 
-    public setTilemap(pattern: Pattern) { this.drawPixelMatrix(pattern); }
+    public setTilemap(pattern: Pattern) {
+        this.drawPixelMatrix(pattern);
+        this.genTileTooltip(pattern);
+    }
+
+    private genTileTooltip(pattern: Pattern) {
+        this.canvas.addEventListener('mousemove', (e: MouseEvent) => {
+            const rect = this.canvas.getBoundingClientRect(); // Get the bounding rectangle of the canvas
+            const mouseX = e.clientX - rect.left; // Get the x-coordinate of the mouse relative to the canvas
+            const mouseY = e.clientY - rect.top; // Get the y-coordinate of the mouse relative to the canvas
+
+            // Calculate the row and column indices of the tile
+            const y = Math.floor(mouseY / this.pixelSize);
+            const x = Math.floor(mouseX / this.pixelSize);
+            if (x < 0 || y < 0) { return; }
+            // Do something with the row and column indices, such as highlighting the tile
+            const thisTile = pattern.content[y][x];
+            if (!thisTile) { return; }
+            const tileToolTip: HTMLElement = this.createTileTooltip(thisTile, e);
+            const pageContent = document.getElementById('page-content');
+            pageContent.appendChild(tileToolTip);
+        });
+    }
 
     private createTileTooltip(tile: Tile, e: MouseEvent) {
         let tooltipContainer = document.getElementById('tooltip-container');
