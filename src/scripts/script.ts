@@ -634,78 +634,28 @@ function displayPattern(mapWidth: number, mapHeight: number, tileSize: number, m
     }
 }
 
-async function generateTestMap(w: number = 10, h: number = 10, tileSize: number = 15): Promise<Pattern> {
-    return new Promise((resolve) => {
-        const a = Tile.tiles['wall'];
-        const b = Tile.tiles['floor'];
-        const c = Tile.tiles['door'];
-        const d = Tile.tiles['window'];
-        const e = Tile.tiles['shelf'];
-    
-        const pattern1 = new Pattern([
-            [a, a],
-            [e, a]
-        ]);
-        const pattern2 = new Pattern([
-            [a, c],
-            [b, e]
-        ]);
-        const pattern3 = new Pattern([
-            [c, a], 
-            [a, b]
-        ]);
-        const pattern4 = new Pattern([
-            [e, b], 
-            [b, b]
-        ]);
-        const pattern5 = new Pattern([
-            [a, b],
-            [c, d]
-        ]);
-        const pattern6 = new Pattern([
-            [a, d],
-            [b, a]
-        ]);
-        const pattern7 = new Pattern([
-            [b, a], 
-            [c, d]
-        ]);
-        const pattern8 = new Pattern([
-            [b, d], 
-            [c, e]
-        ]);
-    
-        // Example usage
-        const patterns: Pattern[] = [
-            pattern1,
-            pattern2,
-            pattern3,
-            pattern4,
-            pattern5,
-            pattern6,
-            pattern7,
-            pattern8,
-        ];
-        const outputSizeX = w; // Size of the tilemap
-        const outputSizeY = h; // Size of the tilemap
-        const generator = new WaveCollapseTilemapGenerator(patterns, outputSizeX, outputSizeY, tileSize);
-        const tilemap = generator.generateTilemap();
-        resolve(tilemap);
-    });
-}
-
 function createMapTestContainer(mapWidth: number, mapHeight: number, tileSize: number) {
     const mapContainerWrapper = WebManager.createWebElement('div', ['map-container-wrapper'], 'map-test-container-wrapper');
     const mapContainer = WebManager.createWebElement('div', ['map-container'], 'map-test');
     mapContainerWrapper.style.marginLeft = '2%';
     const mapHeader = createHeaderContainer('Test');
     
-    const placeholderTilemap: Tile[][] = Array.from({ length: mapHeight }, () => Array.from({ length: mapWidth }, () => Tile.tiles['floor']));
+    const placeholderTilemap: Tile[][] = Array.from({ length: mapHeight }, () => Array.from({ length: mapWidth }, () => Tile.tiles['empty']));
     const placeholderPattern = new Pattern(placeholderTilemap);
 
     const displayPattern = new PixelMatrixRenderer(mapHeight, mapWidth, tileSize, 1, 0.1, mapContainer, placeholderPattern);
 
-    generateTestMap(mapWidth, mapHeight).then((genPattern) => { displayPattern.setTilemap(genPattern); });
+    // Create a new Web Worker
+    const mapGenerationWorker = new Worker('mapWorker.js');
+
+    // Event listener to receive messages from the worker
+    mapGenerationWorker.onmessage = function(event: MessageEvent) {
+        const generatedMap: Pattern = event.data;
+        displayPattern.setTilemap(generatedMap);
+    };
+
+    // Start the map generation process
+    mapGenerationWorker.postMessage({ width: mapWidth, height: mapHeight });
 
     mapContainerWrapper.appendChild(mapHeader);
     mapContainerWrapper.appendChild(mapContainer);
@@ -724,7 +674,9 @@ function createMapHouseContainer(mapWidth: number, mapHeight: number, tileSize: 
 
     const displayPattern = new PixelMatrixRenderer(mapHeight, mapWidth, tileSize, 1, 0.1, mapContainer, placeholderPattern);
 
-    buildHouse(mapWidth, mapHeight).then((genPattern) => { displayPattern.setTilemap(genPattern); });
+    document.addEventListener('DOMContentLoaded', function(event) {
+        buildHouse(mapWidth, mapHeight).then((genPattern) => { displayPattern.setTilemap(genPattern); });
+    });
 
     mapContainerWrapper.appendChild(mapHeader);
     mapContainerWrapper.appendChild(mapContainer);
@@ -745,8 +697,9 @@ function createMapShopContainer(mapWidth: number, mapHeight: number, tileSize: n
     // Display the placeholder pattern first
     const displayPattern: PixelMatrixRenderer = new PixelMatrixRenderer(mapHeight, mapWidth, tileSize, 1, 0.1, mapContainer, placeholderPattern);
 
-    // Then asynchronously build the actual city shop and update the PixelMatrixRenderer with the actual pattern
-    buildCityShop(mapWidth, mapHeight).then((genPattern) => { displayPattern.setTilemap(genPattern); });
+    document.addEventListener('DOMContentLoaded', function(event) {
+        buildCityShop(mapWidth, mapHeight).then((genPattern) => { displayPattern.setTilemap(genPattern); });
+    });
 
     mapContainerWrapper.appendChild(mapHeader);
     mapContainerWrapper.appendChild(mapContainer);
