@@ -74,8 +74,12 @@ export class PixelMatrixRenderer {
             const thisTile = pattern.content[y][x];
             if (!thisTile) { return; }
             const tileToolTip: HTMLElement = this.createTileTooltip(thisTile, e);
-            const pageContent = document.getElementById('page-content');
-            pageContent.appendChild(tileToolTip);
+
+            const gameContent: HTMLElement = document.getElementById('game-content');
+            let thisContent: HTMLElement = document.getElementById('page-content');
+            if ('hidden' in thisContent) { thisContent = gameContent; }
+
+            thisContent.appendChild(tileToolTip);
         });
     }
 
@@ -87,7 +91,7 @@ export class PixelMatrixRenderer {
         tooltipContainer.style.left = `${e.clientX}px`;
         tooltipContainer.style.top = `${e.clientY}px`;
         tooltipContainer.addEventListener('mousemove', () => {
-            tooltipContainer.remove();
+            tooltipContainer.remove(); // <-- update location and info instead of destroy, remember to prevent create if created.
         })
 
         let headerText = tile.name;

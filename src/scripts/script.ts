@@ -23,6 +23,9 @@ const gameContent = document.querySelector('.game-content');
 
 loadGameContent(); // on new game?
 
+const gameInstance = document.getElementById("game-content");
+hideChildren(gameInstance);
+
 tabs.forEach(tab => {
     tab.addEventListener('click', function() {
         tabs.forEach(t => t.classList.remove('active'));
@@ -39,21 +42,50 @@ document.addEventListener("keydown", function(event) {
         const gameContent = document.getElementById("game-content");
 
         if (sidebar && mainContent && gameContent) {
-            if (isHidden) {
+            // Toggle visibility state
+            isHidden = !isHidden;
+
+            if (!isHidden) {
                 sidebar.classList.remove("hidden");
                 mainContent.classList.remove("hidden");
                 gameContent.classList.add("hidden");
+                // Hide children of gameContent
+                hideChildren(gameContent);
             } else {
                 sidebar.classList.add("hidden");
                 mainContent.classList.add("hidden");
                 gameContent.classList.remove("hidden");
+                showChildren(gameContent);
             }
-
-            // Toggle visibility state
-            isHidden = !isHidden;
         }
     }
 });
+
+function hideChildren(element: HTMLElement) {
+    // Hide children of the given element
+    const children = element.children;
+    for (let i = 0; i < children.length; i++) {
+        const child = children[i] as HTMLElement;
+        child.classList.add("hidden");
+        // Recursively hide children of children
+        if (child.children.length > 0) {
+            hideChildren(child);
+        }
+    }
+}
+
+function showChildren(element: HTMLElement) {
+    // Show children of the given element
+    const children = element.children;
+    for (let i = 0; i < children.length; i++) {
+        const child = children[i] as HTMLElement;
+        child.classList.remove("hidden");
+        // Recursively show children of children
+        if (child.children.length > 0) {
+            showChildren(child);
+        }
+    }
+}
 
 document.addEventListener("contextmenu", function(e) {
     // e.preventDefault(); // Prevent default context menu
@@ -115,11 +147,28 @@ function loadGameContent() {
     // possibly contextmenu on right click on tile in the future
     const gamePage = WebManager.createWebElement('div', ['game-page'], 'game-page');
     gamePage.style.position = 'absolute';
+    gamePage.style.width = '100%';
+    gamePage.style.height = '100%';
     gamePage.style.top = '0';
     gamePage.style.left = '0';
     gamePage.style.userSelect = 'none';
-    gameContent.appendChild(gamePage);
+    const gameWrapper = WebManager.createWebElement('div', ['game-wrapper'], 'game-wrapper');
+    gameWrapper.style.position = 'relative';
+    gameWrapper.style.display = 'grid';
+    gameWrapper.style.width = '100%';
+    gameWrapper.style.height = '100%';
+    gameWrapper.style.justifyContent = 'center';
+    gameWrapper.style.alignContent = 'center';
+    const gameContainer = WebManager.createWebElement('div', ['game-container'], 'game-container');
+    gameContainer.style.position = 'relative';
+    gameContainer.style.width = '150%';
+    gameContainer.style.borderRight = '1mm ridge rgba(189, 189, 189, 0.6)';
 
+    const mapHouseContainerWrapper: HTMLElement = createGameContainer(8, 13, 15);
+    gameContainer.appendChild(mapHouseContainerWrapper);
+    gameWrapper.appendChild(gameContainer);
+    gamePage.appendChild(gameWrapper);
+    gameContent.appendChild(gamePage);
     // add ruleset to mapgenerator, and patterns, and tiles
     // use Ruleset class to whitelist blacklist valid tile stitching
 }
@@ -153,8 +202,8 @@ function loadWorldPage(): void {
     const mapHouseContainerWrapper: HTMLElement = createMapHouseContainer(8, 8, tileSize);
     pageContent.appendChild(mapHouseContainerWrapper);
     
-    const mapTestContainerWrapper: HTMLElement = createMapTestContainer(6, 6, tileSize);
-    pageContent.appendChild(mapTestContainerWrapper);
+    // const mapTestContainerWrapper: HTMLElement = createMapTestContainer(6, 6, tileSize);
+    // pageContent.appendChild(mapTestContainerWrapper);
 }
 
 
@@ -643,17 +692,6 @@ function createMapTestContainer(mapWidth: number, mapHeight: number, tileSize: n
     const placeholderTilemap: Tile[][] = Array.from({ length: mapHeight }, () => Array.from({ length: mapWidth }, () => Tile.tiles['empty']));
     const placeholderPattern = new Pattern(placeholderTilemap);
 
-    const displayPattern = new PixelMatrixRenderer(mapHeight, mapWidth, tileSize, 1, 0.1, mapContainer, placeholderPattern);
-
-    // Create a new Web Worker
-    const mapGenerationWorker = new Worker('mapWorker.js');
-
-    // Event listener to receive messages from the worker
-    mapGenerationWorker.onmessage = function(event: MessageEvent) {
-        const generatedMap: Pattern = event.data;
-        displayPattern.setTilemap(generatedMap);
-    };
-
     console.log('[!] Worker Thread: Beginning Generation');
     const a = Tile.tiles['wall'];
     const b = Tile.tiles['floor'];
@@ -707,14 +745,10 @@ function createMapTestContainer(mapWidth: number, mapHeight: number, tileSize: n
     ];
     const outputSizeX = mapWidth; // Size of the tilemap
     const outputSizeY = mapHeight; // Size of the tilemap
-    console.log('[!] Worker Thread: Finished Patterns');
     const generator = new WaveCollapseTilemapGenerator(patterns, outputSizeX, outputSizeY, tileSize);
-    console.log('[!] Worker Thread: Generator [v] Built');
-
+    const genTilemap = generator.generateTilemap();
     // Start the map generation process
-    console.log(generator);
-    mapGenerationWorker.postMessage({ generator });
-    console.log('[!] Worker Thread: Generator [^] Posted To Worker');
+    const displayPattern = new PixelMatrixRenderer(mapHeight, mapWidth, tileSize, 1, 0.1, mapContainer, genTilemap);
 
     mapContainerWrapper.appendChild(mapHeader);
     mapContainerWrapper.appendChild(mapContainer);
@@ -761,6 +795,27 @@ function createMapShopContainer(mapWidth: number, mapHeight: number, tileSize: n
     });
 
     mapContainerWrapper.appendChild(mapHeader);
+    mapContainerWrapper.appendChild(mapContainer);
+
+    return mapContainerWrapper;
+}
+
+function createGameContainer(mapWidth: number, mapHeight: number, tileSize: number) {
+    const mapContainerWrapper = WebManager.createWebElement('div', ['map-container-wrapper'], 'map-shop-container-wrapper');
+    mapContainerWrapper.style.marginLeft = '2%';
+    const mapContainer = WebManager.createWebElement('div', ['map-container'], 'map-shop');
+
+    // Create a placeholder pattern until buildCityShop finishes
+    const placeholderTilemap: Tile[][] = Array.from({ length: mapHeight }, () => Array.from({ length: mapWidth }, () => Tile.tiles['floor']));
+    const placeholderPattern = new Pattern(placeholderTilemap);
+
+    // Display the placeholder pattern first
+    const displayPattern: PixelMatrixRenderer = new PixelMatrixRenderer(mapHeight, mapWidth, tileSize, 1, 0.1, mapContainer, placeholderPattern);
+
+    document.addEventListener('DOMContentLoaded', function(event) {
+        buildCityShop(mapWidth, mapHeight).then((genPattern) => { displayPattern.setTilemap(genPattern); });
+    });
+
     mapContainerWrapper.appendChild(mapContainer);
 
     return mapContainerWrapper;
