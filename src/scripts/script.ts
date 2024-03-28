@@ -49,12 +49,16 @@ document.addEventListener("keydown", function(event) {
                 sidebar.classList.remove("hidden");
                 mainContent.classList.remove("hidden");
                 gameContent.classList.add("hidden");
+                gameContent.style.width = '0%';
+                gameContent.style.height = '0%';
                 // Hide children of gameContent
                 hideChildren(gameContent);
             } else {
                 sidebar.classList.add("hidden");
                 mainContent.classList.add("hidden");
                 gameContent.classList.remove("hidden");
+                gameContent.style.width = '100%';
+                gameContent.style.height = '100%';
                 showChildren(gameContent);
             }
         }
@@ -67,6 +71,8 @@ function hideChildren(element: HTMLElement) {
     for (let i = 0; i < children.length; i++) {
         const child = children[i] as HTMLElement;
         child.classList.add("hidden");
+        child.style.width = '0%'; // set size to 0% to prevent interference
+        child.style.height = '0%'; // set size to 0% to prevent interference
         // Recursively hide children of children
         if (child.children.length > 0) {
             hideChildren(child);
@@ -80,6 +86,8 @@ function showChildren(element: HTMLElement) {
     for (let i = 0; i < children.length; i++) {
         const child = children[i] as HTMLElement;
         child.classList.remove("hidden");
+        child.style.width = '100%'; // restore size
+        child.style.height = '100%'; // restore size
         // Recursively show children of children
         if (child.children.length > 0) {
             showChildren(child);
@@ -151,7 +159,7 @@ function loadGameContent() {
     gamePage.style.height = '100%';
     gamePage.style.top = '0';
     gamePage.style.left = '0';
-    gamePage.style.userSelect = 'none';
+    // gamePage.style.userSelect = 'none';
     const gameWrapper = WebManager.createWebElement('div', ['game-wrapper'], 'game-wrapper');
     gameWrapper.style.position = 'relative';
     gameWrapper.style.display = 'grid';
