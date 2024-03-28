@@ -75,11 +75,8 @@ export class PixelMatrixRenderer {
             if (!thisTile) { return; }
             const tileToolTip: HTMLElement = this.createTileTooltip(thisTile, e);
 
-            const pageContent: HTMLElement = document.getElementById('page-content');
-            let thisContent: HTMLElement = document.getElementById('game-content');
-            if (!('hidden' in thisContent)) { thisContent = pageContent; }
-
-            thisContent.appendChild(tileToolTip);
+            const container = document.querySelector('.container');
+            container.appendChild(tileToolTip);
         });
     }
 
